@@ -12,7 +12,8 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("ArxOne.Ftp")]
 
-[assembly: AssemblyDescription("A simple FTP/FTPS/FTPES client")]
+[assembly: AssemblyDescription("A simple FTP/FTPS/FTPES client. Multi-connection and thread-safe."
+    + " Uses high-level methods but also supports direct command sending.")]
 [assembly: AssemblyCompany("Arx One")]
 [assembly: AssemblyProduct("ArxOne.Ftp")]
 [assembly: AssemblyCopyright("MIT license http://opensource.org/licenses/mit-license.php")]
