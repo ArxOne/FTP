@@ -325,5 +325,31 @@ namespace ArxOne.FtpTest
                 ftpClient.Rmd(path);
             }
         }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void FileExistsTest()
+        {
+            var ftpTestHost = GetTestCredential("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            {
+                const string directory = "/lib/";
+                var list = ftpClient.StatEntries(directory).ToList();
+                var oneFile = list.First(e => e.Type == FtpEntryType.File);
+                var oneDirectory = list.First(e => e.Type == FtpEntryType.Directory);
+                var oneLink = list.First(e => e.Type == FtpEntryType.Link);
+
+                var oneFileEntry = ftpClient.GetEntry(directory + oneFile.Name);
+                Assert.IsNotNull(oneFileEntry);
+                Assert.AreEqual(FtpEntryType.File, oneFileEntry.Type);
+                var oneDirectoryEntry = ftpClient.GetEntry(directory + oneDirectory.Name);
+                Assert.IsNotNull(oneDirectoryEntry);
+                Assert.AreEqual(FtpEntryType.Directory, oneDirectoryEntry.Type);
+                var oneLinkEntry = ftpClient.GetEntry(directory + oneLink.Name);
+                Assert.IsNotNull(oneLinkEntry);
+                Assert.AreEqual(FtpEntryType.Link, oneLinkEntry.Type);
+            }
+        }
     }
 }

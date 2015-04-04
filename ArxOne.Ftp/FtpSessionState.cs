@@ -16,7 +16,11 @@ namespace ArxOne.Ftp
         /// <summary>
         ///   Gets or sets the parameter. If the value is the current one, then no command is sent
         /// </summary>
-        public string this[string name] { get { return _ftpSession.GetSessionParameter(name); } set { _ftpSession.CheckSessionParameter(name, value); } }
+        public string this[string name]
+        {
+            get { return _ftpSession.GetSessionParameter(name); }
+            set { _ftpSession.CheckSessionParameter(name, value); }
+        }
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="FtpSessionState" /> class.

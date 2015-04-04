@@ -170,11 +170,7 @@ namespace ArxOne.Ftp
             return new DateTime(year, month, day, hour, minute, 0, DateTimeKind.Utc);
         }
 
-        private static readonly string[] LiteralMonths = new[]
-                                                              {
-                                                                  "jan", "feb", "mar", "apr", "may", "jun",
-                                                                  "jul", "aug", "sep", "oct", "nov", "dec"
-                                                              };
+        private static readonly string[] LiteralMonths = { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
 
         /// <summary>
         /// Gets the month.
@@ -255,20 +251,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public IEnumerable<FtpEntry> ListEntries(string path)
         {
-            // extracted here, because the IsUnix property may send a command
-            var isUnix = IsUnix;
-            foreach (var line in List(path))
-            {
-                FtpEntry ftpEntry;
-                if (isUnix)
-                    ftpEntry = ParseUnix(line);
-                else
-                    throw new FtpException("Unhandled server type");
-                if (ftpEntry == null)
-                    throw new FtpProtocolException("Impossible to parse line: " + line, new FtpReplyCode(553));
-
-                yield return ftpEntry;
-            }
+            return EnumerateEntries(List(path));
         }
 
         /// <summary>
@@ -278,10 +261,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public IEnumerable<FtpEntry> StatEntries(string path)
         {
-            // extracted here, because the IsUnix property may send a command
-            var isUnix = IsUnix;
-            var replyLines = Stat(path);
-            return EnumerateEntries(replyLines, isUnix);
+            return EnumerateEntries(Stat(path));
         }
 
         /// <summary>
@@ -304,8 +284,12 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="lines">The lines.</param>
         /// <param name="isUnix">The is unix.</param>
+        /// <param name="ignoreSpecialEntries">if set to <c>true</c> [ignore special entries].</param>
         /// <returns></returns>
-        public IEnumerable<FtpEntry> EnumerateEntries(IEnumerable<string> lines, bool? isUnix = null)
+        /// <exception cref="FtpException">Unhandled server type</exception>
+        /// <exception cref="FtpProtocolException">Impossible to parse line:  + line;new FtpReplyCode(553)</exception>
+        /// <exception cref="FtpReplyCode">553</exception>
+        public IEnumerable<FtpEntry> EnumerateEntries(IEnumerable<string> lines, bool? isUnix = null, bool ignoreSpecialEntries = true)
         {
             if (!isUnix.HasValue)
                 isUnix = IsUnix;
@@ -319,7 +303,7 @@ namespace ArxOne.Ftp
                 if (ftpEntry == null)
                     throw new FtpProtocolException("Impossible to parse line: " + line, new FtpReplyCode(553));
 
-                if (ftpEntry.Name == "." || ftpEntry.Name == "..")
+                if (ignoreSpecialEntries && (ftpEntry.Name == "." || ftpEntry.Name == ".."))
                     continue;
 
                 yield return ftpEntry;
@@ -470,6 +454,30 @@ namespace ArxOne.Ftp
                           Expect(SendCommand(handle, "RNTO", to), 250);
                           return 0;
                       });
+        }
+
+        /// <summary>
+        /// Gets a <see cref="FtpEntry"/> about given path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The entry, or null if entry does not exist</returns>
+        public FtpEntry GetEntry(string path)
+        {
+            return Process(handle => ProcessGetEntry(handle, path));
+        }
+
+        private FtpEntry ProcessGetEntry(FtpSessionHandle handle, string path)
+        {
+            CheckProtection(handle, true);
+            var reply = handle.Session.SendCommand("STAT", path);
+            if (reply.Code != 213 || reply.Lines.Length <= 2)
+                return null;
+            // now get the type: the first entry is "." for folders or file itself for files/links
+            var entry = EnumerateEntries(reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
+            // actually, it's always good here
+            // TODO: we need a real path management
+            return new FtpEntry(path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last(),
+                entry.Size, entry.Type, entry.Date, entry.Target);
         }
 
         /// <summary>
