@@ -13,6 +13,7 @@ namespace ArxOne.Ftp
     using System.Net;
     using System.Text.RegularExpressions;
     using Exceptions;
+    using IO;
 
     /// <summary>
     /// FTP client
@@ -221,10 +222,8 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private IList<string> ProcessList(FtpSessionHandle handle, string path)
         {
-            // Then data channel
+            // Open data channel
             using (var dataStream = OpenDataStream(handle, FtpTransferMode.Binary))
-            using (var streamReader = new StreamReader(dataStream,
-                                                    ((IFtpStream)dataStream).ProtocolEncoding))
             {
                 // then command is sent
                 var reply = Expect(SendCommand(handle, "LIST", path), 125, 150, 425);
@@ -234,15 +233,18 @@ namespace ArxOne.Ftp
                     if (reply.Code.Class == FtpReplyCodeClass.Connections)
                         throw new IOException();
                 }
-                var list = new List<string>();
-                for (; ; )
+                using (var streamReader = new StreamReader(dataStream, ((IFtpStream)dataStream).ProtocolEncoding))
                 {
-                    var line = streamReader.ReadLine();
-                    if (line == null)
-                        break;
-                    list.Add(line);
+                    var list = new List<string>();
+                    for (; ; )
+                    {
+                        var line = streamReader.ReadLine();
+                        if (line == null)
+                            break;
+                        list.Add(line);
+                    }
+                    return list;
                 }
-                return list;
             }
         }
 

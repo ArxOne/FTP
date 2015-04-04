@@ -7,6 +7,7 @@
 namespace ArxOne.FtpTest
 {
     using Ftp;
+    using Ftp.IO;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>

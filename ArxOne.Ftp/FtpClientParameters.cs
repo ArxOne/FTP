@@ -8,6 +8,7 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.IO;
+    using System.Net;
     using System.Text;
 
     /// <summary>
@@ -40,6 +41,15 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
         public bool Passive { get; set; }
+
+        /// <summary>
+        /// Gets or sets the active transfer host.
+        /// When specified, this address is used with PORT/EPRT commands
+        /// </summary>
+        /// <value>
+        /// The active transfer host.
+        /// </value>
+        public IPAddress ActiveTransferHost { get; set; }
 
         /// <summary>
         /// Gets or sets the anonymous password.

@@ -8,9 +8,11 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.IO;
+    using System.Net;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
+    using IO;
 
     partial class FtpSession
     {
@@ -58,11 +60,15 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private Stream DirectConnectTransport(TimeSpan readWriteTimeout, TimeSpan connectTimeout, ref string message)
         {
-            // TODO: enumerate AddressFamily members
-            var transportSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //var ipAddresses = (from ipAddress in DnsEx.GetHostEntry(_host, TimeSpan.FromSeconds(1)).AddressList
-            //                   orderby ipAddress.AddressFamily
-            //                   select ipAddress).ToArray();
+            Socket transportSocket;
+            try
+            {
+                transportSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            }
+            catch (SocketException)
+            {
+                transportSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            }
             transportSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             transportSocket.SendTimeout = transportSocket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
             transportSocket.Connect(_host, _port, connectTimeout);
@@ -71,7 +77,7 @@ namespace ArxOne.Ftp
                 message = "Not connected";
                 return null;
             }
-
+            _activeTransferHost = ((IPEndPoint)transportSocket.LocalEndPoint).Address;
             return new NetworkStream(transportSocket, FileAccess.ReadWrite, true);
         }
 

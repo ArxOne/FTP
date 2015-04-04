@@ -4,7 +4,7 @@
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
-namespace ArxOne.Ftp
+namespace ArxOne.Ftp.IO
 {
     /// <summary>
     /// Allows to access stream's session

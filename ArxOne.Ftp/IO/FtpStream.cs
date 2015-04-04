@@ -1,10 +1,11 @@
-﻿#region Arx One FTP
+#region Arx One FTP
 // Arx One FTP
 // A simple FTP client
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
-namespace ArxOne.Ftp
+
+namespace ArxOne.Ftp.IO
 {
     using System;
     using System.IO;
@@ -13,9 +14,9 @@ namespace ArxOne.Ftp
     using Exceptions;
 
     /// <summary>
-    /// FTP passive transfer stream
+    /// FTP stream
     /// </summary>
-    internal class FtpPassiveStream : Stream, IFtpStream, IFtpSessionStream
+    internal class FtpStream : Stream, IFtpStream, IFtpSessionStream
     {
         /// <summary>
         /// Gets the protocol encoding.
@@ -27,38 +28,59 @@ namespace ArxOne.Ftp
         /// Gets or sets the holder.
         /// </summary>
         /// <value>The holder.</value>
-        public FtpSession Session { get; private set; }
+        public FtpSession Session { get; protected set; }
 
         private bool _disposed;
 
-        private readonly Stream _innerStream;
+        private Stream _innerStream;
 
-        private readonly Socket _innerSocket;
+        protected virtual Stream InnerStream { get { return _innerStream; } }
+
+        private Socket _innerSocket;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpPassiveStream"/> class.
+        /// Initializes a new instance of the <see cref="FtpStream"/> class.
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="session">The session.</param>
-        public FtpPassiveStream(Socket socket, FtpSession session)
+        public FtpStream(Socket socket, FtpSession session)
         {
-            _innerStream = new NetworkStream(socket, FileAccess.ReadWrite);
-            _innerSocket = socket;
-            _innerSocket.SendBufferSize = 1492;
+            SetSocket(socket);
             Session = session;
             Session.AddReference();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpPassiveStream"/> class.
+        /// Initializes a new instance of the <see cref="FtpStream"/> class.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="session">The session.</param>
-        public FtpPassiveStream(Stream stream, FtpSession session)
+        public FtpStream(Stream stream, FtpSession session)
         {
             _innerStream = stream;
             Session = session;
             Session.AddReference();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpStream"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        protected FtpStream(FtpSession session)
+        {
+            Session = session;
+            Session.AddReference();
+        }
+
+        /// <summary>
+        /// Sets the socket.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        protected void SetSocket(Socket socket)
+        {
+            _innerStream = new NetworkStream(socket, FileAccess.ReadWrite);
+            _innerSocket = socket;
+            _innerSocket.SendBufferSize = 1492;
         }
 
         /// <summary>
@@ -74,21 +96,19 @@ namespace ArxOne.Ftp
                 bool isConnected = true;
                 try
                 {
-                    // actually does nothing on a NetworkStream
-                    Process(() => _innerStream.Flush());
                     if (_innerSocket != null)
                     {
                         isConnected = _innerSocket.Connected;
                         if (isConnected)
                         {
                             Process(delegate
-                                        {
-                                            _innerSocket.Shutdown(SocketShutdown.Both);
-                                            _innerSocket.Close(300000);
-                                        });
+                            {
+                                _innerSocket.Shutdown(SocketShutdown.Both);
+                                _innerSocket.Close(300000);
+                            });
                         }
                     }
-                    Process(() => _innerStream.Dispose());
+                    Process(() => InnerStream.Dispose());
                 }
                 finally
                 {
@@ -107,7 +127,7 @@ namespace ArxOne.Ftp
         /// </exception>
         public override void Flush()
         {
-            _innerStream.Flush();
+            InnerStream.Flush();
         }
 
         /// <summary>
@@ -118,14 +138,11 @@ namespace ArxOne.Ftp
             Release(false);
         }
 
-        // below are wrapped methods where exceptions need to be reinterpreted
-        #region Exception wrapper
-
         /// <summary>
         /// Releases the instance (deferences it from the session locks).
         /// </summary>
         /// <param name="expectEndReply">if set to <c>true</c> [expect end reply].</param>
-        private void Release(bool expectEndReply)
+        protected void Release(bool expectEndReply)
         {
             var session = Session;
             Session = null;
@@ -150,17 +167,20 @@ namespace ArxOne.Ftp
             }
         }
 
+        // below are wrapped methods where exceptions need to be reinterpreted
+        #region Exception wrapper
+
         /// <summary>
         /// Processes the specified action.
         /// </summary>
         /// <param name="action">The action.</param>
-        private static void Process(Action action)
+        protected static void Process(Action action)
         {
             Process(delegate
-                        {
-                            action();
-                            return 0;
-                        });
+            {
+                action();
+                return 0;
+            });
         }
 
         /// <summary>
@@ -169,7 +189,7 @@ namespace ArxOne.Ftp
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="func">The func.</param>
         /// <returns></returns>
-        private static TResult Process<TResult>(Func<TResult> func)
+        protected static TResult Process<TResult>(Func<TResult> func)
         {
             try
             {
@@ -240,7 +260,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private int BaseRead(byte[] buffer, int offset, int size)
         {
-            return _innerStream.Read(buffer, offset, size);
+            return InnerStream.Read(buffer, offset, size);
         }
 
         /// <summary>
@@ -290,7 +310,7 @@ namespace ArxOne.Ftp
         /// <param name="size">The size.</param>
         private void BaseWrite(byte[] buffer, int offset, int size)
         {
-            _innerStream.Write(buffer, offset, size);
+            InnerStream.Write(buffer, offset, size);
         }
 
         /// <summary>
@@ -312,7 +332,7 @@ namespace ArxOne.Ftp
         /// </exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return _innerStream.Seek(offset, origin);
+            return InnerStream.Seek(offset, origin);
         }
 
         /// <summary>
@@ -330,7 +350,7 @@ namespace ArxOne.Ftp
         /// </exception>
         public override void SetLength(long value)
         {
-            _innerStream.SetLength(value);
+            InnerStream.SetLength(value);
         }
 
         /// <summary>
@@ -341,7 +361,7 @@ namespace ArxOne.Ftp
         /// </returns>
         public override bool CanRead
         {
-            get { return _innerStream.CanRead; }
+            get { return InnerStream.CanRead; }
         }
 
         /// <summary>
@@ -352,7 +372,7 @@ namespace ArxOne.Ftp
         /// </returns>
         public override bool CanSeek
         {
-            get { return _innerStream.CanSeek; }
+            get { return InnerStream.CanSeek; }
         }
 
         /// <summary>
@@ -363,7 +383,7 @@ namespace ArxOne.Ftp
         /// </returns>
         public override bool CanWrite
         {
-            get { return _innerStream.CanWrite; }
+            get { return InnerStream.CanWrite; }
         }
 
         /// <summary>
@@ -381,7 +401,7 @@ namespace ArxOne.Ftp
         /// </exception>
         public override long Length
         {
-            get { return _innerStream.Length; }
+            get { return InnerStream.Length; }
         }
 
         /// <summary>
@@ -402,8 +422,8 @@ namespace ArxOne.Ftp
         /// </exception>
         public override long Position
         {
-            get { return _innerStream.Position; }
-            set { _innerStream.Position = value; }
+            get { return InnerStream.Position; }
+            set { InnerStream.Position = value; }
         }
 
         #endregion

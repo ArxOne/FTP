@@ -17,6 +17,7 @@ namespace ArxOne.Ftp
     using System.Text;
     using System.Text.RegularExpressions;
     using Exceptions;
+    using IO;
 
     /// <summary>
     /// Represents a single session
@@ -81,10 +82,26 @@ namespace ArxOne.Ftp
             }
         }
 
+        /// <summary>
+        /// Gets the host address.
+        /// </summary>
+        /// <value>
+        /// The host address.
+        /// </value>
+        private IPAddress HostAddress
+        {
+            get
+            {
+                return _ftpClient.ActiveTransferHost ?? _activeTransferHost;
+            }
+        }
+
         // the session can be held by two different elements: FtpSessionHandle and specific Stream
         // the session handle can be implicit (using the Sequence() method) and needs to be released
         private readonly object _referenceCountLock = new object();
         private int _referenceCount;
+
+        private IPAddress _activeTransferHost;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpSession"/> class.
@@ -393,7 +410,7 @@ namespace ArxOne.Ftp
             return SendCommand(ProtocolStream, command, parameters);
         }
 
-        private static readonly string[] CensoredParameters = new[] { "****" };
+        private static readonly string[] CensoredParameters = { "****" };
 
         /// <summary>
         /// Sends the command.
@@ -626,7 +643,7 @@ namespace ArxOne.Ftp
             {
                 var stream = _ftpClient.ProxyConnect(host, port, false);
                 if (stream != null)
-                    return new FtpPassiveStream(stream, this);
+                    return new FtpStream(stream, this);
             }
 
             return OpenDirectPassiveDataStream(host, port, connectTimeout, readWriteTimeout);
@@ -647,7 +664,7 @@ namespace ArxOne.Ftp
             socket.Connect(host, port, connectTimeout);
             if (!socket.Connected)
                 throw new FtpTransportException("Socket error to " + host);
-            return new FtpPassiveStream(socket, this);
+            return new FtpStream(socket, this);
         }
 
         /// <summary>
@@ -658,7 +675,20 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private Stream OpenActiveDataStream(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
-            throw new NotImplementedException();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
+            socket.Bind(new IPEndPoint(HostAddress, 0));
+            var port = ((IPEndPoint)socket.LocalEndPoint).Port;
+            if (HasFeature("EPRT"))
+                Expect(SendCommand(string.Format("EPRT |{0}|{1}|{2}|", HostAddress.AddressFamily == AddressFamily.InterNetwork ? 1 : 2, HostAddress, port)), 200);
+            else
+            {
+                var addressBytes = HostAddress.GetAddressBytes();
+                Expect(SendCommand(string.Format("PORT {0},{1},{2},{3},{4},{5}", addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3], port / 256, port % 256)), 200);
+            }
+
+            socket.Listen(1);
+            return new FtpActiveStream(socket, connectTimeout, this);
         }
 
         /// <summary>

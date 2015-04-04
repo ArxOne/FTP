@@ -13,6 +13,7 @@ namespace ArxOne.Ftp
     using System.Net;
     using System.Text;
     using System.Threading;
+    using IO;
 
     /// <summary>
     /// FTP client core. 
@@ -32,6 +33,13 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
         public bool Passive { get; private set; }
+        /// <summary>
+        /// Gets the active transfer host.
+        /// </summary>
+        /// <value>
+        /// The active transfer host.
+        /// </value>
+        public IPAddress ActiveTransferHost { get; private set; }
 
         /// <summary>
         /// Gets or sets the connect timeout.
@@ -181,7 +189,10 @@ namespace ArxOne.Ftp
         {
             if (parameters == null)
                 parameters = DefaultParameters;
+            if (!parameters.Passive && parameters.ProxyConnect != null)
+                throw new InvalidOperationException("Active transfer mode only works without proxy server");
             Passive = parameters.Passive;
+            ActiveTransferHost = parameters.ActiveTransferHost;
             ConnectTimeout = parameters.ConnectTimeout;
             ReadWriteTimeout = parameters.ReadWriteTimeout;
             SessionTimeout = parameters.SessionTimeout;
@@ -247,14 +258,14 @@ namespace ArxOne.Ftp
         {
             switch (protocol)
             {
-            case FtpProtocol.Ftp:
-                return Uri.UriSchemeFtp;
-            case FtpProtocol.FtpS:
-                return "ftps";
-            case FtpProtocol.FtpES:
-                return "ftpes";
-            default:
-                throw new ArgumentOutOfRangeException("protocol");
+                case FtpProtocol.Ftp:
+                    return Uri.UriSchemeFtp;
+                case FtpProtocol.FtpS:
+                    return "ftps";
+                case FtpProtocol.FtpES:
+                    return "ftpes";
+                default:
+                    throw new ArgumentOutOfRangeException("protocol");
             }
         }
 
@@ -267,7 +278,7 @@ namespace ArxOne.Ftp
         /// </returns>
         public bool HasFeature(string feature)
         {
-            return Features.Any(f => string.Compare(f, feature, true) == 0);
+            return Features.Any(f => string.Equals(f, feature, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -277,11 +288,11 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private static FtpProtocol GetProtocol(Uri uri)
         {
-            if (string.Compare(uri.Scheme, Uri.UriSchemeFtp, StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (string.Equals(uri.Scheme, Uri.UriSchemeFtp, StringComparison.InvariantCultureIgnoreCase))
                 return FtpProtocol.Ftp;
-            if (string.Compare(uri.Scheme, "ftps", StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (string.Equals(uri.Scheme, "ftps", StringComparison.InvariantCultureIgnoreCase))
                 return FtpProtocol.FtpS;
-            if (string.Compare(uri.Scheme, "ftpes", StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (string.Equals(uri.Scheme, "ftpes", StringComparison.InvariantCultureIgnoreCase))
                 return FtpProtocol.FtpES;
             throw new ArgumentException("Unhandled scheme " + uri.Scheme);
         }
@@ -297,13 +308,13 @@ namespace ArxOne.Ftp
                 return uri.Port;
             switch (GetProtocol(uri))
             {
-            case FtpProtocol.Ftp:
-            case FtpProtocol.FtpES:
-                return 21;
-            case FtpProtocol.FtpS:
-                return 990;
-            default:
-                throw new ArgumentException("Unhandled protocol");
+                case FtpProtocol.Ftp:
+                case FtpProtocol.FtpES:
+                    return 21;
+                case FtpProtocol.FtpS:
+                    return 990;
+                default:
+                    throw new ArgumentException("Unhandled protocol");
             }
         }
 
@@ -489,7 +500,7 @@ namespace ArxOne.Ftp
         /// <param name="ftpStream">The FTP stream.</param>
         internal static void Abort(Stream ftpStream)
         {
-            var passiveStream = ftpStream as FtpPassiveStream;
+            var passiveStream = ftpStream as FtpStream;
             if (passiveStream != null)
             {
                 passiveStream.Abort();

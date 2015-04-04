@@ -4,7 +4,7 @@
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
-namespace ArxOne.Ftp
+namespace ArxOne.Ftp.IO
 {
     using System;
     using System.Net;
@@ -80,6 +80,39 @@ namespace ArxOne.Ftp
                 catch (ObjectDisposedException)
                 { }
             }
+        }
+
+        /// <summary>
+        /// Connects the specified socket.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="timeout">The timeout.</param>
+        public static Socket Accept(this Socket socket, TimeSpan timeout)
+        {
+            return AsyncAccept(socket, (s, a, o) => s.BeginAccept(a, o), timeout);
+        }
+
+        /// <summary>
+        /// Asyncs the connect.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="accept">The accept.</param>
+        /// <param name="timeout">The timeout.</param>
+        private static Socket AsyncAccept(Socket socket, Func<Socket, AsyncCallback, object, IAsyncResult> accept, TimeSpan timeout)
+        {
+            var asyncResult = accept(socket, null, null);
+            if (asyncResult.AsyncWaitHandle.WaitOne(timeout))
+            {
+                try
+                {
+                    return socket.EndAccept(asyncResult);
+                }
+                catch (SocketException)
+                { }
+                catch (ObjectDisposedException)
+                { }
+            }
+            return null;
         }
     }
 }

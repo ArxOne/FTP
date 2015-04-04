@@ -52,14 +52,13 @@ namespace ArxOne.FtpTest
             }
         }
 
-        private static Tuple<Uri, NetworkCredential> GetTestCredential(string protocol)
+        private static Tuple<Uri, NetworkCredential> GetTestCredential(string protocol, string host = null)
         {
-            var t = EnumerateCredentials().FirstOrDefault(c => c.Item1.Scheme == protocol);
+            var t = EnumerateCredentials().FirstOrDefault(c => c.Item1.Scheme == protocol && (host == null || c.Item1.Host == host));
             if (t == null)
                 Assert.Inconclusive("Found no configuration for protocol '{0}'", protocol);
             return t;
         }
-
 
         /// <summary>
         ///A test for ParseUnix
@@ -105,8 +104,21 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void FtpListTest()
         {
+            FtpListTest(true);
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void FtpActiveListTest()
+        {
+            FtpListTest(false);
+        }
+
+        private static void FtpListTest(bool passive)
+        {
             var ftpTestHost = GetTestCredential("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2, new FtpClientParameters { Passive = passive }))
             {
                 var list = ftpClient.ListEntries("/");
                 Assert.IsTrue(list.Any(e => e.Name == "tmp"));
@@ -187,8 +199,21 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void CreateFileTest()
         {
+            CreateFileTest(true);
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void ActiveCreateFileTest()
+        {
+            CreateFileTest(false);
+        }
+
+        public void CreateFileTest(bool passive)
+        {
             var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2, new FtpClientParameters { Passive = passive }))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
                 using (var s = ftpClient.Stor(path))

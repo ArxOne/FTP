@@ -72,6 +72,7 @@
     <Compile Include="CheckCertificateEventArgs.cs" />
     <Compile Include="Exceptions\FtpProtocolException.cs" />
     <Compile Include="Exceptions\FtpTransportException.cs" />
+    <Compile Include="IO\FtpActiveStream.cs" />
     <Compile Include="FtpClient.cs" />
     <Compile Include="FtpClientCore.cs" />
     <Compile Include="FtpClientParameters.cs" />
@@ -86,15 +87,15 @@
     <Compile Include="FtpSession.cs" />
     <Compile Include="FtpSession.NetworkStream.cs" />
     <Compile Include="FtpSessionHandle.cs" />
-    <Compile Include="FtpPassiveStream.cs" />
+    <Compile Include="IO\FtpStream.cs" />
     <Compile Include="FtpTransferMode.cs" />
-    <Compile Include="IFtpSessionStream.cs" />
-    <Compile Include="IFtpStream.cs" />
+    <Compile Include="IO\IFtpSessionStream.cs" />
+    <Compile Include="IO\IFtpStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtocolMessageEventArgs.cs" />
     <Compile Include="FtpSessionState.cs" />
-    <Compile Include="SocketExtensions.cs" />
-    <Compile Include="TlsStreamFactory.cs" />
+    <Compile Include="IO\SocketExtensions.cs" />
+    <Compile Include="IO\TlsStreamFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
