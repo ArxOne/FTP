@@ -111,8 +111,9 @@ namespace ArxOne.Ftp
         /// Parses the unix ls line.
         /// </summary>
         /// <param name="directoryLine">The directory line.</param>
+        /// <param name="parent">The parent.</param>
         /// <returns></returns>
-        internal /*test*/ static FtpEntry ParseUnix(string directoryLine)
+        internal /*test*/ static FtpEntry ParseUnix(string directoryLine, FtpPath parent)
         {
             var match = UnixListEx.Match(directoryLine);
             if (!match.Success)
@@ -135,7 +136,7 @@ namespace ArxOne.Ftp
                     name = name.Substring(0, linkIndex);
                 }
             }
-            var ftpEntry = new FtpEntry(name, long.Parse(match.Groups["size"].Value), type, ParseDateTime(match, DateTime.Now), target);
+            var ftpEntry = new FtpEntry(parent, name, long.Parse(match.Groups["size"].Value), type, ParseDateTime(match, DateTime.Now), target);
             return ftpEntry;
         }
 
@@ -155,8 +156,9 @@ namespace ArxOne.Ftp
         /// Parses Windows formatted list line.
         /// </summary>
         /// <param name="directoryLine">The directory line.</param>
+        /// <param name="parent">The parent.</param>
         /// <returns></returns>
-        internal /*test*/ static FtpEntry ParseWindows(string directoryLine)
+        internal /*test*/ static FtpEntry ParseWindows(string directoryLine, FtpPath parent)
         {
             var match = WindowsListEx.Match(directoryLine);
             if (!match.Success)
@@ -171,7 +173,7 @@ namespace ArxOne.Ftp
                 size = long.Parse(literalSize);
             else
                 type = FtpEntryType.Directory;
-            return new FtpEntry(name, size, type, date, null);
+            return new FtpEntry(parent, name, size, type, date, null);
         }
 
         /// <summary>
@@ -262,7 +264,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public IList<string> List(string path)
+        public IList<string> List(FtpPath path)
         {
             return Process(handle => ProcessList(handle, path));
         }
@@ -273,13 +275,13 @@ namespace ArxOne.Ftp
         /// <param name="handle">The handle.</param>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        private IList<string> ProcessList(FtpSessionHandle handle, string path)
+        private IList<string> ProcessList(FtpSessionHandle handle, FtpPath path)
         {
             // Open data channel
             using (var dataStream = OpenDataStream(handle, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = Expect(SendCommand(handle, "LIST", path), 125, 150, 425);
+                var reply = Expect(SendCommand(handle, "LIST", path.ToString()), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     Abort(dataStream);
@@ -306,9 +308,9 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public IEnumerable<FtpEntry> ListEntries(string path)
+        public IEnumerable<FtpEntry> ListEntries(FtpPath path)
         {
-            return EnumerateEntries(List(path));
+            return EnumerateEntries(path, List(path));
         }
 
         /// <summary>
@@ -316,9 +318,9 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public IEnumerable<FtpEntry> StatEntries(string path)
+        public IEnumerable<FtpEntry> StatEntries(FtpPath path)
         {
-            return EnumerateEntries(Stat(path));
+            return EnumerateEntries(path, Stat(path));
         }
 
         /// <summary>
@@ -326,12 +328,12 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public IEnumerable<string> Stat(string path)
+        public IEnumerable<string> Stat(FtpPath path)
         {
             var reply = Process(session =>
                   {
                       CheckProtection(session, true);
-                      return Expect(SendCommand(session, "STAT", path), 213);
+                      return Expect(SendCommand(session, "STAT", path.ToString()), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
         }
@@ -339,6 +341,7 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Enumerates the entries.
         /// </summary>
+        /// <param name="parent">The parent.</param>
         /// <param name="lines">The lines.</param>
         /// <param name="serverType">Type of the server.</param>
         /// <param name="ignoreSpecialEntries">if set to <c>true</c> [ignore special entries].</param>
@@ -346,7 +349,7 @@ namespace ArxOne.Ftp
         /// <exception cref="FtpException">Unhandled server type</exception>
         /// <exception cref="FtpProtocolException">Impossible to parse line:  + line;new FtpReplyCode(553)</exception>
         /// <exception cref="FtpReplyCode">553</exception>
-        public IEnumerable<FtpEntry> EnumerateEntries(IEnumerable<string> lines, FtpServerType? serverType = null, bool ignoreSpecialEntries = true)
+        private IEnumerable<FtpEntry> EnumerateEntries(FtpPath parent, IEnumerable<string> lines, FtpServerType? serverType = null, bool ignoreSpecialEntries = true)
         {
             if (!serverType.HasValue)
                 serverType = ServerType;
@@ -356,10 +359,10 @@ namespace ArxOne.Ftp
                 switch (serverType.Value)
                 {
                     case FtpServerType.Unix:
-                        ftpEntry = ParseUnix(line);
+                        ftpEntry = ParseUnix(line, parent);
                         break;
                     case FtpServerType.Windows:
-                        ftpEntry = ParseWindows(line);
+                        ftpEntry = ParseWindows(line, parent);
                         break;
                     default:
                         throw new FtpException("Unhandled server type");
@@ -380,7 +383,7 @@ namespace ArxOne.Ftp
         /// <param name="path">The path.</param>
         /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        public Stream Retr(string path, FtpTransferMode mode = FtpTransferMode.Binary)
+        public Stream Retr(FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
             return Process(handle => ProcessRetr(handle, path));
         }
@@ -391,10 +394,10 @@ namespace ArxOne.Ftp
         /// <param name="handle">The handle.</param>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        private Stream ProcessRetr(FtpSessionHandle handle, string path)
+        private Stream ProcessRetr(FtpSessionHandle handle, FtpPath path)
         {
             var stream = OpenDataStream(handle, FtpTransferMode.Binary);
-            var reply = Expect(SendCommand(handle, "RETR", path), 125, 150, 425, 550);
+            var reply = Expect(SendCommand(handle, "RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 Abort(stream);
@@ -410,7 +413,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public Stream Stor(string path)
+        public Stream Stor(FtpPath path)
         {
             return Process(handle => ProcessStor(handle, path));
         }
@@ -421,10 +424,10 @@ namespace ArxOne.Ftp
         /// <param name="handle">The handle.</param>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        private Stream ProcessStor(FtpSessionHandle handle, string path)
+        private Stream ProcessStor(FtpSessionHandle handle, FtpPath path)
         {
             var stream = OpenDataStream(handle, FtpTransferMode.Binary);
-            var reply = Expect(SendCommand(handle, "STOR", path), 125, 150, 425, 550);
+            var reply = Expect(SendCommand(handle, "STOR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 Abort(stream);
@@ -439,9 +442,9 @@ namespace ArxOne.Ftp
         /// Sends a RMD command (ReMove Directory).
         /// </summary>
         /// <param name="path">The path.</param>
-        public bool Rmd(string path)
+        public bool Rmd(FtpPath path)
         {
-            var reply = Process(handle => Expect(SendCommand(handle, "RMD", path), 250, 550));
+            var reply = Process(handle => Expect(SendCommand(handle, "RMD", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -449,9 +452,9 @@ namespace ArxOne.Ftp
         /// Sends a DELE command (DELEte file).
         /// </summary>
         /// <param name="path">The path.</param>
-        public bool Dele(string path)
+        public bool Dele(FtpPath path)
         {
-            var reply = Process(handle => Expect(SendSingleCommand("DELE", path), 250, 550));
+            var reply = Process(handle => Expect(SendSingleCommand("DELE", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -461,7 +464,7 @@ namespace ArxOne.Ftp
         /// <param name="path">The path.</param>
         /// <param name="isDirectory">The is directory.</param>
         /// <returns></returns>
-        private bool Delete(string path, bool? isDirectory)
+        private bool Delete(FtpPath path, bool? isDirectory)
         {
             // if we don't know, try to delete as a directory
             if (!isDirectory.HasValue || isDirectory.Value)
@@ -481,7 +484,7 @@ namespace ArxOne.Ftp
         /// <param name="path">The path.</param>
         /// <param name="isDirectory">if set to <c>true</c> [is directory].</param>
         /// <returns></returns>
-        public bool Delete(string path, bool isDirectory)
+        public bool Delete(FtpPath path, bool isDirectory)
         {
             return Delete(path, (bool?)isDirectory);
         }
@@ -491,7 +494,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public bool Delete(string path)
+        public bool Delete(FtpPath path)
         {
             return Delete(path, null);
         }
@@ -500,9 +503,9 @@ namespace ArxOne.Ftp
         /// Sends a MKD command (MaKe Directory).
         /// </summary>
         /// <param name="path">The path.</param>
-        public void Mkd(string path)
+        public void Mkd(FtpPath path)
         {
-            Process(handle => Expect(SendCommand(handle, "MKD", path), 257));
+            Process(handle => Expect(SendCommand(handle, "MKD", path.ToString()), 257));
         }
 
         /// <summary>
@@ -525,23 +528,21 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The entry, or null if entry does not exist</returns>
-        public FtpEntry GetEntry(string path)
+        public FtpEntry GetEntry(FtpPath path)
         {
             return Process(handle => ProcessGetEntry(handle, path));
         }
 
-        private FtpEntry ProcessGetEntry(FtpSessionHandle handle, string path)
+        private FtpEntry ProcessGetEntry(FtpSessionHandle handle, FtpPath path)
         {
             CheckProtection(handle, true);
-            var reply = handle.Session.SendCommand("STAT", path);
+            var reply = handle.Session.SendCommand("STAT", path.ToString());
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;
             // now get the type: the first entry is "." for folders or file itself for files/links
-            var entry = EnumerateEntries(reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
+            var entry = EnumerateEntries(path, reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
             // actually, it's always good here
-            // TODO: we need a real path management
-            return new FtpEntry(path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last(),
-                entry.Size, entry.Type, entry.Date, entry.Target);
+            return new FtpEntry(path, entry.Size, entry.Type, entry.Date, entry.Target);
         }
 
         /// <summary>

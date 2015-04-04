@@ -4,6 +4,7 @@
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
+
 namespace ArxOne.Ftp
 {
     using System;
@@ -22,10 +23,18 @@ namespace ArxOne.Ftp
         public string Name { get; private set; }
 
         /// <summary>
+        /// Gets the path.
+        /// </summary>
+        /// <value>
+        /// The path.
+        /// </value>
+        public FtpPath Path { get; private set; }
+
+        /// <summary>
         /// Gets or sets the target (for symlinks, null otherwise).
         /// </summary>
         /// <value>The target.</value>
-        public string Target { get; private set; }
+        public FtpPath Target { get; private set; }
 
         /// <summary>
         /// Gets or sets the size.
@@ -48,16 +57,37 @@ namespace ArxOne.Ftp
         public DateTime Date { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpEntry"/> class.
+        /// Initializes a new instance of the <see cref="FtpEntry" /> class.
         /// </summary>
+        /// <param name="parent">The parent.</param>
         /// <param name="name">The name.</param>
         /// <param name="size">The size.</param>
         /// <param name="type">The type.</param>
         /// <param name="date">The date.</param>
         /// <param name="target">The target.</param>
-        public FtpEntry(string name, long? size, FtpEntryType type, DateTime date, string target)
+        public FtpEntry(FtpPath parent, string name, long? size, FtpEntryType type, DateTime date, FtpPath target)
         {
+            if (parent != null)
+                Path = parent + name;
             Name = name;
+            Date = date;
+            Type = type;
+            Target = target;
+            Size = size;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpEntry"/> class.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="size">The size.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="date">The date.</param>
+        /// <param name="target">The target.</param>
+        public FtpEntry(FtpPath path, long? size, FtpEntryType type, DateTime date, FtpPath target)
+        {
+            Path = path;
+            Name = path.GetFileName();
             Date = date;
             Type = type;
             Target = target;

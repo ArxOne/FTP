@@ -23,7 +23,7 @@ namespace ArxOne.Ftp
     public class FtpClientCore : IDisposable
     {
         /// <summary>
-        /// Gets or sets the URI.
+        /// Gets or sets the root URI.
         /// </summary>
         /// <value>The URI.</value>
         public Uri Uri { get; private set; }
@@ -33,6 +33,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
         public bool Passive { get; private set; }
+      
         /// <summary>
         /// Gets the active transfer host.
         /// </summary>
