@@ -287,7 +287,9 @@ namespace ArxOne.Ftp
         /// </summary>
         private void InitializeSession()
         {
-            var credential = _ftpClient.Credential ?? new NetworkCredential("anonymous", _ftpClient.AnonymousPassword);
+            var credential = _ftpClient.Credential != null && !string.IsNullOrEmpty(_ftpClient.Credential.UserName)
+                ? _ftpClient.Credential
+                : new NetworkCredential("anonymous", _ftpClient.AnonymousPassword);
             var userResult = Expect(SendCommand(ProtocolStream, "USER", credential.UserName), 331, 530);
             if (userResult.Code == 530)
                 throw new FtpProtocolException("No anonymous user allowed", userResult.Code);
@@ -434,12 +436,9 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private FtpReply ProcessSendCommand(Stream stream, string command, string[] parameters)
         {
-            _ftpClient.OnRequest(new ProtocolMessageEventArgs(_id, command,
-                command == "PASS" ? CensoredParameters : parameters));
+            _ftpClient.OnRequest(new ProtocolMessageEventArgs(_id, command, command == "PASS" ? CensoredParameters : parameters));
             var commandLine = GetCommandLine(command, parameters);
-            //Trace.WriteLine("ftp #" + _id + ": sending command " + commandLine);
             WriteLine(stream, commandLine);
-            //stream.Flush();
             var reply = ReadReply(stream);
             return reply;
         }
@@ -547,26 +546,6 @@ namespace ArxOne.Ftp
             for (int index = 0; index < end.Length; index++)
             {
                 if (buffer[bufferLength - end.Length + index] != end[index])
-                    return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Endses the with.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <param name="end">The end.</param>
-        /// <returns></returns>
-        private static bool EndsWith(IList<byte> bytes, IList<byte> end)
-        {
-            var offset = bytes.Count - end.Count;
-            if (offset < 0)
-                return false;
-
-            for (int index = 0; index < end.Count; index++)
-            {
-                if (bytes[offset + index] != end[index])
                     return false;
             }
             return true;

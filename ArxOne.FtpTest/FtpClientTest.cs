@@ -47,7 +47,8 @@ namespace ArxOne.FtpTest
                     }
                     var l = HttpUtility.UrlDecode(uri.UserInfo.Replace("_at_", "@"));
                     var up = l.Split(new[] { ':' }, 2);
-                    yield return Tuple.Create(uri, new NetworkCredential(up[0], up[1]));
+                    var networkCredential = up.Length == 2 ? new NetworkCredential(up[0], up[1]) : CredentialCache.DefaultNetworkCredentials;
+                    yield return Tuple.Create(uri, networkCredential);
                 }
             }
         }
@@ -101,6 +102,28 @@ namespace ArxOne.FtpTest
 
         [TestMethod]
         [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        public void ParseWindowsTest()
+        {
+            var entry = FtpClient.ParseWindows("    03-07-15  03:52PM                22286 03265480-photo-logo.png");
+            Assert.IsNotNull(entry);
+            Assert.AreEqual(FtpEntryType.File, entry.Type);
+            Assert.AreEqual("03265480-photo-logo.png", entry.Name);
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        public void ParseWindows2Test()
+        {
+            var entry = FtpClient.ParseWindows("    04-04-15  12:12PM       <DIR>          New folder");
+            Assert.IsNotNull(entry);
+            Assert.AreEqual(FtpEntryType.Directory, entry.Type);
+            Assert.AreEqual("New folder", entry.Name);
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         public void FtpListTest()
         {
@@ -115,13 +138,33 @@ namespace ArxOne.FtpTest
             FtpListTest(false);
         }
 
-        private static void FtpListTest(bool passive)
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        [TestCategory("Credentials")]
+        public void WindowsFtpListTest()
         {
-            var ftpTestHost = GetTestCredential("ftp");
+            FtpListTest(true, "localhost");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        [TestCategory("Credentials")]
+        public void WindowsFtpActiveListTest()
+        {
+            FtpListTest(false, "localhost");
+        }
+
+        private static void FtpListTest(bool passive, string host = null)
+        {
+            var ftpTestHost = GetTestCredential("ftp", host);
             using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2, new FtpClientParameters { Passive = passive }))
             {
                 var list = ftpClient.ListEntries("/");
-                Assert.IsTrue(list.Any(e => e.Name == "tmp"));
+                if (ftpClient.ServerType == FtpServerType.Unix)
+                    Assert.IsTrue(list.Any(e => e.Name == "tmp"));
             }
         }
 
@@ -209,13 +252,31 @@ namespace ArxOne.FtpTest
         {
             CreateFileTest(false);
         }
-
-        public void CreateFileTest(bool passive)
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        [TestCategory("Credentials")]
+        public void WindowsCreateFileTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
+            CreateFileTest(true, "localhost");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Windows")]
+        [TestCategory("Credentials")]
+        public void WindowsActiveCreateFileTest()
+        {
+            CreateFileTest(false, "localhost");
+        }
+
+        public void CreateFileTest(bool passive, string host = null)
+        {
+            var ftpesTestHost = GetTestCredential("ftp", host);
             using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2, new FtpClientParameters { Passive = passive }))
             {
-                var path = "/tmp/file." + Guid.NewGuid();
+                var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
+                var path = directory + "file." + Guid.NewGuid();
                 using (var s = ftpClient.Stor(path))
                 {
                     s.WriteByte(65);
@@ -349,6 +410,19 @@ namespace ArxOne.FtpTest
                 var oneLinkEntry = ftpClient.GetEntry(directory + oneLink.Name);
                 Assert.IsNotNull(oneLinkEntry);
                 Assert.AreEqual(FtpEntryType.Link, oneLinkEntry.Type);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void WindowsServerTest()
+        {
+            var ftpTestHost = GetTestCredential("ftp", "localhost");
+            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            {
+                var i = ftpClient.ServerType;
+                var s = ftpClient.Stat("/").ToString();
             }
         }
     }
