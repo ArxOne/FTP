@@ -358,6 +358,9 @@ namespace ArxOne.Ftp
                     case FtpServerType.Unix:
                         ftpEntry = ParseUnix(line);
                         break;
+                    case FtpServerType.Windows:
+                        ftpEntry = ParseWindows(line);
+                        break;
                     default:
                         throw new FtpException("Unhandled server type");
                 }

@@ -422,7 +422,6 @@ namespace ArxOne.FtpTest
             using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
             {
                 var i = ftpClient.ServerType;
-                var s = ftpClient.Stat("/").ToString();
             }
         }
     }
