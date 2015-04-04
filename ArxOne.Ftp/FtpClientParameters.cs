@@ -9,6 +9,7 @@ namespace ArxOne.Ftp
     using System;
     using System.IO;
     using System.Net;
+    using System.Net.Sockets;
     using System.Text;
 
     /// <summary>
@@ -70,7 +71,7 @@ namespace ArxOne.Ftp
         /// Arg3: true for control stream, false for data stream
         /// </summary>
         /// <value>The proxy.</value>
-        public Func<string, int, bool, Stream> ProxyConnect { get; set; }
+        public Func<EndPoint, Socket> ProxyConnect { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpClientParameters"/> class.

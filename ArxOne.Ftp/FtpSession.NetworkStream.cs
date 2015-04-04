@@ -31,9 +31,9 @@ namespace ArxOne.Ftp
                 // try to use a proxy
                 if (_ftpClient.ProxyConnect != null)
                 {
-                    var stream = _ftpClient.ProxyConnect(_host, _port, true);
-                    if (stream != null)
-                        return stream;
+                    var socket = _ftpClient.ProxyConnect(new DnsEndPoint(_host, _port));
+                    if (socket != null)
+                        return new NetworkStream(socket);
                 }
                 return DirectConnectTransport(readWriteTimeout, connectTimeout, ref message);
             }

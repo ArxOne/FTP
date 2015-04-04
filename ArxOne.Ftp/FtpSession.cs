@@ -620,9 +620,9 @@ namespace ArxOne.Ftp
 
             if (_ftpClient.ProxyConnect != null)
             {
-                var stream = _ftpClient.ProxyConnect(host, port, false);
-                if (stream != null)
-                    return new FtpStream(stream, this);
+                var socket = _ftpClient.ProxyConnect(new DnsEndPoint(host, port));
+                if (socket != null)
+                    return new FtpStream(socket, this);
             }
 
             return OpenDirectPassiveDataStream(host, port, connectTimeout, readWriteTimeout);

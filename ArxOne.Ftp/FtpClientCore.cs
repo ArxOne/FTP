@@ -11,6 +11,7 @@ namespace ArxOne.Ftp
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Net.Sockets;
     using System.Text;
     using System.Threading;
     using IO;
@@ -63,7 +64,7 @@ namespace ArxOne.Ftp
         /// Gets or sets the proxy.
         /// </summary>
         /// <value>The proxy.</value>
-        public Func<string, int, bool, Stream> ProxyConnect { get; private set; }
+        public Func<EndPoint, Socket> ProxyConnect { get; private set; }
 
         /// <summary>
         /// Gets or sets the credential.
@@ -146,7 +147,6 @@ namespace ArxOne.Ftp
         }
 
         private readonly Queue<DatedFtpSession> _availableSessions = new Queue<DatedFtpSession>();
-        private readonly IList<FtpSession> _usedSessions = new List<FtpSession>();
         private readonly object _sessionsLock = new object();
         private readonly Thread _sessionThread;
 
@@ -369,7 +369,6 @@ namespace ArxOne.Ftp
             lock (_sessionsLock)
             {
                 var session = PopAvailableSession() ?? CreateSession();
-                _usedSessions.Add(session);
                 return session;
             }
         }
@@ -391,7 +390,6 @@ namespace ArxOne.Ftp
         {
             lock (_sessionsLock)
             {
-                _usedSessions.Remove(session);
                 _availableSessions.Enqueue(new DatedFtpSession { Date = DateTime.UtcNow, Session = session });
             }
         }
