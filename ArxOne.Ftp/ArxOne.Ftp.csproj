@@ -130,13 +130,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>
-rem --- NuGet pack ------------------------------------------------------------------------------
-
-if not "$(ConfigurationName)"=="Release" goto :noRelease
-
-"$(SolutionDir)\.nuget\NuGet.exe" pack "$(ProjectPath)" -Verbosity detailed -NonInteractive -IncludeReferencedProjects -NonInteractive -Properties Configuration=$(ConfigurationName)
-
-:noRelease
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
