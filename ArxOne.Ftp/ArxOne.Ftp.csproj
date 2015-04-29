@@ -117,7 +117,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ArxOne.Ftp.nuspec" />
+    <None Include="ArxOne.Ftp.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\ArxOne.Ftp.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

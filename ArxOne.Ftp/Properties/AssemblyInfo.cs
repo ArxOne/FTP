@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("ArxOne.Ftp")]
+[assembly: AssemblyTitle("ArxOne Ftp")]
 
 [assembly: AssemblyDescription("A simple FTP/FTPS/FTPES client. Multi-connection and thread-safe."
     + " Uses high-level methods but also supports direct command sending.")]
@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyVersion("1.2.2")]
+[assembly: AssemblyVersion("1.2.3")]
 
 [assembly: CLSCompliant(true)]
 
