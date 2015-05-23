@@ -416,6 +416,7 @@ namespace ArxOne.FtpTest
         [TestMethod]
         [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
+        [TestCategory("Windows")]
         public void WindowsServerTest()
         {
             var ftpTestHost = GetTestCredential("ftp", "localhost");
@@ -423,6 +424,56 @@ namespace ArxOne.FtpTest
             {
                 var i = ftpClient.ServerType;
                 var s = ftpClient.StatEntries("/").ToArray();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        [TestCategory("Windows")]
+        public void WindowsSpaceNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "A and B", "C and D");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void SpaceNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp"), "A and B", "C and D");
+        }
+
+        private void FolderAndChildTest(Tuple<Uri, NetworkCredential> uriAndCredential, string folderName, string childName)
+        {
+            using (var ftpClient = new FtpClient(uriAndCredential.Item1, uriAndCredential.Item2))
+            {
+                var folder = "/tmp/" + folderName;
+                var file = folder + "/" + childName;
+                try
+                {
+                    ftpClient.Mkd(folder);
+                    using (var s = ftpClient.Stor(file))
+                        s.WriteByte(123);
+
+                    var c = ftpClient.ListEntries(folder).SingleOrDefault();
+                    Assert.IsNotNull(c);
+                    Assert.AreEqual(childName, c.Name);
+                    var c2 = ftpClient.StatEntries(folder).SingleOrDefault();
+                    Assert.IsNotNull(c2);
+                    Assert.AreEqual(childName, c2.Name);
+
+                    using (var r = ftpClient.Retr(file))
+                    {
+                        Assert.AreEqual(123, r.ReadByte());
+                        Assert.AreEqual(-1, r.ReadByte());
+                    }
+                }
+                finally
+                {
+                    ftpClient.Dele(file);
+                    ftpClient.Rmd(folder);
+                }
             }
         }
     }

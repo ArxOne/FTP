@@ -11,6 +11,7 @@ namespace ArxOne.Ftp
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Text;
     using System.Text.RegularExpressions;
     using Exceptions;
     using IO;
@@ -281,7 +282,7 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(handle, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = Expect(SendCommand(handle, "LIST", path.ToString()), 125, 150, 425);
+                var reply = Expect(SendCommand(handle, "LIST", EscapePath(path.ToString())), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     Abort(dataStream);
@@ -301,6 +302,46 @@ namespace ArxOne.Ftp
                     return list;
                 }
             }
+        }
+
+        private string EscapeCharacters
+        {
+            get
+            {
+                switch (ServerType)
+                {
+                    case FtpServerType.Unknown:
+                        return "";
+                    case FtpServerType.Unix:
+                        return " ";
+                    case FtpServerType.Windows:
+                        return "";
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Escapes the path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public string EscapePath(string path)
+        {
+            var escapeCharacters = EscapeCharacters;
+            // first, see if any chaaracter to be escaped is contained
+            if (!escapeCharacters.Any(path.Contains))
+                return path;
+            // otherwise use a StringBuilder and escape with \
+            var pathBuilder = new StringBuilder();
+            foreach (var c in path)
+            {
+                if (escapeCharacters.Contains(c))
+                    pathBuilder.Append('\\');
+                pathBuilder.Append(c);
+            }
+            return pathBuilder.ToString();
         }
 
         /// <summary>
@@ -333,7 +374,7 @@ namespace ArxOne.Ftp
             var reply = Process(session =>
                   {
                       CheckProtection(session, true);
-                      return Expect(SendCommand(session, "STAT", path.ToString()), 213);
+                      return Expect(SendCommand(session, "STAT", EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
         }
