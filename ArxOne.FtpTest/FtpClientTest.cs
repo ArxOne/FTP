@@ -444,6 +444,40 @@ namespace ArxOne.FtpTest
             FolderAndChildTest(GetTestCredential("ftp"), "A and B", "C and D");
         }
 
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        [TestCategory("Windows")]
+        public void WindowsBracketsNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "X[]Y", "Z{}[]T");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void BracketsNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp"), "X[]Y", "Z{}[]T");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        [TestCategory("Windows")]
+        public void WindowsParenthesisNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "i()j", "k()l");
+        }
+
+        [TestMethod]
+        [TestCategory("FtpClient")]
+        [TestCategory("Credentials")]
+        public void ParenthesisNameTest()
+        {
+            FolderAndChildTest(GetTestCredential("ftp"), "i()j", "k()l");
+        }
+
         private void FolderAndChildTest(Tuple<Uri, NetworkCredential> uriAndCredential, string folderName, string childName)
         {
             using (var ftpClient = new FtpClient(uriAndCredential.Item1, uriAndCredential.Item2))
