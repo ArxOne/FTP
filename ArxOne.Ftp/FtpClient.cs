@@ -313,7 +313,7 @@ namespace ArxOne.Ftp
                     case FtpServerType.Unknown:
                         return "";
                     case FtpServerType.Unix:
-                        return " ";
+                        return " []()";
                     case FtpServerType.Windows:
                         return "";
                     default:
