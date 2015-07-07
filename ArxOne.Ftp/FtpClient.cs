@@ -432,7 +432,7 @@ namespace ArxOne.Ftp
         private FtpEntry ProcessGetEntry(FtpSessionHandle handle, FtpPath path)
         {
             CheckProtection(handle, true);
-            var reply = handle.Session.SendCommand("STAT", path.ToString());
+            var reply = handle.Session.SendCommand("STAT", EscapePath(path.ToString()));
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;
             // now get the type: the first entry is "." for folders or file itself for files/links
