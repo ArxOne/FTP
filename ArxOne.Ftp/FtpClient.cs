@@ -15,6 +15,7 @@ namespace ArxOne.Ftp
     using System.Text.RegularExpressions;
     using Exceptions;
     using IO;
+    using Platform;
 
     /// <summary>
     /// FTP client
@@ -72,178 +73,71 @@ namespace ArxOne.Ftp
             }
         }
 
+        private FtpPlatform _ftpPlatform;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpClientCore"/> class.
+        /// Gets the FTP platform.
+        /// </summary>
+        /// <value>
+        /// The FTP platform.
+        /// </value>
+        private FtpPlatform FtpPlatform
+        {
+            get
+            {
+                if (_ftpPlatform == null)
+                    _ftpPlatform = GetFtpPlatform(ServerType);
+                return _ftpPlatform;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpClientCore" /> class.
         /// </summary>
         /// <param name="protocol">The protocol.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="credential">The credential.</param>
         /// <param name="parameters">The parameters.</param>
-        public FtpClient(FtpProtocol protocol, string host, int port, NetworkCredential credential, FtpClientParameters parameters = null)
+        /// <param name="ftpPlatform">The FTP platform or null if it is to be determined automatically.</param>
+        public FtpClient(FtpProtocol protocol, string host, int port, NetworkCredential credential, FtpClientParameters parameters = null, FtpPlatform ftpPlatform = null)
             : base(protocol, host, port, credential, parameters)
         {
+            _ftpPlatform = ftpPlatform;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpClientCore"/> class.
+        /// Initializes a new instance of the <see cref="FtpClientCore" /> class.
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <param name="credential">The credential.</param>
         /// <param name="parameters">The parameters.</param>
-        public FtpClient(Uri uri, NetworkCredential credential, FtpClientParameters parameters = null)
+        /// <param name="ftpPlatform">The FTP platform or null if it is to be determined automatically.</param>
+        public FtpClient(Uri uri, NetworkCredential credential, FtpClientParameters parameters = null, FtpPlatform ftpPlatform = null)
             : base(uri, credential, parameters)
         {
+            _ftpPlatform = ftpPlatform;
         }
 
-        private static readonly Regex UnixListEx = new Regex(
-            @"(?<xtype>[-dlDL])[A-Za-z\-]{9}\s+"
-            + @"\d*\s+"
-            + @"(?<owner>\S*)\s+"
-            + @"(?<group>\S*)\s+"
-            + @"(?<size>\d*)\s+"
-            + @"(?<month>[a-zA-Z]{3})\s+"
-            + @"(?<day>\d{1,2})\s+"
-            + @"(((?<hour>\d{2})\:(?<minute>\d{2}))|(?<year>\d{4}))\s+"
-            + @"(?<name>.*)"
-            , RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
         /// <summary>
-        /// Parses the unix ls line.
+        /// Gets the FTP platform.
         /// </summary>
-        /// <param name="directoryLine">The directory line.</param>
-        /// <param name="parent">The parent.</param>
+        /// <param name="serverType">Type of the server.</param>
         /// <returns></returns>
-        internal /*test*/ static FtpEntry ParseUnix(string directoryLine, FtpPath parent)
+        /// <exception cref="ArgumentOutOfRangeException">serverType;null</exception>
+        private static FtpPlatform GetFtpPlatform(FtpServerType serverType)
         {
-            var match = UnixListEx.Match(directoryLine);
-            if (!match.Success)
-                return null;
-
-            var literalType = match.Groups["xtype"].Value;
-            var name = match.Groups["name"].Value;
-            var type = FtpEntryType.File;
-            string target = null;
-            if (string.Equals(literalType, "d", StringComparison.InvariantCultureIgnoreCase))
-                type = FtpEntryType.Directory;
-            else if (string.Equals(literalType, "l", StringComparison.InvariantCultureIgnoreCase))
+            switch (serverType)
             {
-                type = FtpEntryType.Link;
-                const string separator = " -> ";
-                var linkIndex = name.IndexOf(separator, StringComparison.InvariantCultureIgnoreCase);
-                if (linkIndex >= 0)
-                {
-                    target = name.Substring(linkIndex + separator.Length);
-                    name = name.Substring(0, linkIndex);
-                }
+                case FtpServerType.Unknown:
+                    return new FtpPlatform();
+                case FtpServerType.Unix:
+                    return new UnixFtpPlatform();
+                case FtpServerType.Windows:
+                    return new WindowsFtpPlatform();
+                default:
+                    throw new ArgumentOutOfRangeException("serverType", serverType, null);
             }
-            var ftpEntry = new FtpEntry(parent, name, long.Parse(match.Groups["size"].Value), type, ParseDateTime(match, DateTime.Now), target);
-            return ftpEntry;
-        }
-
-        private static readonly Regex WindowsListEx = new Regex(
-            @"\s*"
-            + @"(?<month>\d{2})\-"
-            + @"(?<day>\d{2})\-"
-            + @"(?<year>\d{2,4})\s+"
-            + @"(?<hour>\d{2})\:"
-            + @"(?<minute>\d{2})"
-            + @"((?<am>AM)|(?<pm>PM))\s+"
-            + @"((?<dir>\<DIR\>)|(?<size>\d+))\s+"
-            + @"(?<name>.*)",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-        /// <summary>
-        /// Parses Windows formatted list line.
-        /// </summary>
-        /// <param name="directoryLine">The directory line.</param>
-        /// <param name="parent">The parent.</param>
-        /// <returns></returns>
-        internal /*test*/ static FtpEntry ParseWindows(string directoryLine, FtpPath parent)
-        {
-            var match = WindowsListEx.Match(directoryLine);
-            if (!match.Success)
-                return null;
-
-            var name = match.Groups["name"].Value;
-            var date = ParseDateTime(match, DateTime.Now);
-            var literalSize = match.Groups["size"].Value;
-            long? size = null;
-            var type = FtpEntryType.File;
-            if (!string.IsNullOrEmpty(literalSize))
-                size = long.Parse(literalSize);
-            else
-                type = FtpEntryType.Directory;
-            return new FtpEntry(parent, name, size, type, date, null);
-        }
-
-        /// <summary>
-        /// Parses the date time.
-        /// </summary>
-        /// <param name="match">The match.</param>
-        /// <param name="now">The now.</param>
-        /// <returns></returns>
-        private static DateTime ParseDateTime(Match match, DateTime now)
-        {
-            return ParseDateTime(match.Groups["year"].Value, match.Groups["month"].Value, match.Groups["day"].Value,
-                                 match.Groups["hour"].Value, match.Groups["minute"].Value, match.Groups["pm"].Value, now);
-        }
-
-        /// <summary>
-        /// Parses the date time.
-        /// </summary>
-        /// <param name="literalYear">The literal year.</param>
-        /// <param name="literalMonth">The literal month.</param>
-        /// <param name="literalDay">The literal day.</param>
-        /// <param name="literalHour">The literal hour.</param>
-        /// <param name="literalMinute">The literal minute.</param>
-        /// <param name="pm">PM.</param>
-        /// <param name="now">The now.</param>
-        /// <returns></returns>
-        private static DateTime ParseDateTime(string literalYear, string literalMonth, string literalDay,
-                                              string literalHour, string literalMinute, string pm, DateTime now)
-        {
-            var month = ParseMonth(literalMonth);
-            var day = int.Parse(literalDay);
-            int year;
-            if (string.IsNullOrEmpty(literalYear))
-            {
-                year = now.Year;
-                var guessDate = new DateTime(year, month, day);
-                if (guessDate > now.Date)
-                    year--;
-            }
-            else
-                year = int.Parse(literalYear);
-            if (year < 100)
-            {
-                var century = (now.Year / 100) * 100;
-                year += century;
-            }
-            var hour = string.IsNullOrEmpty(literalHour) ? 0 : int.Parse(literalHour);
-            if (!string.IsNullOrEmpty(pm))
-            {
-                if (hour < 12) // because 12PM is 12 so 12 stays 12
-                    hour += 12;
-            }
-            var minute = string.IsNullOrEmpty(literalMinute) ? 0 : int.Parse(literalMinute);
-            return new DateTime(year, month, day, hour, minute, 0, DateTimeKind.Local);
-        }
-
-        private static readonly string[] LiteralMonths = { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
-
-        /// <summary>
-        /// Gets the month.
-        /// </summary>
-        /// <param name="literalMonth">The literal month.</param>
-        /// <returns></returns>
-        private static int ParseMonth(string literalMonth)
-        {
-            int month;
-            if (int.TryParse(literalMonth, out month))
-                return month;
-            month = Array.IndexOf(LiteralMonths, literalMonth.ToLower()) + 1;
-            return month;
         }
 
         /// <summary>
@@ -304,44 +198,14 @@ namespace ArxOne.Ftp
             }
         }
 
-        private string EscapeCharacters
-        {
-            get
-            {
-                switch (ServerType)
-                {
-                    case FtpServerType.Unknown:
-                        return "";
-                    case FtpServerType.Unix:
-                        return " []()";
-                    case FtpServerType.Windows:
-                        return "";
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
         /// <summary>
         /// Escapes the path.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public string EscapePath(string path)
+        private string EscapePath(string path)
         {
-            var escapeCharacters = EscapeCharacters;
-            // first, see if any chaaracter to be escaped is contained
-            if (!escapeCharacters.Any(path.Contains))
-                return path;
-            // otherwise use a StringBuilder and escape with \
-            var pathBuilder = new StringBuilder();
-            foreach (var c in path)
-            {
-                if (escapeCharacters.Contains(c))
-                    pathBuilder.Append('\\');
-                pathBuilder.Append(c);
-            }
-            return pathBuilder.ToString();
+            return FtpPlatform.EscapePath(path);
         }
 
         /// <summary>
@@ -384,30 +248,16 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <param name="lines">The lines.</param>
-        /// <param name="serverType">Type of the server.</param>
         /// <param name="ignoreSpecialEntries">if set to <c>true</c> [ignore special entries].</param>
         /// <returns></returns>
         /// <exception cref="FtpException">Unhandled server type</exception>
         /// <exception cref="FtpProtocolException">Impossible to parse line:  + line;new FtpReplyCode(553)</exception>
         /// <exception cref="FtpReplyCode">553</exception>
-        private IEnumerable<FtpEntry> EnumerateEntries(FtpPath parent, IEnumerable<string> lines, FtpServerType? serverType = null, bool ignoreSpecialEntries = true)
+        private IEnumerable<FtpEntry> EnumerateEntries(FtpPath parent, IEnumerable<string> lines, bool ignoreSpecialEntries = true)
         {
-            if (!serverType.HasValue)
-                serverType = ServerType;
             foreach (var line in lines)
             {
-                FtpEntry ftpEntry;
-                switch (serverType.Value)
-                {
-                    case FtpServerType.Unix:
-                        ftpEntry = ParseUnix(line, parent);
-                        break;
-                    case FtpServerType.Windows:
-                        ftpEntry = ParseWindows(line, parent);
-                        break;
-                    default:
-                        throw new FtpException("Unhandled server type");
-                }
+                var ftpEntry = FtpPlatform.Parse(line, parent);
                 if (ftpEntry == null)
                     throw new FtpProtocolException("Impossible to parse line: " + line, new FtpReplyCode(553));
 
@@ -426,7 +276,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public Stream Retr(FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            return Process(handle => ProcessRetr(handle, path));
+            return Process(handle => ProcessRetr(handle, path, mode));
         }
 
         /// <summary>
@@ -434,10 +284,12 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <param name="path">The path.</param>
+        /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        private Stream ProcessRetr(FtpSessionHandle handle, FtpPath path)
+        /// <exception cref="IOException"></exception>
+        private Stream ProcessRetr(FtpSessionHandle handle, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            var stream = OpenDataStream(handle, FtpTransferMode.Binary);
+            var stream = OpenDataStream(handle, mode);
             var reply = Expect(SendCommand(handle, "RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
@@ -453,10 +305,11 @@ namespace ArxOne.Ftp
         /// Send STOR command.
         /// </summary>
         /// <param name="path">The path.</param>
+        /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        public Stream Stor(FtpPath path)
+        public Stream Stor(FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            return Process(handle => ProcessStor(handle, path));
+            return Process(handle => ProcessStor(handle, path, mode));
         }
 
         /// <summary>
@@ -464,10 +317,12 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <param name="path">The path.</param>
+        /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        private Stream ProcessStor(FtpSessionHandle handle, FtpPath path)
+        /// <exception cref="IOException"></exception>
+        private Stream ProcessStor(FtpSessionHandle handle, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            var stream = OpenDataStream(handle, FtpTransferMode.Binary);
+            var stream = OpenDataStream(handle, mode);
             var reply = Expect(SendCommand(handle, "STOR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {

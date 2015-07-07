@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FtpClientTest.cs" />
+    <Compile Include="FtpClientTest.Windows.cs" />
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

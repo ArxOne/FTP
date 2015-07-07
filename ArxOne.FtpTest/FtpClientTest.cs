@@ -8,12 +8,14 @@ namespace ArxOne.FtpTest
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
     using System.Web;
     using Ftp;
+    using Ftp.Platform;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -21,9 +23,22 @@ namespace ArxOne.FtpTest
     ///to contain all FtpClientTest Unit Tests
     ///</summary>
     [TestClass]
-    public class FtpClientTest
+    public partial class FtpClientTest
     {
-        private static IEnumerable<Tuple<Uri, NetworkCredential>> EnumerateCredentials()
+        [DebuggerDisplay("{HostType}-->{Uri}")]
+        private class TestHost
+        {
+            public string HostType { get; set; }
+            public Uri Uri { get; set; }
+            public NetworkCredential Credential { get; set; }
+        }
+
+        // Credentials.txt is a simple text file with URI (including credentials) formed as follows:
+        // - simple uri (such as 'ftp://user:pass@host:21')
+        // - specific host type (such as 'win-->ftp://user:pass@host:21').
+        // Please also note that first match is returned, so if only a protocol is asked, then any host type may be returned
+
+        private static IEnumerable<TestHost> EnumerateCredentials()
         {
             const string credentialsTxt = "credentials.txt";
             if (!File.Exists(credentialsTxt))
@@ -36,28 +51,50 @@ namespace ArxOne.FtpTest
                     if (line == null)
                         yield break;
 
+                    var typeAndUri = line.Split(new[] { "-->" }, 2, StringSplitOptions.RemoveEmptyEntries);
+                    string hostType;
+                    string uriAndCredentials;
+
+                    if (typeAndUri.Length == 1)
+                    {
+                        hostType = null;
+                        uriAndCredentials = line;
+                    }
+                    else
+                    {
+                        hostType = typeAndUri[0];
+                        uriAndCredentials = typeAndUri[1];
+                    }
+
                     Uri uri;
                     try
                     {
-                        uri = new Uri(line);
+                        uri = new Uri(uriAndCredentials);
                     }
                     catch (UriFormatException)
                     {
                         continue;
                     }
-                    var l = HttpUtility.UrlDecode(uri.UserInfo.Replace("_at_", "@"));
-                    var up = l.Split(new[] { ':' }, 2);
-                    var networkCredential = up.Length == 2 ? new NetworkCredential(up[0], up[1]) : CredentialCache.DefaultNetworkCredentials;
-                    yield return Tuple.Create(uri, networkCredential);
+                    var literalLoginAndPassword = HttpUtility.UrlDecode(uri.UserInfo.Replace("_at_", "@"));
+                    var loginAndPassword = literalLoginAndPassword.Split(new[] { ':' }, 2);
+                    var networkCredential = loginAndPassword.Length == 2
+                        ? new NetworkCredential(loginAndPassword[0], loginAndPassword[1])
+                        : CredentialCache.DefaultNetworkCredentials;
+                    yield return new TestHost { HostType = hostType, Uri = uri, Credential = networkCredential };
                 }
             }
         }
 
-        private static Tuple<Uri, NetworkCredential> GetTestCredential(string protocol, string host = null)
+        private static TestHost GetTestHost(string protocol, string hostType = null)
         {
-            var t = EnumerateCredentials().FirstOrDefault(c => c.Item1.Scheme == protocol && (host == null || c.Item1.Host == host));
+            var t = EnumerateCredentials().FirstOrDefault(c => c.Uri.Scheme == protocol && (hostType == null || c.HostType == hostType));
             if (t == null)
-                Assert.Inconclusive("Found no configuration for protocol '{0}'", protocol);
+            {
+                if (hostType == null)
+                    Assert.Inconclusive("Found no configuration for protocol '{0}'", protocol);
+                else
+                    Assert.Inconclusive("Found no configuration for protocol '{0}' and host type '{1}'", protocol, hostType);
+            }
             return t;
         }
 
@@ -68,7 +105,7 @@ namespace ArxOne.FtpTest
         [TestCategory("FtpClient")]
         public void ParseUnix1Test()
         {
-            var entry = FtpClient.ParseUnix("drwxr-xr-x    4 1001     1001         4096 Jan 21 14:41 nas-1", null);
+            var entry = FtpPlatform.ParseUnix("drwxr-xr-x    4 1001     1001         4096 Jan 21 14:41 nas-1", null);
             Assert.IsNotNull(entry);
             Assert.AreEqual(FtpEntryType.Directory, entry.Type);
             Assert.AreEqual("nas-1", entry.Name);
@@ -81,7 +118,7 @@ namespace ArxOne.FtpTest
         [TestCategory("FtpClient")]
         public void ParseUnix2Test()
         {
-            var entry = FtpClient.ParseUnix("drwxr-xr-x    4 nas-1    nas-1        4096 Jan 21 15:41 nas-1", null);
+            var entry = FtpPlatform.ParseUnix("drwxr-xr-x    4 nas-1    nas-1        4096 Jan 21 15:41 nas-1", null);
             Assert.IsNotNull(entry);
             Assert.AreEqual(FtpEntryType.Directory, entry.Type);
             Assert.AreEqual("nas-1", entry.Name);
@@ -94,7 +131,7 @@ namespace ArxOne.FtpTest
         [TestCategory("FtpClient")]
         public void ParseUnix3Test()
         {
-            var entry = FtpClient.ParseUnix("lrwxrwxrwx    1 0        0               4 Sep 03  2009 lib64 -> /lib", null);
+            var entry = FtpPlatform.ParseUnix("lrwxrwxrwx    1 0        0               4 Sep 03  2009 lib64 -> /lib", null);
             Assert.IsNotNull(entry);
             Assert.AreEqual(FtpEntryType.Link, entry.Type);
             Assert.AreEqual("lib64", entry.Name);
@@ -105,7 +142,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Windows")]
         public void ParseWindowsTest()
         {
-            var entry = FtpClient.ParseWindows("    03-07-15  03:52PM                22286 03265480-photo-logo.png", null);
+            var entry = WindowsFtpPlatform.ParseLine("    03-07-15  03:52PM                22286 03265480-photo-logo.png", null);
             Assert.IsNotNull(entry);
             Assert.AreEqual(FtpEntryType.File, entry.Type);
             Assert.AreEqual("03265480-photo-logo.png", entry.Name);
@@ -116,7 +153,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Windows")]
         public void ParseWindows2Test()
         {
-            var entry = FtpClient.ParseWindows("    04-04-15  12:12PM       <DIR>          New folder", null);
+            var entry = WindowsFtpPlatform.ParseLine("    04-04-15  12:12PM       <DIR>          New folder", null);
             Assert.IsNotNull(entry);
             Assert.AreEqual(FtpEntryType.Directory, entry.Type);
             Assert.AreEqual("New folder", entry.Name);
@@ -138,29 +175,10 @@ namespace ArxOne.FtpTest
             FtpListTest(false);
         }
 
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Windows")]
-        [TestCategory("Credentials")]
-        public void WindowsFtpListTest()
+        private static void FtpListTest(bool passive, string hostType = null)
         {
-            FtpListTest(true, "localhost");
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Windows")]
-        [TestCategory("Credentials")]
-        public void WindowsFtpActiveListTest()
-        {
-            FtpListTest(false, "localhost");
-        }
-
-        private static void FtpListTest(bool passive, string host = null)
-        {
-            var ftpTestHost = GetTestCredential("ftp", host);
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2, new FtpClientParameters { Passive = passive }))
+            var ftpTestHost = GetTestHost("ftp", hostType);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
                 var list = ftpClient.ListEntries("/");
                 if (ftpClient.ServerType == FtpServerType.Unix)
@@ -171,23 +189,10 @@ namespace ArxOne.FtpTest
         [TestMethod]
         [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
-        public void FtpesListTest()
-        {
-            var ftpTestHost = GetTestCredential("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
-            {
-                var list = ftpClient.ListEntries("/");
-                Assert.IsTrue(list.Any(e => e.Name == "tmp"));
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Credentials")]
         public void FtpStatTest()
         {
-            var ftpTestHost = GetTestCredential("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/");
                 Assert.IsTrue(list.Any(e => e.Name == "tmp"));
@@ -199,8 +204,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void FtpStatNoDotTest()
         {
-            var ftpTestHost = GetTestCredential("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/");
                 Assert.IsFalse(list.Any(e => e.Name == "." || e.Name == ".."));
@@ -212,8 +217,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void FtpesStatTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/").ToArray();
                 Assert.IsTrue(list.Any(e => e.Name == "tmp"));
@@ -225,8 +230,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void ReadFileTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 using (var s = ftpClient.Retr("/var/log/installer/status"))
                 using (var t = new StreamReader(s, Encoding.UTF8))
@@ -252,28 +257,10 @@ namespace ArxOne.FtpTest
         {
             CreateFileTest(false);
         }
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Windows")]
-        [TestCategory("Credentials")]
-        public void WindowsCreateFileTest()
+        public void CreateFileTest(bool passive, string hostType = null)
         {
-            CreateFileTest(true, "localhost");
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Windows")]
-        [TestCategory("Credentials")]
-        public void WindowsActiveCreateFileTest()
-        {
-            CreateFileTest(false, "localhost");
-        }
-
-        public void CreateFileTest(bool passive, string host = null)
-        {
-            var ftpesTestHost = GetTestCredential("ftp", host);
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2, new FtpClientParameters { Passive = passive }))
+            var ftpesTestHost = GetTestHost("ftp", hostType);
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
                 var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
                 var path = directory + "file." + Guid.NewGuid();
@@ -296,8 +283,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void DeleteFileTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
                 using (var s = ftpClient.Stor(path))
@@ -313,8 +300,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void DeleteFolderTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
                 ftpClient.Mkd(path);
@@ -327,8 +314,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void DeleteTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
                 ftpClient.Mkd(path);
@@ -346,8 +333,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void CreateSpecialNameFolderTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid() + "(D)";
                 ftpClient.Mkd(path);
@@ -360,8 +347,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void CreateNonExistingSubFolderTest()
         {
-            var ftpesTestHost = GetTestCredential("ftpes");
-            using (var ftpClient = new FtpClient(ftpesTestHost.Item1, ftpesTestHost.Item2))
+            var ftpesTestHost = GetTestHost("ftpes");
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var parent = "/tmp/" + Guid.NewGuid().ToString("N");
                 var child = parent + "/" + Guid.NewGuid().ToString("N");
@@ -376,7 +363,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void CreateFolderTwiceTest()
         {
-            var client = new FtpClient(GetTestCredential("ftpes").Item1, GetTestCredential("ftpes").Item2);
+            var testHost = GetTestHost("ftpes");
+            var client = new FtpClient(testHost.Uri, testHost.Credential);
             using (var ftpClient = client)
             {
                 var path = "/tmp/" + Guid.NewGuid().ToString("N");
@@ -392,8 +380,8 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void FileExistsTest()
         {
-            var ftpTestHost = GetTestCredential("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 const string directory = "/lib/";
                 var list = ftpClient.StatEntries(directory).ToList();
@@ -412,45 +400,12 @@ namespace ArxOne.FtpTest
                 Assert.AreEqual(FtpEntryType.Link, oneLinkEntry.Type);
             }
         }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Credentials")]
-        [TestCategory("Windows")]
-        public void WindowsServerTest()
-        {
-            var ftpTestHost = GetTestCredential("ftp", "localhost");
-            using (var ftpClient = new FtpClient(ftpTestHost.Item1, ftpTestHost.Item2))
-            {
-                var i = ftpClient.ServerType;
-                var s = ftpClient.StatEntries("/").ToArray();
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Credentials")]
-        [TestCategory("Windows")]
-        public void WindowsSpaceNameTest()
-        {
-            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "A and B", "C and D");
-        }
-
         [TestMethod]
         [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         public void SpaceNameTest()
         {
-            FolderAndChildTest(GetTestCredential("ftp"), "A and B", "C and D");
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Credentials")]
-        [TestCategory("Windows")]
-        public void WindowsBracketsNameTest()
-        {
-            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "X[]Y", "Z{}[]T");
+            FolderAndChildTest(GetTestHost("ftp"), "A and B", "C and D");
         }
 
         [TestMethod]
@@ -458,16 +413,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void BracketsNameTest()
         {
-            FolderAndChildTest(GetTestCredential("ftp"), "X[]Y", "Z{}[]T");
-        }
-
-        [TestMethod]
-        [TestCategory("FtpClient")]
-        [TestCategory("Credentials")]
-        [TestCategory("Windows")]
-        public void WindowsParenthesisNameTest()
-        {
-            FolderAndChildTest(GetTestCredential("ftp", "localhost"), "i()j", "k()l");
+            FolderAndChildTest(GetTestHost("ftp"), "X[]Y", "Z{}[]T");
         }
 
         [TestMethod]
@@ -475,14 +421,14 @@ namespace ArxOne.FtpTest
         [TestCategory("Credentials")]
         public void ParenthesisNameTest()
         {
-            FolderAndChildTest(GetTestCredential("ftp"), "i()j", "k()l");
+            FolderAndChildTest(GetTestHost("ftp"), "i()j", "k()l");
         }
 
-        private void FolderAndChildTest(Tuple<Uri, NetworkCredential> uriAndCredential, string folderName, string childName)
+        private void FolderAndChildTest(TestHost testHost, string folderName, string childName)
         {
-            using (var ftpClient = new FtpClient(uriAndCredential.Item1, uriAndCredential.Item2))
+            using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential))
             {
-                var folder = "/tmp/" + folderName;
+                var folder = (ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/") + folderName;
                 var file = folder + "/" + childName;
                 try
                 {
