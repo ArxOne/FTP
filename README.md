@@ -54,7 +54,7 @@ First of all, it is necessary to understand that the `FtpClient` instance can ha
 For example:
 ```csharp
 // main connection to target
-using (var ftpClient = new FtpClient(new Uri("ftp://server"), new NetworkCredentials("anonymous","me@me.com"))
+using (var ftpClient = new FtpClient(new Uri("ftp://server"), new NetworkCredential("anonymous","me@me.com"))
 {
     // using or creating a session
     using(var ftpSession = ftpClient.Session())
