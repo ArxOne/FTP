@@ -54,13 +54,13 @@ First of all, it is necessary to understand that the `FtpClient` instance can ha
 For example:
 ```csharp
 // main connection to target
-using (var ftpClient = new FtpClient(new Uri("ftp://server"), new NetworkCredential("anonymous","me@me.com"))
+using (var ftpClient = new FtpClient(new Uri("ftp://server"), new NetworkCredential("anonymous","me@me.com")))
 {
     // using or creating a session
     using(var ftpSession = ftpClient.Session())
     {
         // sending a custom command
-        var ftpReply = ftpClient.SendCommand(session, "STUFF", "here", "now");
+        var ftpReply = ftpClient.SendCommand(ftpSession, "STUFF", "here", "now");
         // checkin the result. The Expect method returns the FtpReply, so SendCommand() and Expect() can be nested.
         ftpClient.Expect(ftpReply, 200, 250);
     }
