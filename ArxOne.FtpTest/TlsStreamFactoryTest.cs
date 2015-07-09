@@ -18,7 +18,7 @@ namespace ArxOne.FtpTest
     public class TlsStreamFactoryTest
     {
         [TestMethod]
-        [TestCategory("FtpClient")]
+        [TestCategory("Consistency")]
         public void GetTlsStreamTypeTest()
         {
             var type = TlsStreamFactory.TlsStreamType;

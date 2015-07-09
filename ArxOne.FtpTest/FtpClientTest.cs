@@ -161,7 +161,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void FtpListTest()
         {
@@ -169,7 +169,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void FtpActiveListTest()
         {
@@ -177,7 +177,7 @@ namespace ArxOne.FtpTest
         }
 
         //[TestMethod]
-        //[TestCategory("Credentials")]
+        //[TestCategory("RequireHost")]
         //[TestCategory("Ftpes")]
         //public void FtpesListWithProtectionTest()
         //{
@@ -203,7 +203,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void FtpStatTest()
         {
@@ -216,7 +216,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void FtpStatNoDotTest()
         {
@@ -229,7 +229,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void FtpesStatTest()
         {
@@ -258,7 +258,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void CreateFileTest()
         {
@@ -266,16 +266,16 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void ActiveCreateFileTest()
         {
             CreateFileTest(false);
         }
 
-        public void CreateFileTest(bool passive, string hostType = null)
+        public void CreateFileTest(bool passive, string hostType = null, string protocol = "ftp")
         {
-            var ftpesTestHost = GetTestHost("ftp", hostType);
+            var ftpesTestHost = GetTestHost(protocol, hostType);
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
                 var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
@@ -295,7 +295,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void DeleteFileTest()
         {
@@ -312,7 +312,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void DeleteFolderTest()
         {
@@ -326,7 +326,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void DeleteTest()
         {
@@ -345,7 +345,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void CreateSpecialNameFolderTest()
         {
@@ -359,7 +359,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void CreateNonExistingSubFolderTest()
         {
@@ -375,7 +375,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
         public void CreateFolderTwiceTest()
         {
@@ -392,7 +392,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void FileExistsTest()
         {
@@ -417,7 +417,7 @@ namespace ArxOne.FtpTest
             }
         }
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void SpaceNameTest()
         {
@@ -425,7 +425,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void BracketsNameTest()
         {
@@ -433,7 +433,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
         public void ParenthesisNameTest()
         {
@@ -474,11 +474,19 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Ftps")]
         public void FtpsListTest()
         {
             ListTest(true, protocol: "ftps");
+        }
+
+        [TestMethod]
+        [TestCategory("RequireHost")]
+        [TestCategory("Ftps")]
+        public void FtpsCreateFileTest()
+        {
+            CreateFileTest(true, protocol: "ftps");
         }
     }
 }

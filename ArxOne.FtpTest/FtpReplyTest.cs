@@ -17,7 +17,7 @@ namespace ArxOne.FtpTest
     public class FtpReplyTest
     {
         [TestMethod]
-        [TestCategory("FtpClient")]
+        [TestCategory("Consistency")]
         public void ReadMultilineTest()
         {
             var ftpReply = new FtpReply();

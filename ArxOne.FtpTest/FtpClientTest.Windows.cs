@@ -15,7 +15,7 @@ namespace ArxOne.FtpTest
     {
         [TestMethod]
         [TestCategory("Windows")]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         public void WindowsCreateFileTest()
         {
             CreateFileTest(true, "win");
@@ -23,7 +23,7 @@ namespace ArxOne.FtpTest
 
         [TestMethod]
         [TestCategory("Windows")]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         public void WindowsActiveCreateFileTest()
         {
             CreateFileTest(false, "win");
@@ -31,7 +31,7 @@ namespace ArxOne.FtpTest
 
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Windows")]
         public void WindowsServerTest()
         {
@@ -44,7 +44,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Windows")]
         public void WindowsSpaceNameTest()
         {
@@ -53,7 +53,7 @@ namespace ArxOne.FtpTest
 
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Windows")]
         public void WindowsBracketsNameTest()
         {
@@ -61,7 +61,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         [TestCategory("Windows")]
         public void WindowsParenthesisNameTest()
         {
@@ -70,7 +70,7 @@ namespace ArxOne.FtpTest
 
         [TestMethod]
         [TestCategory("Windows")]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         public void WindowsFtpListTest()
         {
             ListTest(true, "win");
@@ -78,7 +78,7 @@ namespace ArxOne.FtpTest
 
         [TestMethod]
         [TestCategory("Windows")]
-        [TestCategory("Credentials")]
+        [TestCategory("RequireHost")]
         public void WindowsFtpActiveListTest()
         {
             ListTest(false, "win");

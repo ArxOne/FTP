@@ -17,7 +17,7 @@ namespace ArxOne.FtpTest
     public class FtpReplyCodeTest
     {
         [TestMethod]
-        [TestCategory("FtpClient")]
+        [TestCategory("Consistency")]
         public void ClassTest()
         {
             var code = new FtpReplyCode(450);
@@ -25,7 +25,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
+        [TestCategory("Consistency")]
         public void SeverityTest()
         {
             var code = new FtpReplyCode(450);
