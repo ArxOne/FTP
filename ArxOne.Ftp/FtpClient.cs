@@ -141,6 +141,32 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
+        /// Checks the protection.
+        /// </summary>
+        /// <param name="sessionHandle">The session handle.</param>
+        /// <param name="requiredChannelProtection">The required channel protection.</param>
+        protected void CheckProtection(FtpSessionHandle sessionHandle, FtpProtection requiredChannelProtection)
+        {
+            // for FTP, don't even bother
+            if (sessionHandle.Session.Protocol == FtpProtocol.Ftp)
+                return;
+            var prot = ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
+            sessionHandle.Session.State["PROT"] = prot;
+        }
+
+        /// <summary>
+        /// Opens a data stream.
+        /// </summary>
+        /// <param name="handle">The sequence.</param>
+        /// <param name="mode">The mode.</param>
+        /// <returns></returns>
+        internal Stream OpenDataStream(FtpSessionHandle handle, FtpTransferMode mode)
+        {
+            CheckProtection(handle, FtpProtection.DataChannel);
+            return handle.Session.OpenDataStream(Passive, ConnectTimeout, ReadWriteTimeout, mode);
+        }
+
+        /// <summary>
         /// Retries the specified action.
         /// </summary>
         /// <typeparam name="TResult">The type of the ret.</typeparam>
@@ -237,7 +263,7 @@ namespace ArxOne.Ftp
         {
             var reply = Process(session =>
                   {
-                      CheckProtection(session, true);
+                      CheckProtection(session, FtpProtection.CommandChannel);
                       return Expect(SendCommand(session, "STAT", EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
@@ -431,7 +457,7 @@ namespace ArxOne.Ftp
 
         private FtpEntry ProcessGetEntry(FtpSessionHandle handle, FtpPath path)
         {
-            CheckProtection(handle, true);
+            CheckProtection(handle, FtpProtection.CommandChannel);
             var reply = handle.Session.SendCommand("STAT", EscapePath(path.ToString()));
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;

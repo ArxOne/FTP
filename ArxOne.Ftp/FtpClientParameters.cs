@@ -73,6 +73,16 @@ namespace ArxOne.Ftp
         public Func<EndPoint, Socket> ProxyConnect { get; set; }
 
         /// <summary>
+        /// Gets or sets the channel protection.
+        /// Leave to null to use default value according to protocol
+        /// (false for FTP, true for FTPS and FTPES)
+        /// </summary>
+        /// <value>
+        /// The channel protection.
+        /// </value>
+        public FtpProtection? ChannelProtection { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FtpClientParameters"/> class.
         /// </summary>
         public FtpClientParameters()

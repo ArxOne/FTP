@@ -73,6 +73,7 @@
     <Compile Include="Exceptions\FtpProtocolException.cs" />
     <Compile Include="Exceptions\FtpTransportException.cs" />
     <Compile Include="FtpPath.cs" />
+    <Compile Include="FtpProtection.cs" />
     <Compile Include="FtpServerType.cs" />
     <Compile Include="IO\FtpActiveStream.cs" />
     <Compile Include="FtpClient.cs" />

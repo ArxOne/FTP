@@ -222,7 +222,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private bool ProcessConnect(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
-            InitializeTransport(connectTimeout, readWriteTimeout);
+            InitializeTransport(connectTimeout, readWriteTimeout, Protocol == FtpProtocol.FtpS);
             InitializeProtocol();
             InitializeSession();
             return true;
@@ -233,7 +233,9 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readWriteTimeout">The read write timeout.</param>
-        private void InitializeTransport(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
+        /// <param name="ssl">if set to <c>true</c> [SSL].</param>
+        /// <exception cref="FtpTransportException">Socket not connected to  + _host + , message= + message</exception>
+        private void InitializeTransport(TimeSpan connectTimeout, TimeSpan readWriteTimeout, bool ssl)
         {
             // first of all, set defaults...
             // ... encoding
@@ -246,6 +248,9 @@ namespace ArxOne.Ftp
             if (protocolStream == null)
                 throw new FtpTransportException("Socket not connected to " + _host + ", message=" + message);
             _protocolStream = protocolStream;
+
+            if (ssl)
+                EnterSslProtocol();
 
             // on connection a 220 message is expected
             // (the dude says hello)
@@ -305,8 +310,6 @@ namespace ArxOne.Ftp
         /// </summary>
         private void InitializeTransportEncoding()
         {
-            CheckServerFeatures();
-
             // try to switch to UTF8 if not already the case
             if (_ftpClient.DefaultEncoding == null && HasFeature("UTF8"))
             {
@@ -361,8 +364,7 @@ namespace ArxOne.Ftp
         /// <param name="chain">The chain.</param>
         /// <param name="sslpolicyerrors">The sslpolicyerrors.</param>
         /// <returns></returns>
-        private bool CheckCertificateHandler(object sender, X509Certificate certificate, X509Chain chain,
-            SslPolicyErrors sslpolicyerrors)
+        private bool CheckCertificateHandler(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
         {
             var e = new CheckCertificateEventArgs(certificate, chain, sslpolicyerrors);
             _ftpClient.OnCheckCertificate(e);
@@ -583,9 +585,12 @@ namespace ArxOne.Ftp
         public Stream OpenDataStream(bool passive, TimeSpan connectTimeout, TimeSpan readWriteTimeout, FtpTransferMode mode)
         {
             SetTransferMode(mode);
+            Stream stream;
             if (passive)
-                return OpenPassiveDataStream(connectTimeout, readWriteTimeout);
-            return OpenActiveDataStream(connectTimeout, readWriteTimeout);
+                stream = OpenPassiveDataStream(connectTimeout, readWriteTimeout);
+            else
+                stream = OpenActiveDataStream(connectTimeout, readWriteTimeout);
+            return stream;
         }
 
         private static readonly Regex EpsvEx = new Regex(@".*?\(\|\|\|(?<port>\d*)\|\)", RegexOptions.Compiled);
@@ -643,6 +648,7 @@ namespace ArxOne.Ftp
             socket.Connect(host, port, connectTimeout);
             if (!socket.Connected)
                 throw new FtpTransportException("Socket error to " + host);
+
             return new FtpStream(socket, this);
         }
 
@@ -705,6 +711,10 @@ namespace ArxOne.Ftp
         /// <param name="parameterValue">The parameter value.</param>
         public void CheckSessionParameter(string parameterName, string parameterValue)
         {
+            // First of all, check that feature exists
+            if (!HasFeature(parameterName))
+                return;
+            // Then see if it is required
             lock (_sessionState)
             {
                 string currentParameterValue;

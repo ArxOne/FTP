@@ -34,7 +34,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
         public bool Passive { get; private set; }
-      
+
         /// <summary>
         /// Gets the active transfer host.
         /// </summary>
@@ -106,6 +106,14 @@ namespace ArxOne.Ftp
                 return _defaultParameters;
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether data channel protection is active.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [_data channel protection]; otherwise, <c>false</c>.
+        /// </value>
+        public FtpProtection ChannelProtection { get; private set; }
 
         /// <summary>
         /// Occurs when [check certificate].
@@ -200,6 +208,27 @@ namespace ArxOne.Ftp
             AnonymousPassword = parameters.AnonymousPassword;
             DefaultEncoding = parameters.DefaultEncoding;
             ProxyConnect = parameters.ProxyConnect;
+            ChannelProtection = parameters.ChannelProtection ?? GetDefaultDataChannelProtection(Uri);
+        }
+
+        /// <summary>
+        /// Gets the default data channel protection.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <returns></returns>
+        private static FtpProtection GetDefaultDataChannelProtection(Uri uri)
+        {
+            switch (GetProtocol(uri))
+            {
+                case FtpProtocol.Ftp:
+                    return FtpProtection.Ftp;
+                case FtpProtocol.FtpS:
+                    return FtpProtection.FtpS;
+                case FtpProtocol.FtpES:
+                    return FtpProtection.FtpES;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -458,29 +487,6 @@ namespace ArxOne.Ftp
         {
             FtpSession.Expect(reply, codes);
             return reply;
-        }
-
-        /// <summary>
-        /// Checks the protection.
-        /// </summary>
-        /// <param name="sessionHandle">The session handle.</param>
-        /// <param name="protection">if set to <c>true</c> [protection].</param>
-        protected static void CheckProtection(FtpSessionHandle sessionHandle, bool protection)
-        {
-            if (sessionHandle.Session.Protocol == FtpProtocol.FtpES)
-                sessionHandle.Session.State["PROT"] = protection ? "P" : "C";
-        }
-
-        /// <summary>
-        /// Opens a data stream.
-        /// </summary>
-        /// <param name="handle">The sequence.</param>
-        /// <param name="mode">The mode.</param>
-        /// <returns></returns>
-        internal Stream OpenDataStream(FtpSessionHandle handle, FtpTransferMode mode)
-        {
-            CheckProtection(handle, false);
-            return handle.Session.OpenDataStream(Passive, ConnectTimeout, ReadWriteTimeout, mode);
         }
 
         /// <summary>

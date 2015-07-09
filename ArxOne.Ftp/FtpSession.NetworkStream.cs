@@ -90,9 +90,23 @@ namespace ArxOne.Ftp
         {
             if (stream is SslStream)
                 return stream;
-            var sslStream = new SslStream(_protocolStream, true, CheckCertificateHandler);
-            sslStream.AuthenticateAsClient(_host, null, SslProtocols.Ssl2 | SslProtocols.Ssl3 | SslProtocols.Tls, false);
+            var sslStream = new SslStream(stream, false, CheckCertificateHandler);
+            sslStream.AuthenticateAsClient(_host, null, SslProtocols.Ssl3 | SslProtocols.Tls, false);
             return sslStream;
+        }
+
+        /// <summary>
+        /// Creates a data stream, optionnally secured.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <returns></returns>
+        /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state. </exception>
+        internal Stream CreateDataStream(Socket socket)
+        {
+            Stream stream = new NetworkStream(socket, true);
+            if (_ftpClient.ChannelProtection.HasFlag(FtpProtection.DataChannel))
+                stream = UpgradeToSsl(stream);
+            return stream;
         }
     }
 }

@@ -45,21 +45,9 @@ namespace ArxOne.Ftp.IO
         /// <param name="session">The session.</param>
         public FtpStream(Socket socket, FtpSession session)
         {
+            Session = session;
+            Session.AddReference();
             SetSocket(socket);
-            Session = session;
-            Session.AddReference();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FtpStream"/> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="session">The session.</param>
-        public FtpStream(Stream stream, FtpSession session)
-        {
-            _innerStream = stream;
-            Session = session;
-            Session.AddReference();
         }
 
         /// <summary>
@@ -78,7 +66,7 @@ namespace ArxOne.Ftp.IO
         /// <param name="socket">The socket.</param>
         protected void SetSocket(Socket socket)
         {
-            _innerStream = new NetworkStream(socket, FileAccess.ReadWrite);
+            _innerStream = Session.CreateDataStream(socket);
             _innerSocket = socket;
             _innerSocket.SendBufferSize = 1492;
         }

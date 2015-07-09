@@ -14,7 +14,6 @@ namespace ArxOne.FtpTest
     partial class FtpClientTest
     {
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Windows")]
         [TestCategory("Credentials")]
         public void WindowsCreateFileTest()
@@ -23,7 +22,6 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Windows")]
         [TestCategory("Credentials")]
         public void WindowsActiveCreateFileTest()
@@ -33,7 +31,6 @@ namespace ArxOne.FtpTest
 
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         [TestCategory("Windows")]
         public void WindowsServerTest()
@@ -47,7 +44,6 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         [TestCategory("Windows")]
         public void WindowsSpaceNameTest()
@@ -57,7 +53,6 @@ namespace ArxOne.FtpTest
 
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         [TestCategory("Windows")]
         public void WindowsBracketsNameTest()
@@ -66,7 +61,6 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Credentials")]
         [TestCategory("Windows")]
         public void WindowsParenthesisNameTest()
@@ -75,21 +69,19 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Windows")]
         [TestCategory("Credentials")]
         public void WindowsFtpListTest()
         {
-            FtpListTest(true, "win");
+            ListTest(true, "win");
         }
 
         [TestMethod]
-        [TestCategory("FtpClient")]
         [TestCategory("Windows")]
         [TestCategory("Credentials")]
         public void WindowsFtpActiveListTest()
         {
-            FtpListTest(false, "win");
+            ListTest(false, "win");
         }
     }
 }

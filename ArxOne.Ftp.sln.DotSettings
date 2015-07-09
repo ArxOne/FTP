@@ -3,4 +3,6 @@
 A simple FTP client&#xD;
 https://github.com/ArxOne/FTP&#xD;
 Released under MIT license http://opensource.org/licenses/MIT</s:String>
-	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegionName/@EntryValue">Arx One FTP</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegionName/@EntryValue">Arx One FTP</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=ES/@EntryIndexedValue">ES</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=IO/@EntryIndexedValue">IO</s:String></wpf:ResourceDictionary>
