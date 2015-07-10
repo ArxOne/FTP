@@ -72,11 +72,13 @@ namespace ArxOne.Ftp
         /// <value>The credential.</value>
         public NetworkCredential Credential { get; private set; }
 
+        private IList<string> _features;
+
         /// <summary>
         /// Gets the features.
         /// </summary>
         /// <value>The features.</value>
-        public IList<string> Features { get; internal set; }
+        public IList<string> Features { get { return GetFeatures(null); } }
 
         /// <summary>
         /// Gets or sets the anonymous password.
@@ -300,15 +302,63 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
-        /// Determines whether the specified feature has feature.
+        /// Gets the features.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        private IList<string> GetFeatures(FtpSession session)
+        {
+            if (_features == null)
+            {
+                if (session != null)
+                    _features = LoadFeatures(session);
+                else
+                    using (var newSession = Session())
+                        _features = LoadFeatures(newSession.Session);
+            }
+            return _features;
+        }
+
+        /// <summary>
+        /// Loads the features.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        private static IList<string> LoadFeatures(FtpSession session)
+        {
+            var featuresReply = session.SendCommand("FEAT");
+            if (featuresReply.Code == 211)
+            {
+                var featuresQuery = from line in featuresReply.Lines.Skip(1).Take(featuresReply.Lines.Length - 2)
+                                    select line.Trim();
+                return new List<string>(featuresQuery);
+            }
+            return new string[0];
+        }
+
+        /// <summary>
+        /// Determines whether the specified feature has a requested feature.
+        /// </summary>
+        /// <param name="feature">The feature.</param>
+        /// <param name="session">The session.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
+        /// </returns>
+        internal bool HasFeature(string feature, FtpSession session)
+        {
+            return GetFeatures(session).Any(f => string.Equals(f, feature, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Determines whether the specified feature has a requested feature.
         /// </summary>
         /// <param name="feature">The feature.</param>
         /// <returns>
-        /// 	<c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
         /// </returns>
         public bool HasFeature(string feature)
         {
-            return Features.Any(f => string.Equals(f, feature, StringComparison.InvariantCultureIgnoreCase));
+            return HasFeature(feature, null);
         }
 
         /// <summary>

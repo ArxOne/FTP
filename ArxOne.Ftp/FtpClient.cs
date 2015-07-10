@@ -4,6 +4,7 @@
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
+
 namespace ArxOne.Ftp
 {
     using System;
@@ -11,8 +12,6 @@ namespace ArxOne.Ftp
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Text;
-    using System.Text.RegularExpressions;
     using Exceptions;
     using IO;
     using Platform;
