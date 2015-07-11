@@ -262,7 +262,7 @@ namespace ArxOne.Ftp
         {
             var reply = Process(session =>
                   {
-                      CheckProtection(session, FtpProtection.CommandChannel);
+                      CheckProtection(session, FtpProtection.ControlChannel);
                       return Expect(SendCommand(session, "STAT", EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
@@ -456,7 +456,7 @@ namespace ArxOne.Ftp
 
         private FtpEntry ProcessGetEntry(FtpSessionHandle handle, FtpPath path)
         {
-            CheckProtection(handle, FtpProtection.CommandChannel);
+            CheckProtection(handle, FtpProtection.ControlChannel);
             var reply = handle.Session.SendCommand("STAT", EscapePath(path.ToString()));
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;

@@ -72,19 +72,21 @@ namespace ArxOne.Ftp
         /// <value>The credential.</value>
         public NetworkCredential Credential { get; private set; }
 
-        private IList<string> _features;
-
-        /// <summary>
-        /// Gets the features.
-        /// </summary>
-        /// <value>The features.</value>
-        public IList<string> Features { get { return GetFeatures(null); } }
-
         /// <summary>
         /// Gets or sets the anonymous password.
         /// </summary>
         /// <value>The anonymous password.</value>
         public string AnonymousPassword { get; private set; }
+
+        private FtpServerFeatures _serverFeatures;
+
+        /// <summary>
+        /// Gets the server features.
+        /// </summary>
+        /// <value>
+        /// The server features.
+        /// </value>
+        public FtpServerFeatures ServerFeatures { get { return GetServerFeatures(null); } }
 
         /// <summary>
         /// Gets or sets the default encoding.
@@ -306,17 +308,17 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private IList<string> GetFeatures(FtpSession session)
+        private FtpServerFeatures GetServerFeatures(FtpSession session)
         {
-            if (_features == null)
+            if (_serverFeatures == null)
             {
                 if (session != null)
-                    _features = LoadFeatures(session);
+                    _serverFeatures = LoadServerFeatures(session);
                 else
                     using (var newSession = Session())
-                        _features = LoadFeatures(newSession.Session);
+                        _serverFeatures = LoadServerFeatures(newSession.Session);
             }
-            return _features;
+            return _serverFeatures;
         }
 
         /// <summary>
@@ -324,16 +326,16 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private static IList<string> LoadFeatures(FtpSession session)
+        private static FtpServerFeatures LoadServerFeatures(FtpSession session)
         {
             var featuresReply = session.SendCommand("FEAT");
             if (featuresReply.Code == 211)
             {
                 var featuresQuery = from line in featuresReply.Lines.Skip(1).Take(featuresReply.Lines.Length - 2)
                                     select line.Trim();
-                return new List<string>(featuresQuery);
+                return new FtpServerFeatures(featuresQuery);
             }
-            return new string[0];
+            return new FtpServerFeatures(new string[0]);
         }
 
         /// <summary>
@@ -344,21 +346,9 @@ namespace ArxOne.Ftp
         /// <returns>
         ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
         /// </returns>
-        internal bool HasFeature(string feature, FtpSession session)
+        internal bool HasServerFeature(string feature, FtpSession session)
         {
-            return GetFeatures(session).Any(f => string.Equals(f, feature, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        /// <summary>
-        /// Determines whether the specified feature has a requested feature.
-        /// </summary>
-        /// <param name="feature">The feature.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
-        /// </returns>
-        public bool HasFeature(string feature)
-        {
-            return HasFeature(feature, null);
+            return GetServerFeatures(session).HasFeature(feature);
         }
 
         /// <summary>

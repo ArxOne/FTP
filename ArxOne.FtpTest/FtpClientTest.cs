@@ -26,7 +26,7 @@ namespace ArxOne.FtpTest
     public partial class FtpClientTest
     {
         // Don't know why, but with pure-ftp, protection on data channel fails
-        public const FtpProtection FtpESProtection = FtpProtection.CommandChannel;
+        public const FtpProtection FtpESProtection = FtpProtection.ControlChannel;
 
         [DebuggerDisplay("{HostType}-->{Uri}")]
         private class TestHost
@@ -188,7 +188,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void FtpesListWithoutProtectionTest()
         {
-            ListTest(true, protocol: "ftpes", protection: FtpProtection.CommandChannel);
+            ListTest(true, protocol: "ftpes", protection: FtpProtection.ControlChannel);
         }
 
         private static void ListTest(bool passive, string hostType = null, FtpProtection? protection = null, string protocol = "ftp")

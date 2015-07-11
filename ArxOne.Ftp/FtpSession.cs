@@ -311,7 +311,7 @@ namespace ArxOne.Ftp
         private void InitializeTransportEncoding()
         {
             // try to switch to UTF8 if not already the case
-            if (_ftpClient.DefaultEncoding == null && _ftpClient.HasFeature("UTF8", this))
+            if (_ftpClient.DefaultEncoding == null && _ftpClient.HasServerFeature("UTF8", this))
             {
                 Expect(SendCommand(ProtocolStream, "OPTS", "UTF8", "ON"), 200);
                 Encoding = Encoding.UTF8;
@@ -576,7 +576,7 @@ namespace ArxOne.Ftp
         {
             string host;
             int port;
-            if (_ftpClient.HasFeature("EPSV", this))
+            if (_ftpClient.HasServerFeature("EPSV", this))
             {
                 var reply = Expect(SendCommand("EPSV"), 229);
                 var match = EpsvEx.Match(reply.Lines[0]);
@@ -634,7 +634,7 @@ namespace ArxOne.Ftp
             socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
             socket.Bind(new IPEndPoint(HostAddress, 0));
             var port = ((IPEndPoint)socket.LocalEndPoint).Port;
-            if (_ftpClient.HasFeature("EPRT", this))
+            if (_ftpClient.HasServerFeature("EPRT", this))
                 Expect(SendCommand(string.Format("EPRT |{0}|{1}|{2}|", HostAddress.AddressFamily == AddressFamily.InterNetwork ? 1 : 2, HostAddress, port)), 200);
             else
             {
@@ -682,7 +682,7 @@ namespace ArxOne.Ftp
         public void CheckSessionParameter(string parameterName, string parameterValue)
         {
             // First of all, check that feature exists
-            if (!_ftpClient.HasFeature(parameterName, this))
+            if (!_ftpClient.HasServerFeature(parameterName, this))
                 return;
             // Then see if it is required
             lock (_sessionState)

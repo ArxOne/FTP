@@ -16,9 +16,9 @@ namespace ArxOne.Ftp
     public enum FtpProtection
     {
         /// <summary>
-        /// Protection on command channel
+        /// Protection on control channel
         /// </summary>
-        CommandChannel = 0x01,
+        ControlChannel = 0x01,
         /// <summary>
         /// Protection on data channel
         /// </summary>
@@ -27,7 +27,7 @@ namespace ArxOne.Ftp
         /// <summary>
         /// All channels protection
         /// </summary>
-        AllChannels = CommandChannel | DataChannel,
+        AllChannels = ControlChannel | DataChannel,
 
         /// <summary>
         /// The FTP default protection
