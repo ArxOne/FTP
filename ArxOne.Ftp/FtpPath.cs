@@ -76,6 +76,9 @@ namespace ArxOne.Ftp
         /// </returns>
         public static FtpPath operator +(FtpPath path, string fileName)
         {
+            if (fileName.StartsWith(Separator.ToString()))
+                return new FtpPath(fileName);
+            // simple concatenation
             if (path._path.EndsWith(Separator.ToString()))
                 return new FtpPath(path._path + fileName);
             return new FtpPath(path._path + Separator + fileName);

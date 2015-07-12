@@ -73,6 +73,7 @@
     <Compile Include="FtpClientTest.Windows.cs" />
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
+    <Compile Include="MlsxTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TlsStreamFactoryTest.cs" />
   </ItemGroup>

@@ -9,6 +9,7 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -39,14 +40,6 @@ namespace ArxOne.Ftp
                 return _system;
             }
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is unix.
-        /// Important: using this propery may send a command to server, so use outside command sequences
-        /// </summary>
-        /// <value><c>true</c> if this instance is unix; otherwise, <c>false</c>.</value>
-        [Obsolete("Use ServerType instead")]
-        public bool IsUnix { get { return ServerType == FtpServerType.Unix; } }
 
         private FtpServerType? _serverType;
         /// <summary>
@@ -475,6 +468,176 @@ namespace ArxOne.Ftp
         public FtpReply SendSingleCommand(string command, params string[] parameters)
         {
             return Process(handle => handle.Session.SendCommand(command, parameters));
+        }
+
+        /// <summary>
+        /// Sends a MLST command.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public string Mlst(FtpPath path)
+        {
+            var reply = Process(session =>
+            {
+                CheckProtection(session, FtpProtection.ControlChannel);
+                return Expect(SendCommand(session, "MLST", EscapePath(path.ToString())), 250);
+            });
+            return reply.Lines[1];
+        }
+
+        /// <summary>
+        /// Sends a MLST command.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public FtpEntry MlstEntry(FtpPath path)
+        {
+            return ParseMlsx(Mlst(path), path);
+        }
+
+        /// <summary>
+        /// Sends LIST command.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public IList<string> Mlsd(FtpPath path)
+        {
+            return Process(handle => ProcessMlsd(handle, path));
+        }
+
+        /// <summary>
+        /// Sends MLSD command, parses result.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public IEnumerable<FtpEntry> MlsdEntries(FtpPath path)
+        {
+            return Mlsd(path).Select(m => ParseMlsx(m, path));
+        }
+
+
+        /// <summary>
+        /// Processes the list.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        private IList<string> ProcessMlsd(FtpSessionHandle handle, FtpPath path)
+        {
+            // Open data channel
+            using (var dataStream = OpenDataStream(handle, FtpTransferMode.Binary))
+            {
+                // then command is sent
+                var reply = Expect(SendCommand(handle, "MLSD", EscapePath(path.ToString())), 125, 150, 425);
+                if (!reply.Code.IsSuccess)
+                {
+                    Abort(dataStream);
+                    if (reply.Code.Class == FtpReplyCodeClass.Connections)
+                        throw new IOException();
+                }
+                using (var streamReader = new StreamReader(dataStream, ((IFtpStream)dataStream).ProtocolEncoding))
+                {
+                    var list = new List<string>();
+                    for (; ; )
+                    {
+                        var line = streamReader.ReadLine();
+                        if (line == null)
+                            break;
+                        list.Add(line);
+                    }
+                    return list;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parses a MLSx line.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="parent">The parent.</param>
+        /// <returns></returns>
+        internal /* test */ static FtpEntry ParseMlsx(string line, FtpPath parent)
+        {
+            var mlsxLine = ReadMlsxLine(line);
+            return new FtpEntry(parent, mlsxLine.Item1,
+                size: GetFact(mlsxLine.Item2, "Size", f => long.Parse(f), () => (long?)null),
+                type: GetFact(mlsxLine.Item2, "Type", GetTypeFact, () => FtpEntryType.File),
+                date: GetFact(mlsxLine.Item2, "Modify", GetDateFact, () => DateTime.MinValue),
+                target: null);
+        }
+
+        /// <summary>
+        /// Gets the date fact.
+        /// </summary>
+        /// <param name="factValue">The fact value.</param>
+        /// <returns></returns>
+        private static DateTime GetDateFact(string factValue)
+        {
+            DateTime date;
+            if (DateTime.TryParseExact(factValue, new[] { "yyyyMMddhhmmss", "yyyyMMddhhmmss.fff" }, CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal, out date))
+                return date;
+            return DateTime.MinValue;
+        }
+
+        /// <summary>
+        /// Gets the type fact.
+        /// </summary>
+        /// <param name="factValue">The fact value.</param>
+        /// <returns></returns>
+        private static FtpEntryType GetTypeFact(string factValue)
+        {
+            if (string.Equals(factValue, "dir", StringComparison.CurrentCultureIgnoreCase)
+            || string.Equals(factValue, "cdir", StringComparison.CurrentCultureIgnoreCase)
+            || string.Equals(factValue, "pdir", StringComparison.CurrentCultureIgnoreCase))
+                return FtpEntryType.Directory;
+            if (string.Equals(factValue, "os.unix=symlink", StringComparison.CurrentCultureIgnoreCase))
+                return FtpEntryType.Link;
+            return FtpEntryType.File;
+        }
+
+        /// <summary>
+        /// Gets the fact (abstract method for lazy people).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="facts">The facts.</param>
+        /// <param name="factName">Name of the fact.</param>
+        /// <param name="parseFactValue">The parse fact value.</param>
+        /// <param name="getDefault">The get default.</param>
+        /// <returns></returns>
+        private static TValue GetFact<TValue>(IDictionary<string, string> facts, string factName, Func<string, TValue> parseFactValue,
+            Func<TValue> getDefault)
+        {
+            string factValue;
+            if (!facts.TryGetValue(factName, out factValue))
+                return getDefault();
+            try
+            {
+                return parseFactValue(factValue);
+            }
+            catch
+            {
+            }
+            return getDefault();
+        }
+
+        private static Tuple<string, IDictionary<string, string>> ReadMlsxLine(string line)
+        {
+            line = line.TrimStart();
+
+            var spaceIndex = line.IndexOf(' ');
+            if (spaceIndex < 0)
+                return null;
+
+            var allFacts = line.Substring(0, spaceIndex);
+            var fileName = line.Substring(spaceIndex + 1);
+            var facts = allFacts.Split(';');
+            var factsByKey = (from fact in facts
+                              let kv = fact.Split(new[] { '=' }, 2)
+                              where kv.Length == 2
+                              select new { Key = kv[0], Value = kv[1] })
+                .ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.InvariantCultureIgnoreCase);
+            return Tuple.Create<string, IDictionary<string, string>>(fileName, factsByKey);
         }
     }
 }

@@ -488,5 +488,53 @@ namespace ArxOne.FtpTest
         {
             CreateFileTest(true, protocol: "ftps");
         }
+        
+        [TestMethod]
+        [TestCategory("RequireHost")]
+        [TestCategory("Ftp")]
+        public void MlstTest()
+        {
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var m = ftpClient.Mlst("/");
+            }
+        }
+        
+        [TestMethod]
+        [TestCategory("RequireHost")]
+        [TestCategory("Ftp")]
+        public void MlstEntryTest()
+        {
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var e = ftpClient.MlstEntry("/");
+            }
+        }
+        
+        [TestMethod]
+        [TestCategory("RequireHost")]
+        [TestCategory("Ftp")]
+        public void MlsdTest()
+        {
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var list = ftpClient.Mlsd("/").ToList();
+            }
+        }
+        
+        [TestMethod]
+        [TestCategory("RequireHost")]
+        [TestCategory("Ftp")]
+        public void MlsdEntriesTest()
+        {
+            var ftpTestHost = GetTestHost("ftp");
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var list = ftpClient.MlsdEntries("/").ToList();
+            }
+        }
     }
 }
