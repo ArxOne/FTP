@@ -1,6 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxOne.Ftp", "ArxOne.Ftp\ArxOne.Ftp.csproj", "{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxOne.FtpTest", "ArxOne.FtpTest\ArxOne.FtpTest.csproj", "{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}"
