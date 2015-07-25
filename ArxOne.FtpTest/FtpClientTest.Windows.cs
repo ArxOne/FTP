@@ -42,46 +42,5 @@ namespace ArxOne.FtpTest
                 var s = ftpClient.StatEntries("/").ToArray();
             }
         }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Windows")]
-        public void WindowsSpaceNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp", "win"), "A and B", "C and D");
-        }
-
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Windows")]
-        public void WindowsBracketsNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp", "win"), "X[]Y", "Z{}[]T");
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Windows")]
-        public void WindowsParenthesisNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp", "win"), "i()j", "k()l");
-        }
-
-        [TestMethod]
-        [TestCategory("Windows")]
-        [TestCategory("RequireHost")]
-        public void WindowsFtpListTest()
-        {
-            ListTest(true, "win");
-        }
-
-        [TestMethod]
-        [TestCategory("Windows")]
-        [TestCategory("RequireHost")]
-        public void WindowsFtpActiveListTest()
-        {
-            ListTest(false, "win");
-        }
     }
 }

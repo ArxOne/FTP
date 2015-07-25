@@ -1,0 +1,8 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".auto.cs" #>
+
+<#
+    var Platform = "Vsftp";
+#>
+
+<#@ include file="Common\PlatformTest.tt" #>

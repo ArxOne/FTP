@@ -11,7 +11,7 @@ namespace ArxOne.FtpTest.Platform
     public class <#=Platform#>PlatformTest
 	{
 		 [TestCategory("Platform")]
-		 [TestCategory("<#=Platform#>")]
+		 [TestCategory("Platform:<#=Platform#>")]
 		 [TestMethod]
 		 public void <#=Platform#>SpaceNameTest()
 		 {
@@ -19,7 +19,7 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("<#=Platform#>")]
+		 [TestCategory("Platform:<#=Platform#>")]
 		 [TestMethod]
 		 public void <#=Platform#>BracketNameTest()
 		 {
@@ -27,7 +27,7 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("<#=Platform#>")]
+		 [TestCategory("Platform:<#=Platform#>")]
 		 [TestMethod]
 		 public void <#=Platform#>ParenthesisNameTest()
 		 {
@@ -35,7 +35,7 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("<#=Platform#>")]
+		 [TestCategory("Platform:<#=Platform#>")]
 		 [TestMethod]
 		 public void <#=Platform#>ListPassiveTest()
 		 {
@@ -43,7 +43,7 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("<#=Platform#>")]
+		 [TestCategory("Platform:<#=Platform#>")]
 		 [TestMethod]
 		 public void <#=Platform#>ListActiveTest()
 		 {
