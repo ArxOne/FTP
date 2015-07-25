@@ -1,0 +1,53 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<# // input required here: Platform
+// actual tests are located in PlatformTest.cs (because this is much easier to write)
+#>
+
+namespace ArxOne.FtpTest.Platform
+{
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+	[TestClass]
+    public class <#=Platform#>PlatformTest
+	{
+		 [TestCategory("Platform")]
+		 [TestCategory("<#=Platform#>")]
+		 [TestMethod]
+		 public void <#=Platform#>SpaceNameTest()
+		 {
+			PlatformTest.SpaceNameTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestCategory("<#=Platform#>")]
+		 [TestMethod]
+		 public void <#=Platform#>BracketNameTest()
+		 {
+			PlatformTest.BracketNameTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestCategory("<#=Platform#>")]
+		 [TestMethod]
+		 public void <#=Platform#>ParenthesisNameTest()
+		 {
+			PlatformTest.ParenthesisNameTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestCategory("<#=Platform#>")]
+		 [TestMethod]
+		 public void <#=Platform#>ListPassiveTest()
+		 {
+			PlatformTest.ListTest("<#=Platform#>", passive: true);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestCategory("<#=Platform#>")]
+		 [TestMethod]
+		 public void <#=Platform#>ListActiveTest()
+		 {
+			PlatformTest.ListTest("<#=Platform#>", passive: false);
+		 }
+	}
+}

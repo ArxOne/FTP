@@ -29,7 +29,7 @@ namespace ArxOne.FtpTest
         public const FtpProtection FtpESProtection = FtpProtection.ControlChannel;
 
         [DebuggerDisplay("{HostType}-->{Uri}")]
-        private class TestHost
+        internal class TestHost
         {
             public string HostType { get; set; }
             public Uri Uri { get; set; }
@@ -88,7 +88,7 @@ namespace ArxOne.FtpTest
             }
         }
 
-        private static TestHost GetTestHost(string protocol, string hostType = null)
+        internal static TestHost GetTestHost(string protocol, string hostType = null)
         {
             var t = EnumerateCredentials().FirstOrDefault(c => c.Uri.Scheme == protocol && (hostType == null || c.HostType == hostType));
             if (t == null)

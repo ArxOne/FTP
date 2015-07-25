@@ -38,6 +38,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -74,7 +76,19 @@
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
     <Compile Include="MlsxTest.cs" />
+    <Compile Include="Platform\Common\PlatformTest.cs" />
+    <Compile Include="Platform\FileZillaPlatformTest.auto.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileZillaPlatformTest.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Platform\IisPlatformTest.auto.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IisPlatformTest.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHost.cs" />
     <Compile Include="TlsStreamFactoryTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -109,12 +123,34 @@
     <None Include="..\ArxOne.Ftp\Properties\ArxOne.Ftp.snk">
       <Link>Properties\ArxOne.Ftp.snk</Link>
     </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Platform\FileZillaPlatformTest.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FileZillaPlatformTest.auto.cs</LastGenOutput>
+    </Content>
+    <Content Include="Platform\Common\PlatformTest.tt" />
+    <Content Include="Platform\IisPlatformTest.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IisPlatformTest.auto.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(SolutionDir)credentials.txt" copy "$(SolutionDir)credentials.txt" "$(TargetDir)"
 </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets" Condition="Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
