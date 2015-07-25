@@ -75,6 +75,7 @@
     <Compile Include="FtpClientTest.Windows.cs" />
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
+    <Compile Include="ListParseTest.cs" />
     <Compile Include="MlsxTest.cs" />
     <Compile Include="Platform\Common\PlatformTest.cs" />
     <Compile Include="Platform\FileZillaPlatformTest.auto.cs">

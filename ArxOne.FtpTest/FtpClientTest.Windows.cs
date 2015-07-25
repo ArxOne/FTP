@@ -28,8 +28,7 @@ namespace ArxOne.FtpTest
         {
             CreateFileTest(false, "win");
         }
-
-
+        
         [TestMethod]
         [TestCategory("RequireHost")]
         [TestCategory("Windows")]
