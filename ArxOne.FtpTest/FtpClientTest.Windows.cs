@@ -34,7 +34,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Windows")]
         public void WindowsServerTest()
         {
-            var ftpTestHost = GetTestHost("ftp", "win");
+            var ftpTestHost = TestHost.Get("ftp", "win");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var i = ftpClient.ServerType;
