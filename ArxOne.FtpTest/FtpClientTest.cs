@@ -28,79 +28,6 @@ namespace ArxOne.FtpTest
         // Don't know why, but with pure-ftp, protection on data channel fails
         public const FtpProtection FtpESProtection = FtpProtection.ControlChannel;
 
-        [DebuggerDisplay("{HostType}-->{Uri}")]
-        internal class TestHost
-        {
-            public string HostType { get; set; }
-            public Uri Uri { get; set; }
-            public NetworkCredential Credential { get; set; }
-        }
-
-        // Credentials.txt is a simple text file with URI (including credentials) formed as follows:
-        // - simple uri (such as 'ftp://user:pass@host:21')
-        // - specific host type (such as 'win-->ftp://user:pass@host:21').
-        // Please also note that first match is returned, so if only a protocol is asked, then any host type may be returned
-
-        private static IEnumerable<TestHost> EnumerateCredentials()
-        {
-            const string credentialsTxt = "credentials.txt";
-            if (!File.Exists(credentialsTxt))
-                Assert.Inconclusive("File '{0}' not found", credentialsTxt);
-            using (var streamReader = File.OpenText(credentialsTxt))
-            {
-                for (; ; )
-                {
-                    var line = streamReader.ReadLine();
-                    if (line == null)
-                        yield break;
-
-                    var typeAndUri = line.Split(new[] { "-->" }, 2, StringSplitOptions.RemoveEmptyEntries);
-                    string hostType;
-                    string uriAndCredentials;
-
-                    if (typeAndUri.Length == 1)
-                    {
-                        hostType = null;
-                        uriAndCredentials = line;
-                    }
-                    else
-                    {
-                        hostType = typeAndUri[0];
-                        uriAndCredentials = typeAndUri[1];
-                    }
-
-                    Uri uri;
-                    try
-                    {
-                        uri = new Uri(uriAndCredentials);
-                    }
-                    catch (UriFormatException)
-                    {
-                        continue;
-                    }
-                    var literalLoginAndPassword = HttpUtility.UrlDecode(uri.UserInfo.Replace("_at_", "@"));
-                    var loginAndPassword = literalLoginAndPassword.Split(new[] { ':' }, 2);
-                    var networkCredential = loginAndPassword.Length == 2
-                        ? new NetworkCredential(loginAndPassword[0], loginAndPassword[1])
-                        : CredentialCache.DefaultNetworkCredentials;
-                    yield return new TestHost { HostType = hostType, Uri = uri, Credential = networkCredential };
-                }
-            }
-        }
-
-        internal static TestHost GetTestHost(string protocol, string hostType = null)
-        {
-            var t = EnumerateCredentials().FirstOrDefault(c => c.Uri.Scheme == protocol && (hostType == null || c.HostType == hostType));
-            if (t == null)
-            {
-                if (hostType == null)
-                    Assert.Inconclusive("Found no configuration for protocol '{0}'", protocol);
-                else
-                    Assert.Inconclusive("Found no configuration for protocol '{0}' and host type '{1}'", protocol, hostType);
-            }
-            return t;
-        }
-
         [TestMethod]
         [TestCategory("RequireHost")]
         [TestCategory("Ftp")]
@@ -134,7 +61,7 @@ namespace ArxOne.FtpTest
 
         private static void ListTest(bool passive, string hostType = null, FtpProtection? protection = null, string protocol = "ftp")
         {
-            var ftpTestHost = GetTestHost(protocol, hostType);
+            var ftpTestHost = TestHost.Get(protocol, hostType);
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
             {
                 var list = ftpClient.ListEntries("/");
@@ -148,7 +75,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void FtpStatTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/");
@@ -161,7 +88,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void FtpStatNoDotTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/");
@@ -174,7 +101,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void FtpesStatTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var list = ftpClient.StatEntries("/").ToArray();
@@ -186,7 +113,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void ReadFileTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { ChannelProtection = FtpESProtection }))
             {
                 using (var s = ftpClient.Retr("/var/log/installer/status"))
@@ -216,7 +143,7 @@ namespace ArxOne.FtpTest
 
         public void CreateFileTest(bool passive, string hostType = null, string protocol = "ftp")
         {
-            var ftpesTestHost = GetTestHost(protocol, hostType);
+            var ftpesTestHost = TestHost.Get(protocol, hostType);
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
                 var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
@@ -240,7 +167,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void DeleteFileTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { ChannelProtection = FtpESProtection }))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
@@ -257,7 +184,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void DeleteFolderTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
@@ -271,7 +198,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void DeleteTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { ChannelProtection = FtpESProtection }))
             {
                 var path = "/tmp/file." + Guid.NewGuid();
@@ -290,7 +217,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void CreateSpecialNameFolderTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var path = "/tmp/file." + Guid.NewGuid() + "(D)";
@@ -304,7 +231,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void CreateNonExistingSubFolderTest()
         {
-            var ftpesTestHost = GetTestHost("ftpes");
+            var ftpesTestHost = TestHost.Get("ftpes");
             using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential))
             {
                 var parent = "/tmp/" + Guid.NewGuid().ToString("N");
@@ -320,7 +247,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftpes")]
         public void CreateFolderTwiceTest()
         {
-            var testHost = GetTestHost("ftpes");
+            var testHost = TestHost.Get("ftpes");
             var client = new FtpClient(testHost.Uri, testHost.Credential);
             using (var ftpClient = client)
             {
@@ -337,7 +264,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void FileExistsTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 const string directory = "/lib/";
@@ -355,62 +282,6 @@ namespace ArxOne.FtpTest
                 var oneLinkEntry = ftpClient.GetEntry(directory + oneLink.Name);
                 Assert.IsNotNull(oneLinkEntry);
                 Assert.AreEqual(FtpEntryType.Link, oneLinkEntry.Type);
-            }
-        }
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void SpaceNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp"), "A and B", "C and D");
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void BracketsNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp"), "X[]Y", "Z{}[]T");
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void ParenthesisNameTest()
-        {
-            FolderAndChildTest(GetTestHost("ftp"), "i()j", "k()l");
-        }
-
-        private void FolderAndChildTest(TestHost testHost, string folderName, string childName)
-        {
-            using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential))
-            {
-                var folder = (ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/") + folderName;
-                var file = folder + "/" + childName;
-                try
-                {
-                    ftpClient.Mkd(folder);
-                    using (var s = ftpClient.Stor(file))
-                        s.WriteByte(123);
-
-                    var c = ftpClient.ListEntries(folder).SingleOrDefault();
-                    Assert.IsNotNull(c);
-                    Assert.AreEqual(childName, c.Name);
-                    var c2 = ftpClient.StatEntries(folder).SingleOrDefault();
-                    Assert.IsNotNull(c2);
-                    Assert.AreEqual(childName, c2.Name);
-
-                    using (var r = ftpClient.Retr(file))
-                    {
-                        Assert.AreEqual(123, r.ReadByte());
-                        Assert.AreEqual(-1, r.ReadByte());
-                    }
-                }
-                finally
-                {
-                    ftpClient.Dele(file);
-                    ftpClient.Rmd(folder);
-                }
             }
         }
 
@@ -435,7 +306,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void MlstTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var m = ftpClient.Mlst("/");
@@ -447,7 +318,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void MlstEntryTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var e = ftpClient.MlstEntry("/");
@@ -459,7 +330,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void MlsdTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.Mlsd("/").ToList();
@@ -471,7 +342,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Ftp")]
         public void MlsdEntriesTest()
         {
-            var ftpTestHost = GetTestHost("ftp");
+            var ftpTestHost = TestHost.Get("ftp");
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
             {
                 var list = ftpClient.MlsdEntries("/").ToList();
