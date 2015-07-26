@@ -121,5 +121,51 @@ namespace ArxOne.FtpTest.Platform
                 ftpClient.Dele(path);
             }
         }
+
+        public static void MlstTest(string platform, bool passive = true, string protocol = "ftp")
+        {
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
+            {
+                ExpectFeature(ftpClient, "MLST");
+                var m = ftpClient.Mlst("/");
+            }
+        }
+
+        public static void MlstEntryTest(string platform, bool passive = true, string protocol = "ftp")
+        {
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
+            {
+                ExpectFeature(ftpClient, "MLST");
+                var e = ftpClient.MlstEntry("/");
+            }
+        }
+
+        public static void MlsdTest(string platform, bool passive = true, string protocol = "ftp")
+        {
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
+            {
+                ExpectFeature(ftpClient, "MLSD");
+                var list = ftpClient.Mlsd("/").ToList();
+            }
+        }
+
+        public static void MlsdEntriesTest(string platform, bool passive = true, string protocol = "ftp")
+        {
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
+            {
+                ExpectFeature(ftpClient, "MLSD");
+                var list = ftpClient.MlsdEntries("/").ToList();
+            }
+        }
+
+        private static void ExpectFeature(FtpClientCore ftpClient, string feature)
+        {
+            if (!ftpClient.ServerFeatures.HasFeature(feature))
+                Assert.Inconclusive("This server does not support {0} feature", feature);
+        }
     }
 }

@@ -92,5 +92,41 @@ namespace ArxOne.FtpTest.Platform
 		 {
 			PlatformTest.CreateFileTest("<#=Platform#>", passive: false);
 		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>MlstTest()
+		 {
+			PlatformTest.MlstTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>MlstEntryTest()
+		 {
+			PlatformTest.MlstEntryTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>MlsdTest()
+		 {
+			PlatformTest.MlsdTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>MlsdEntriesTest()
+		 {
+			PlatformTest.MlsdEntriesTest("<#=Platform#>");
+		 }
 	}
 }
