@@ -31,7 +31,7 @@ namespace ArxOne.FtpTest.Platform
 
         private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp")
         {
-            if(string.Equals(platform,"FileZilla",StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, this is a shame)");
             var testHost = TestHost.Get(protocol, platform);
             using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential))
@@ -71,8 +71,54 @@ namespace ArxOne.FtpTest.Platform
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
                 var list = ftpClient.ListEntries("/");
-                if (ftpClient.ServerType == FtpServerType.Unix)
-                    Assert.IsTrue(list.Any(e => e.Name == "tmp"));
+                // a small requirement: have a /tmp folderS
+                Assert.IsTrue(list.Any(e => e.Name == "tmp"));
+            }
+        }
+
+        public static void StatTest(string platform, string protocol = "ftp")
+        {
+            if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var list = ftpClient.StatEntries("/");
+                // a small requirement: have a /tmp folderS
+                Assert.IsTrue(list.Any(e => e.Name == "tmp"));
+            }
+        }
+
+        public static void StatNoDotTest(string platform, string protocol = "ftp")
+        {
+            if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+            var ftpTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
+            {
+                var list = ftpClient.StatEntries("/");
+                Assert.IsFalse(list.Any(e => e.Name == "." || e.Name == ".."));
+            }
+        }
+
+        public static void CreateFileTest(string platform, bool passive, string protocol = "ftp")
+        {
+            var ftpesTestHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive }))
+            {
+                var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
+                var path = directory + "file." + Guid.NewGuid();
+                using (var s = ftpClient.Stor(path))
+                {
+                    s.WriteByte(65);
+                }
+                using (var r = ftpClient.Retr(path))
+                {
+                    Assert.IsNotNull(r);
+                    Assert.AreEqual(65, r.ReadByte());
+                    Assert.AreEqual(-1, r.ReadByte());
+                }
+                ftpClient.Dele(path);
             }
         }
     }

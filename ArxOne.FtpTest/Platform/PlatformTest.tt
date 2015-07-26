@@ -13,8 +13,8 @@ namespace ArxOne.FtpTest.Platform
     public class <#=PlatformPrefix#>PlatformTest
 	{
 		 [TestCategory("Platform")]
-		 [TestProperty("Platform","<#=Platform#>")]
-		 [TestProperty("Protocol","FTP")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
 		 [TestMethod]
 		 public void <#=PlatformPrefix#>SpaceNameTest()
 		 {
@@ -22,8 +22,8 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestProperty("Platform","<#=Platform#>")]
-		 [TestProperty("Protocol","FTP")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
 		 [TestMethod]
 		 public void <#=PlatformPrefix#>BracketNameTest()
 		 {
@@ -31,8 +31,8 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestProperty("Platform","<#=Platform#>")]
-		 [TestProperty("Protocol","FTP")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
 		 [TestMethod]
 		 public void <#=PlatformPrefix#>ParenthesisNameTest()
 		 {
@@ -40,8 +40,8 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestProperty("Platform","<#=Platform#>")]
-		 [TestProperty("Protocol","FTP")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
 		 [TestMethod]
 		 public void <#=PlatformPrefix#>ListPassiveTest()
 		 {
@@ -49,12 +49,48 @@ namespace ArxOne.FtpTest.Platform
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestProperty("Platform","<#=Platform#>")]
-		 [TestProperty("Protocol","FTP")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
 		 [TestMethod]
 		 public void <#=PlatformPrefix#>ListActiveTest()
 		 {
 			PlatformTest.ListTest("<#=Platform#>", passive: false);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>StatTest()
+		 {
+			PlatformTest.StatTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>StatNoDotTest()
+		 {
+			PlatformTest.StatNoDotTest("<#=Platform#>");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>CreateFilePassiveTest()
+		 {
+			PlatformTest.CreateFileTest("<#=Platform#>", passive: true);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "FTP")]
+		 [TestMethod]
+		 public void <#=PlatformPrefix#>CreateFileActiveTest()
+		 {
+			PlatformTest.CreateFileTest("<#=Platform#>", passive: false);
 		 }
 	}
 }

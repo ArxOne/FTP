@@ -28,22 +28,6 @@ namespace ArxOne.FtpTest
         // Don't know why, but with pure-ftp, protection on data channel fails
         public const FtpProtection FtpESProtection = FtpProtection.ControlChannel;
 
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void FtpListTest()
-        {
-            ListTest(true);
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void FtpActiveListTest()
-        {
-            ListTest(false);
-        }
-
         //[TestMethod]
         //[TestCategory("RequireHost")]
         //[TestCategory("Ftpes")]
@@ -69,33 +53,7 @@ namespace ArxOne.FtpTest
                     Assert.IsTrue(list.Any(e => e.Name == "tmp"));
             }
         }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void FtpStatTest()
-        {
-            var ftpTestHost = TestHost.Get("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
-            {
-                var list = ftpClient.StatEntries("/");
-                Assert.IsTrue(list.Any(e => e.Name == "tmp"));
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void FtpStatNoDotTest()
-        {
-            var ftpTestHost = TestHost.Get("ftp");
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential))
-            {
-                var list = ftpClient.StatEntries("/");
-                Assert.IsFalse(list.Any(e => e.Name == "." || e.Name == ".."));
-            }
-        }
-
+        
         [TestMethod]
         [TestCategory("RequireHost")]
         [TestCategory("Ftpes")]
@@ -124,23 +82,7 @@ namespace ArxOne.FtpTest
                 }
             }
         }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void CreateFileTest()
-        {
-            CreateFileTest(true);
-        }
-
-        [TestMethod]
-        [TestCategory("RequireHost")]
-        [TestCategory("Ftp")]
-        public void ActiveCreateFileTest()
-        {
-            CreateFileTest(false);
-        }
-
+        
         public void CreateFileTest(bool passive, string hostType = null, string protocol = "ftp")
         {
             var ftpesTestHost = TestHost.Get(protocol, hostType);
