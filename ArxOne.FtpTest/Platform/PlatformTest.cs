@@ -14,19 +14,19 @@ namespace ArxOne.FtpTest.Platform
 
     internal static class PlatformTest
     {
-        public static void SpaceNameTest(string platform)
+        public static void SpaceNameTest(string platform, string protocol = "ftp")
         {
-            NameTest(platform, "A and B", "C and D");
+            NameTest(platform, "A and B", "C and D", protocol);
         }
 
-        public static void BracketNameTest(string platform)
+        public static void BracketNameTest(string platform, string protocol = "ftp")
         {
-            NameTest(platform, "X[]Y", "Z{}[]T");
+            NameTest(platform, "X[]Y", "Z{}[]T", protocol);
         }
 
-        public static void ParenthesisNameTest(string platform)
+        public static void ParenthesisNameTest(string platform, string protocol = "ftp")
         {
-            NameTest(platform, "i()j", "k()l");
+            NameTest(platform, "i()j", "k()l", protocol);
         }
 
         private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp")

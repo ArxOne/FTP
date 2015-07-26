@@ -96,7 +96,7 @@ namespace ArxOne.Ftp.IO
                             });
                         }
                     }
-                    Process(() => InnerStream.Dispose());
+                    Process(delegate { if (InnerStream != null) InnerStream.Dispose(); });
                 }
                 finally
                 {

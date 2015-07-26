@@ -11,11 +11,12 @@ namespace ArxOne.FtpTest
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class MlsxTest
+    public class MlsxParseTest
     {
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestCategory("Mlsx")]
-        public void SimpleFileTest()
+        public void ParseMlsxFileTest()
         {
             var e = FtpClient.ParseMlsx(" Type=file;Size=1024990;Perm=r; /tmp/cap60.pl198.tar.gz", "/zap");
             Assert.IsNotNull(e);
@@ -25,8 +26,9 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestCategory("Mlsx")]
-        public void SimpleDirTest()
+        public void ParseMlsxDirTest()
         {
             var e = FtpClient.ParseMlsx(" Type=dir;Modify=19981107085215;Perm=el; /tmp", "/zap");
             Assert.IsNotNull(e);
@@ -36,8 +38,9 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestCategory("Mlsx")]
-        public void DateTest()
+        public void ParseMlsxLongDateTest()
         {
             var e = FtpClient.ParseMlsx(" Type=file;Modify=19990929003355.237; file1", "/zap");
             Assert.IsNotNull(e);

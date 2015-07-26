@@ -20,6 +20,7 @@ namespace ArxOne.Ftp.IO
         private readonly TimeSpan _connectTimeout;
         private Socket _socket;
         private readonly EventWaitHandle _socketSet = new ManualResetEvent(false);
+        private IOException _exception;
 
         protected override Stream InnerStream
         {
@@ -44,13 +45,23 @@ namespace ArxOne.Ftp.IO
 
             if (!_socketSet.WaitOne(_connectTimeout))
                 throw new FtpTransportException("Active stream did not get connection");
+
+            if (_exception != null)
+                throw _exception;
         }
 
         private void OnSocketAccept(IAsyncResult ar)
         {
             var socket = (Socket)ar.AsyncState;
             _socket = socket.EndAccept(ar);
-            SetSocket(_socket);
+            try
+            {
+                SetSocket(_socket);
+            }
+            catch (IOException e)
+            {
+                _exception = e;
+            }
             _socketSet.Set();
         }
     }

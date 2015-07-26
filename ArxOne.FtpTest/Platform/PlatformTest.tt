@@ -1,8 +1,11 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
-<# // input required here: Platform
+﻿<# 
+// input required here: Platform, Protocol
 // actual tests are located in PlatformTest.cs (because this is much easier to write)
 
-	var PlatformPrefix=Platform.Substring(0,1).ToUpper()+Platform.Substring(1).ToLower();
+	PlatformPrefix = Platform.Substring(0,1).ToUpper() + Platform.Substring(1).ToLower();
+	ProtocolPrefix = Protocol.Substring(0,1).ToUpper() + Protocol.Substring(1).ToLower();
+	Prefix = PlatformPrefix + ProtocolPrefix;
+	ProtocolCategory = Protocol.ToUpper();
 #>
 
 namespace ArxOne.FtpTest.Platform
@@ -10,123 +13,123 @@ namespace ArxOne.FtpTest.Platform
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 	[TestClass]
-    public class <#=PlatformPrefix#>PlatformTest
+    public class <#=Prefix#>PlatformTest
 	{
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>SpaceNameTest()
+		 public void <#=Prefix#>SpaceNameTest()
 		 {
-			PlatformTest.SpaceNameTest("<#=Platform#>");
+			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>BracketNameTest()
+		 public void <#=Prefix#>BracketNameTest()
 		 {
-			PlatformTest.BracketNameTest("<#=Platform#>");
+			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>ParenthesisNameTest()
+		 public void <#=Prefix#>ParenthesisNameTest()
 		 {
-			PlatformTest.ParenthesisNameTest("<#=Platform#>");
+			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>ListPassiveTest()
+		 public void <#=Prefix#>ListPassiveTest()
 		 {
-			PlatformTest.ListTest("<#=Platform#>", passive: true);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true);
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>ListActiveTest()
+		 public void <#=Prefix#>ListActiveTest()
 		 {
-			PlatformTest.ListTest("<#=Platform#>", passive: false);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false);
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>StatTest()
+		 public void <#=Prefix#>StatTest()
 		 {
-			PlatformTest.StatTest("<#=Platform#>");
+			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>StatNoDotTest()
+		 public void <#=Prefix#>StatNoDotTest()
 		 {
-			PlatformTest.StatNoDotTest("<#=Platform#>");
+			PlatformTest.StatNoDotTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>CreateFilePassiveTest()
+		 public void <#=Prefix#>CreateFilePassiveTest()
 		 {
-			PlatformTest.CreateFileTest("<#=Platform#>", passive: true);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true);
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>CreateFileActiveTest()
+		 public void <#=Prefix#>CreateFileActiveTest()
 		 {
-			PlatformTest.CreateFileTest("<#=Platform#>", passive: false);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false);
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>MlstTest()
+		 public void <#=Prefix#>MlstTest()
 		 {
-			PlatformTest.MlstTest("<#=Platform#>");
+			PlatformTest.MlstTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>MlstEntryTest()
+		 public void <#=Prefix#>MlstEntryTest()
 		 {
-			PlatformTest.MlstEntryTest("<#=Platform#>");
+			PlatformTest.MlstEntryTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>MlsdTest()
+		 public void <#=Prefix#>MlsdTest()
 		 {
-			PlatformTest.MlsdTest("<#=Platform#>");
+			PlatformTest.MlsdTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 
 		 [TestCategory("Platform")]
 		 [TestProperty("Platform", "<#=Platform#>")]
-		 [TestProperty("Protocol", "FTP")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
-		 public void <#=PlatformPrefix#>MlsdEntriesTest()
+		 public void <#=Prefix#>MlsdEntriesTest()
 		 {
-			PlatformTest.MlsdEntriesTest("<#=Platform#>");
+			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
 		 }
 	}
 }

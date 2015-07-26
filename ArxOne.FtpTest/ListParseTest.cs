@@ -19,6 +19,7 @@ namespace ArxOne.FtpTest
         ///A test for ParseUnix
         ///</summary>
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestProperty("OS", "Unix")]
         public void ParseUnix1Test()
         {
@@ -32,6 +33,7 @@ namespace ArxOne.FtpTest
         ///A test for ParseUnix
         ///</summary>
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestProperty("OS", "Unix")]
         public void ParseUnix2Test()
         {
@@ -45,6 +47,7 @@ namespace ArxOne.FtpTest
         ///A test for ParseUnix
         ///</summary>
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestProperty("OS", "Unix")]
         public void ParseUnix3Test()
         {
@@ -55,6 +58,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestProperty("OS", "Windows")]
         public void ParseWindowsTest()
         {
@@ -65,6 +69,7 @@ namespace ArxOne.FtpTest
         }
 
         [TestMethod]
+        [TestCategory("Parsing")]
         [TestProperty("OS", "Windows")]
         public void ParseWindows2Test()
         {

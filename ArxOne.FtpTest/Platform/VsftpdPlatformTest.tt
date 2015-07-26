@@ -1,8 +1,17 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ output extension=".auto.cs" #>
 
+<#@ include file="PlatformTest.Init.tt" #>
+
 <#
-    var Platform = "VsFTPd";
+    Platform = "VsFTPd";
+	Protocol = "ftp";
+#>
+
+<#@ include file="PlatformTest.tt" #>
+
+<#
+	Protocol = "ftpes";
 #>
 
 <#@ include file="PlatformTest.tt" #>

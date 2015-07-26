@@ -1,0 +1,9 @@
+﻿<# 
+	string PlatformPrefix;
+	string ProtocolPrefix;
+	string Prefix;
+	string ProtocolCategory;
+
+	var Platform = "<Please fill Platform>";
+	var Protocol = "ftp";
+#>

@@ -41,6 +41,10 @@ namespace ArxOne.FtpTest
                     if (line == null)
                         yield break;
 
+                    line = line.Trim();
+                    if (line == "")
+                        continue;
+
                     var typeAndUri = line.Split(new[] { "-->" }, 2, StringSplitOptions.RemoveEmptyEntries);
                     string hostType;
                     string uriAndCredentials;

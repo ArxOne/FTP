@@ -75,7 +75,7 @@
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
     <Compile Include="ListParseTest.cs" />
-    <Compile Include="MlsxTest.cs" />
+    <Compile Include="MlsxParseTest.cs" />
     <Compile Include="Platform\PlatformTest.cs" />
     <Compile Include="Platform\FileZillaPlatformTest.auto.cs">
       <AutoGen>True</AutoGen>
@@ -135,6 +135,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>FileZillaPlatformTest.auto.cs</LastGenOutput>
     </Content>
+    <Content Include="Platform\PlatformTest.Init.tt" />
     <Content Include="Platform\PlatformTest.tt" />
     <Content Include="Platform\VsftpdPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
