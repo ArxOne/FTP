@@ -130,20 +130,20 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Platform\FileZillaPlatformTest.tt">
+    <None Include="Platform\FileZillaPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>FileZillaPlatformTest.auto.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Platform\PlatformTest.Init.tt" />
     <Content Include="Platform\PlatformTest.tt" />
-    <Content Include="Platform\VsftpdPlatformTest.tt">
+    <None Include="Platform\VsftpdPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>VsftpdPlatformTest.auto.cs</LastGenOutput>
-    </Content>
-    <Content Include="Platform\IisPlatformTest.tt">
+    </None>
+    <None Include="Platform\IisPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>IisPlatformTest.auto.cs</LastGenOutput>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -153,12 +153,12 @@
     <PostBuildEvent>if exist "$(SolutionDir)credentials.txt" copy "$(SolutionDir)credentials.txt" "$(TargetDir)"
 </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Clarius.TransformOnBuild-unofficial.1.17\build\Clarius.TransformOnBuild-unofficial.targets" Condition="Exists('..\packages\Clarius.TransformOnBuild-unofficial.1.17\build\Clarius.TransformOnBuild-unofficial.targets')" />
+  <Import Project="..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets" Condition="Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Clarius.TransformOnBuild-unofficial.1.17\build\Clarius.TransformOnBuild-unofficial.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Clarius.TransformOnBuild-unofficial.1.17\build\Clarius.TransformOnBuild-unofficial.targets'))" />
+    <Error Condition="!Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
