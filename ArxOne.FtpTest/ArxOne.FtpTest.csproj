@@ -127,7 +127,6 @@
     <None Include="..\ArxOne.Ftp\Properties\ArxOne.Ftp.snk">
       <Link>Properties\ArxOne.Ftp.snk</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Platform\FileZillaPlatformTest.tt">
