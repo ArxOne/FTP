@@ -2,7 +2,7 @@
 <#@ output extension=".auto.cs" #>
 
 <#
-    var Platform = "Iis";
+    var Platform = "IIS";
 #>
 
-<#@ include file="Common\PlatformTest.tt" #>
+<#@ include file="PlatformTest.tt" #>

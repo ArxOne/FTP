@@ -1,6 +1,8 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <# // input required here: Platform
 // actual tests are located in PlatformTest.cs (because this is much easier to write)
+
+	var PlatformPrefix=Platform.Substring(0,1).ToUpper()+Platform.Substring(1).ToLower();
 #>
 
 namespace ArxOne.FtpTest.Platform
@@ -8,44 +10,49 @@ namespace ArxOne.FtpTest.Platform
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 	[TestClass]
-    public class <#=Platform#>PlatformTest
+    public class <#=PlatformPrefix#>PlatformTest
 	{
 		 [TestCategory("Platform")]
-		 [TestCategory("Platform:<#=Platform#>")]
+		 [TestProperty("Platform","<#=Platform#>")]
+		 [TestProperty("Protocol","FTP")]
 		 [TestMethod]
-		 public void <#=Platform#>SpaceNameTest()
+		 public void <#=PlatformPrefix#>SpaceNameTest()
 		 {
 			PlatformTest.SpaceNameTest("<#=Platform#>");
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("Platform:<#=Platform#>")]
+		 [TestProperty("Platform","<#=Platform#>")]
+		 [TestProperty("Protocol","FTP")]
 		 [TestMethod]
-		 public void <#=Platform#>BracketNameTest()
+		 public void <#=PlatformPrefix#>BracketNameTest()
 		 {
 			PlatformTest.BracketNameTest("<#=Platform#>");
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("Platform:<#=Platform#>")]
+		 [TestProperty("Platform","<#=Platform#>")]
+		 [TestProperty("Protocol","FTP")]
 		 [TestMethod]
-		 public void <#=Platform#>ParenthesisNameTest()
+		 public void <#=PlatformPrefix#>ParenthesisNameTest()
 		 {
 			PlatformTest.ParenthesisNameTest("<#=Platform#>");
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("Platform:<#=Platform#>")]
+		 [TestProperty("Platform","<#=Platform#>")]
+		 [TestProperty("Protocol","FTP")]
 		 [TestMethod]
-		 public void <#=Platform#>ListPassiveTest()
+		 public void <#=PlatformPrefix#>ListPassiveTest()
 		 {
 			PlatformTest.ListTest("<#=Platform#>", passive: true);
 		 }
 
 		 [TestCategory("Platform")]
-		 [TestCategory("Platform:<#=Platform#>")]
+		 [TestProperty("Platform","<#=Platform#>")]
+		 [TestProperty("Protocol","FTP")]
 		 [TestMethod]
-		 public void <#=Platform#>ListActiveTest()
+		 public void <#=PlatformPrefix#>ListActiveTest()
 		 {
 			PlatformTest.ListTest("<#=Platform#>", passive: false);
 		 }
