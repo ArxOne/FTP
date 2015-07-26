@@ -15,3 +15,9 @@
 #>
 
 <#@ include file="PlatformTest.tt" #>
+
+<#
+	Protocol = "ftps";
+#>
+
+<#@ include file="PlatformTest.tt" #>

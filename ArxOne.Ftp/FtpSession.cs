@@ -359,7 +359,7 @@ namespace ArxOne.Ftp
         public static FtpReply Expect(FtpReply reply, params int[] codes)
         {
             if (!codes.Any(code => code == reply.Code))
-                throw new FtpProtocolException("Expected other reply than " + reply.Code.Code, reply.Code);
+                throw new FtpProtocolException(string.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
             return reply;
         }
 
@@ -443,7 +443,7 @@ namespace ArxOne.Ftp
         {
             var reply = new FtpReply();
             {
-                for (; ; )
+                for (;;)
                 {
                     var line = ReadLine(() => ReadByte(stream));
                     if (line == null)
@@ -498,7 +498,7 @@ namespace ArxOne.Ftp
             var eolB = EolB;
             var index = 0;
             var buffer = _readLineBuffer;
-            for (; ; )
+            for (;;)
             {
                 var b = byteReader();
                 if (b == -1)

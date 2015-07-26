@@ -71,7 +71,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FtpClientTest.cs" />
     <Compile Include="FtpReplyCodeTest.cs" />
     <Compile Include="FtpReplyTest.cs" />
     <Compile Include="ListParseTest.cs" />

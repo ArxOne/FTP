@@ -31,6 +31,12 @@ namespace ArxOne.Ftp.IO
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpActiveStream"/> class.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="session">The session.</param>
         public FtpActiveStream(Socket socket, TimeSpan connectTimeout, FtpSession session)
             : base(session)
         {
@@ -38,6 +44,10 @@ namespace ArxOne.Ftp.IO
             socket.BeginAccept(OnSocketAccept, socket);
         }
 
+        /// <summary>
+        /// Ensures there is a valid connection.
+        /// </summary>
+        /// <exception cref="FtpTransportException">Active stream did not get connection</exception>
         private void EnsureConnection()
         {
             if (_socket != null)
