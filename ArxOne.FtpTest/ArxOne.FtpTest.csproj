@@ -77,14 +77,14 @@
     <Compile Include="FtpReplyTest.cs" />
     <Compile Include="ListParseTest.cs" />
     <Compile Include="MlsxTest.cs" />
-    <Compile Include="Platform\Common\PlatformTest.cs" />
+    <Compile Include="Platform\PlatformTest.cs" />
     <Compile Include="Platform\FileZillaPlatformTest.auto.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>FileZillaPlatformTest.tt</DependentUpon>
     </Compile>
-    <Compile Include="Platform\VsftpPlatformTest.auto.cs">
-      <DependentUpon>VsftpPlatformTest.tt</DependentUpon>
+    <Compile Include="Platform\VsftpdPlatformTest.auto.cs">
+      <DependentUpon>VsftpdPlatformTest.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -136,10 +136,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>FileZillaPlatformTest.auto.cs</LastGenOutput>
     </Content>
-    <Content Include="Platform\Common\PlatformTest.tt" />
-    <Content Include="Platform\VsftpPlatformTest.tt">
+    <Content Include="Platform\PlatformTest.tt" />
+    <Content Include="Platform\VsftpdPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>VsftpPlatformTest.auto.cs</LastGenOutput>
+      <LastGenOutput>VsftpdPlatformTest.auto.cs</LastGenOutput>
     </Content>
     <Content Include="Platform\IisPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

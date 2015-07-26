@@ -5,4 +5,4 @@
     var Platform = "FileZilla";
 #>
 
-<#@ include file="Common\PlatformTest.tt" #>
+<#@ include file="PlatformTest.tt" #>
