@@ -528,24 +528,14 @@ namespace ArxOne.Ftp
             FtpSession.Expect(reply, codes);
             return reply;
         }
-
-        /// <summary>
-        /// Gets the protocol encoding.
-        /// </summary>
-        /// <param name="ftpStream">The FTP stream.</param>
-        /// <returns></returns>
-        public Encoding GetProtocolEncoding(Stream ftpStream)
-        {
-            return ((IFtpStream)ftpStream).ProtocolEncoding;
-        }
-
+        
         /// <summary>
         /// Aborts the specified FTP stream.
         /// </summary>
         /// <param name="ftpStream">The FTP stream.</param>
         internal static void Abort(Stream ftpStream)
         {
-            var passiveStream = ftpStream as FtpStream;
+            var passiveStream = ftpStream as FtpPassiveStream;
             if (passiveStream != null)
             {
                 passiveStream.Abort();

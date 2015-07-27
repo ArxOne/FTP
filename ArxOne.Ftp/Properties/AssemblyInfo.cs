@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyVersion("1.5")]
+[assembly: AssemblyVersion("1.6")]
 
 [assembly: CLSCompliant(true)]
 

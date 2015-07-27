@@ -552,10 +552,10 @@ namespace ArxOne.Ftp
         /// <param name="readWriteTimeout">The read write timeout.</param>
         /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        public Stream OpenDataStream(bool passive, TimeSpan connectTimeout, TimeSpan readWriteTimeout, FtpTransferMode mode)
+        public FtpStream OpenDataStream(bool passive, TimeSpan connectTimeout, TimeSpan readWriteTimeout, FtpTransferMode mode)
         {
             SetTransferMode(mode);
-            Stream stream;
+            FtpStream stream;
             if (passive)
                 stream = OpenPassiveDataStream(connectTimeout, readWriteTimeout);
             else
@@ -572,7 +572,7 @@ namespace ArxOne.Ftp
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readWriteTimeout">The read write timeout.</param>
         /// <returns></returns>
-        private Stream OpenPassiveDataStream(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
+        private FtpStream OpenPassiveDataStream(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
             string host;
             int port;
@@ -597,7 +597,7 @@ namespace ArxOne.Ftp
             {
                 var socket = _ftpClient.ProxyConnect(new DnsEndPoint(host, port));
                 if (socket != null)
-                    return new FtpStream(socket, this);
+                    return new FtpPassiveStream(socket, this);
             }
 
             return OpenDirectPassiveDataStream(host, port, connectTimeout, readWriteTimeout);
@@ -611,7 +611,7 @@ namespace ArxOne.Ftp
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readWriteTimeout">The read write timeout.</param>
         /// <returns></returns>
-        private Stream OpenDirectPassiveDataStream(string host, int port, TimeSpan connectTimeout, TimeSpan readWriteTimeout)
+        private FtpStream OpenDirectPassiveDataStream(string host, int port, TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
@@ -619,7 +619,7 @@ namespace ArxOne.Ftp
             if (!socket.Connected)
                 throw new FtpTransportException("Socket error to " + host);
 
-            return new FtpStream(socket, this);
+            return new FtpPassiveStream(socket, this);
         }
 
         /// <summary>
@@ -628,7 +628,7 @@ namespace ArxOne.Ftp
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readWriteTimeout">The read write timeout.</param>
         /// <returns></returns>
-        private Stream OpenActiveDataStream(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
+        private FtpStream OpenActiveDataStream(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;

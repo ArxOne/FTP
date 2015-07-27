@@ -65,12 +65,12 @@ namespace ArxOne.FtpTest
             }
         }
 
-        public static void ListTest(string platform, bool passive, string protocol = "ftp")
+        public static void ListTest(string platform, bool passive, string protocol = "ftp", string directory = "/")
         {
             var ftpTestHost = TestHost.Get(protocol, platform);
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive }))
             {
-                var list = ftpClient.ListEntries("/");
+                var list = ftpClient.ListEntries(directory);
                 // a small requirement: have a /tmp folderS
                 Assert.IsTrue(list.Any(e => e.Name == "tmp"));
             }

@@ -64,6 +64,15 @@ namespace ArxOne.FtpTest
 		 [TestProperty("Platform", "<#=Platform#>")]
 		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
+		 public void <#=Prefix#>ListNonExistingTest()
+		 {
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
+		 [TestMethod]
 		 public void <#=Prefix#>StatTest()
 		 {
 			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");

@@ -93,10 +93,9 @@
     <Compile Include="FtpSession.cs" />
     <Compile Include="FtpSession.NetworkStream.cs" />
     <Compile Include="FtpSessionHandle.cs" />
-    <Compile Include="IO\FtpStream.cs" />
+    <Compile Include="IO\FtpPassiveStream.cs" />
     <Compile Include="FtpTransferMode.cs" />
-    <Compile Include="IO\IFtpSessionStream.cs" />
-    <Compile Include="IO\IFtpStream.cs" />
+    <Compile Include="IO\FtpStream.cs" />
     <Compile Include="Platform\FtpPlatform.cs" />
     <Compile Include="Platform\UnixFtpPlatform.cs" />
     <Compile Include="Platform\WindowsFtpPlatform.cs" />

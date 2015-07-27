@@ -15,7 +15,7 @@ namespace ArxOne.Ftp.IO
     /// <summary>
     /// FTP active transfer stream
     /// </summary>
-    internal class FtpActiveStream : FtpStream
+    internal class FtpActiveStream : FtpPassiveStream
     {
         private readonly TimeSpan _connectTimeout;
         private Socket _socket;

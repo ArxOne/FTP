@@ -152,7 +152,7 @@ namespace ArxOne.Ftp
         /// <param name="handle">The sequence.</param>
         /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        internal Stream OpenDataStream(FtpSessionHandle handle, FtpTransferMode mode)
+        internal FtpStream OpenDataStream(FtpSessionHandle handle, FtpTransferMode mode)
         {
             CheckProtection(handle, FtpProtection.DataChannel);
             return handle.Session.OpenDataStream(Passive, ConnectTimeout, ReadWriteTimeout, mode);
@@ -201,10 +201,10 @@ namespace ArxOne.Ftp
                     if (reply.Code.Class == FtpReplyCodeClass.Connections)
                         throw new IOException();
                 }
-                using (var streamReader = new StreamReader(dataStream, ((IFtpStream)dataStream).ProtocolEncoding))
+                using (var streamReader = new StreamReader(dataStream, handle.Session.Encoding))
                 {
                     var list = new List<string>();
-                    for (; ; )
+                    for (;;)
                     {
                         var line = streamReader.ReadLine();
                         if (line == null)
@@ -429,7 +429,7 @@ namespace ArxOne.Ftp
         /// <param name="to">To.</param>
         public void RnfrTo(string from, string to)
         {
-            Process(delegate(FtpSessionHandle handle)
+            Process(delegate (FtpSessionHandle handle)
                       {
                           Expect(SendCommand(handle, "RNFR", from), 350);
                           Expect(SendCommand(handle, "RNTO", to), 250);
@@ -535,10 +535,10 @@ namespace ArxOne.Ftp
                     if (reply.Code.Class == FtpReplyCodeClass.Connections)
                         throw new IOException();
                 }
-                using (var streamReader = new StreamReader(dataStream, ((IFtpStream)dataStream).ProtocolEncoding))
+                using (var streamReader = new StreamReader(dataStream, handle.Session.Encoding))
                 {
                     var list = new List<string>();
-                    for (; ; )
+                    for (;;)
                     {
                         var line = streamReader.ReadLine();
                         if (line == null)
