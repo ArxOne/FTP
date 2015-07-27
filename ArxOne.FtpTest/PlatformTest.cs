@@ -5,7 +5,7 @@
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
 
-namespace ArxOne.FtpTest.Platform
+namespace ArxOne.FtpTest
 {
     using System;
     using System.Linq;

@@ -8,7 +8,7 @@
 	ProtocolCategory = Protocol.ToUpper();
 #>
 
-namespace ArxOne.FtpTest.Platform
+namespace ArxOne.FtpTest
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
