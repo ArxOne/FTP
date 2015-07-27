@@ -14,6 +14,7 @@ namespace ArxOne.Ftp
     using System.Net.Sockets;
     using System.Text;
     using System.Threading;
+    using Exceptions;
     using IO;
 
     /// <summary>
@@ -470,7 +471,7 @@ namespace ArxOne.Ftp
         {
             try
             {
-                for (; ; )
+                for (;;)
                 {
                     Thread.Sleep(SessionTimeout);
                     CleanupSessions();
@@ -528,7 +529,7 @@ namespace ArxOne.Ftp
             FtpSession.Expect(reply, codes);
             return reply;
         }
-        
+
         /// <summary>
         /// Aborts the specified FTP stream.
         /// </summary>
@@ -542,6 +543,21 @@ namespace ArxOne.Ftp
                 return;
             }
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Throws the exception given a reply.
+        /// </summary>
+        /// <param name="reply">The reply.</param>
+        /// <exception cref="FtpFileException"></exception>
+        /// <exception cref="FtpProtocolException"></exception>
+        internal static void ThrowException(FtpReply reply)
+        {
+            if (reply.Code.Class == FtpReplyCodeClass.Filesystem)
+                throw new FtpFileException(string.Format("File error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
+            if (reply.Code.Class == FtpReplyCodeClass.Connections)
+                throw new FtpTransportException(string.Format("Connection error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]));
+            throw new FtpProtocolException(string.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
         }
     }
 }

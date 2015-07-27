@@ -65,14 +65,10 @@ namespace ArxOne.FtpTest
 		 [TestProperty("Platform", "<#=Platform#>")]
 		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
+		 [ExpectedException(typeof(FtpFileException))]
 		 public void <#=Prefix#>ListNonExistingTest()
 		 {
-			try
-			{
-				PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
-			}
-			catch(FtpProtocolException)
-			{ }
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
 		 }
 
 		 [TestCategory("Platform")]

@@ -359,7 +359,7 @@ namespace ArxOne.Ftp
         public static FtpReply Expect(FtpReply reply, params int[] codes)
         {
             if (!codes.Any(code => code == reply.Code))
-                throw new FtpProtocolException(string.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
+                FtpClientCore.ThrowException(reply);
             return reply;
         }
 

@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckCertificateEventArgs.cs" />
+    <Compile Include="Exceptions\FtpFileException.cs" />
     <Compile Include="Exceptions\FtpProtocolException.cs" />
     <Compile Include="Exceptions\FtpTransportException.cs" />
     <Compile Include="FtpServerFeatures.cs" />
