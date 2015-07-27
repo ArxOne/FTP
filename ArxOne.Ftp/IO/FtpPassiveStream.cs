@@ -93,7 +93,7 @@ namespace ArxOne.Ftp.IO
                 }
                 finally
                 {
-                    Release(true);
+                    Release(ExpectEndReply);
                 }
                 if (!isConnected)
                     throw new FtpTransportException("PASV stream already closed by server");

@@ -19,5 +19,24 @@ namespace ArxOne.Ftp.IO
         /// (whereas Dispose() does)
         /// </summary>
         public abstract void Abort();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether an end reply is expected.
+        /// Use with caution
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [expect end reply]; otherwise, <c>false</c>.
+        /// </value>
+        protected bool ExpectEndReply;
+
+        /// <summary>
+        /// Sets the stream as validated (it will required a reply from server when disposing).
+        /// </summary>
+        /// <returns></returns>
+        public FtpStream Validated()
+        {
+            ExpectEndReply = true;
+            return this;
+        }
     }
 }

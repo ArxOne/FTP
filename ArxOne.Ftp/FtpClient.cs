@@ -201,7 +201,7 @@ namespace ArxOne.Ftp
                     if (reply.Code.Class == FtpReplyCodeClass.Connections)
                         throw new IOException();
                 }
-                using (var streamReader = new StreamReader(dataStream, handle.Session.Encoding))
+                using (var streamReader = new StreamReader(dataStream.Validated(), handle.Session.Encoding))
                 {
                     var list = new List<string>();
                     for (;;)
@@ -316,7 +316,7 @@ namespace ArxOne.Ftp
                     throw new IOException();
                 return null;
             }
-            return stream;
+            return stream.Validated();
         }
 
         /// <summary>
@@ -349,7 +349,7 @@ namespace ArxOne.Ftp
                     throw new IOException();
                 return null;
             }
-            return stream;
+            return stream.Validated();
         }
 
         /// <summary>
@@ -535,7 +535,7 @@ namespace ArxOne.Ftp
                     if (reply.Code.Class == FtpReplyCodeClass.Connections)
                         throw new IOException();
                 }
-                using (var streamReader = new StreamReader(dataStream, handle.Session.Encoding))
+                using (var streamReader = new StreamReader(dataStream.Validated(), handle.Session.Encoding))
                 {
                     var list = new List<string>();
                     for (;;)

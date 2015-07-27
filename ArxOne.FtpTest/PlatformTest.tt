@@ -11,6 +11,7 @@
 namespace ArxOne.FtpTest
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Ftp.Exceptions;
 
 	[TestClass]
     public class <#=Prefix#>PlatformTest
@@ -66,7 +67,12 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ListNonExistingTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
+			try
+			{
+				PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
+			}
+			catch(FtpProtocolException)
+			{ }
 		 }
 
 		 [TestCategory("Platform")]
