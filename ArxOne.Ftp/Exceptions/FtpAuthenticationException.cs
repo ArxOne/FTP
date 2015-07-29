@@ -11,17 +11,17 @@ namespace ArxOne.Ftp.Exceptions
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// File exception
+    /// Authentication exception
     /// </summary>
     [Serializable]
-    public class FtpFileException : FtpProtocolException
+    public class FtpAuthenticationException : FtpProtocolException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpFileException"/> class.
+        /// Initializes a new instance of the <see cref="FtpAuthenticationException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="code">The code.</param>
-        public FtpFileException(string message, FtpReplyCode code)
+        public FtpAuthenticationException(string message, FtpReplyCode code)
             : base(message, code)
         {
         }
@@ -29,19 +29,19 @@ namespace ArxOne.Ftp.Exceptions
         #region Serialization
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpFileException"/> class.
+        /// Initializes a new instance of the <see cref="FtpAuthenticationException"/> class.
         /// </summary>
         [Obsolete("Serialization-only ctor")]
-        protected FtpFileException()
+        protected FtpAuthenticationException()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpFileException"/> class.
+        /// Initializes a new instance of the <see cref="FtpAuthenticationException"/> class.
         /// </summary>
         /// <param name="info">The data for serializing or deserializing the object.</param>
         /// <param name="context">The source and destination for the object.</param>
-        protected FtpFileException(SerializationInfo info, StreamingContext context)
+        protected FtpAuthenticationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
