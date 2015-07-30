@@ -17,7 +17,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Parsing")]
         public void ParseMlsxFileTest()
         {
-            var e = FtpClient.ParseMlsx(" Type=file;Size=1024990;Perm=r; /tmp/cap60.pl198.tar.gz", "/zap");
+            var e = FtpClientUtility.ParseMlsx(" Type=file;Size=1024990;Perm=r; /tmp/cap60.pl198.tar.gz", "/zap");
             Assert.IsNotNull(e);
             Assert.AreEqual("cap60.pl198.tar.gz", e.Path.GetFileName());
             Assert.AreEqual(1024990, e.Size);
@@ -28,7 +28,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Parsing")]
         public void ParseMlsxDirTest()
         {
-            var e = FtpClient.ParseMlsx(" Type=dir;Modify=19981107085215;Perm=el; /tmp", "/zap");
+            var e = FtpClientUtility.ParseMlsx(" Type=dir;Modify=19981107085215;Perm=el; /tmp", "/zap");
             Assert.IsNotNull(e);
             Assert.AreEqual("tmp", e.Path.GetFileName());
             Assert.AreEqual(null, e.Size);
@@ -39,7 +39,7 @@ namespace ArxOne.FtpTest
         [TestCategory("Parsing")]
         public void ParseMlsxLongDateTest()
         {
-            var e = FtpClient.ParseMlsx(" Type=file;Modify=19990929003355.237; file1", "/zap");
+            var e = FtpClientUtility.ParseMlsx(" Type=file;Modify=19990929003355.237; file1", "/zap");
             Assert.IsNotNull(e);
             Assert.AreEqual("file1", e.Path.GetFileName());
             Assert.AreEqual(null, e.Size);

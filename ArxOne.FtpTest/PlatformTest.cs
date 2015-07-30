@@ -162,7 +162,7 @@ namespace ArxOne.FtpTest
             }
         }
 
-        private static void ExpectFeature(FtpClientCore ftpClient, string feature)
+        private static void ExpectFeature(FtpClient ftpClient, string feature)
         {
             if (!ftpClient.ServerFeatures.HasFeature(feature))
                 Assert.Inconclusive("This server does not support {0} feature", feature);

@@ -29,9 +29,9 @@ namespace ArxOne.Ftp
             try
             {
                 // try to use a proxy
-                if (_ftpClient.ProxyConnect != null)
+                if (FtpClient.ProxyConnect != null)
                 {
-                    var socket = _ftpClient.ProxyConnect(new DnsEndPoint(_host, _port));
+                    var socket = FtpClient.ProxyConnect(new DnsEndPoint(_host, _port));
                     if (socket != null)
                         return new NetworkStream(socket);
                 }
@@ -104,7 +104,7 @@ namespace ArxOne.Ftp
         internal Stream CreateDataStream(Socket socket)
         {
             Stream stream = new NetworkStream(socket, true);
-            if (_ftpClient.ChannelProtection.HasFlag(FtpProtection.DataChannel))
+            if (FtpClient.ChannelProtection.HasFlag(FtpProtection.DataChannel))
                 stream = UpgradeToSsl(stream);
             return stream;
         }

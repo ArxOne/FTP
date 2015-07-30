@@ -22,7 +22,7 @@ namespace ArxOne.Ftp
     /// <summary>
     /// Represents a single session
     /// </summary>
-    internal partial class FtpSession : IDisposable
+    public partial class FtpSession : IDisposable
     {
         /// <summary>
         /// FTP End of line
@@ -45,7 +45,14 @@ namespace ArxOne.Ftp
 
         private readonly int _id = ++_currentID;
 
-        private readonly FtpClientCore _ftpClient;
+        /// <summary>
+        /// Gets or sets the FTP client.
+        /// </summary>
+        /// <value>
+        /// The _FTP client.
+        /// </value>
+        public FtpClient FtpClient { get; private set; }
+
         private readonly string _host;
         private readonly int _port;
 
@@ -76,7 +83,7 @@ namespace ArxOne.Ftp
                     //if (_transportSocket != null)
                     //    Trace.WriteLine("ftp #" + _id + ": disconnecting");
                     Disconnect();
-                    Connect(_ftpClient.ConnectTimeout, _ftpClient.ReadWriteTimeout);
+                    Connect(FtpClient.ConnectTimeout, FtpClient.ReadWriteTimeout);
                 }
                 return _protocolStream;
             }
@@ -92,7 +99,7 @@ namespace ArxOne.Ftp
         {
             get
             {
-                return _ftpClient.ActiveTransferHost ?? _activeTransferHost;
+                return FtpClient.ActiveTransferHost ?? _activeTransferHost;
             }
         }
 
@@ -110,9 +117,9 @@ namespace ArxOne.Ftp
         /// <param name="protocol">The protocol.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        public FtpSession(FtpClientCore ftpClient, FtpProtocol protocol, string host, int port)
+        public FtpSession(FtpClient ftpClient, FtpProtocol protocol, string host, int port)
         {
-            _ftpClient = ftpClient;
+            FtpClient = ftpClient;
             Protocol = protocol;
             _host = host;
             _port = port;
@@ -166,7 +173,7 @@ namespace ArxOne.Ftp
             lock (_referenceCountLock)
             {
                 if (--_referenceCount == 0)
-                    _ftpClient.ReleaseSession(this);
+                    FtpClient.ReleaseSession(this);
             }
         }
 
@@ -192,13 +199,13 @@ namespace ArxOne.Ftp
             }
             catch (SocketException se)
             {
-                _ftpClient.OnIOError(new ProtocolMessageEventArgs(_id, requestCommand, requestParameters));
+                FtpClient.OnIOError(new ProtocolMessageEventArgs(_id, requestCommand, requestParameters));
                 Disconnect();
                 throw new FtpTransportException("Socket Exception while " + commandDescription, se);
             }
             catch (IOException ioe)
             {
-                _ftpClient.OnIOError(new ProtocolMessageEventArgs(_id, requestCommand, requestParameters));
+                FtpClient.OnIOError(new ProtocolMessageEventArgs(_id, requestCommand, requestParameters));
                 Disconnect();
                 throw new FtpTransportException("IO Exception while " + commandDescription, ioe);
             }
@@ -239,7 +246,7 @@ namespace ArxOne.Ftp
         {
             // first of all, set defaults...
             // ... encoding
-            Encoding = _ftpClient.DefaultEncoding ?? Encoding.ASCII;
+            Encoding = FtpClient.DefaultEncoding ?? Encoding.ASCII;
             // ... transfer mode ('type')
             _transferMode = null;
 
@@ -292,9 +299,9 @@ namespace ArxOne.Ftp
         /// </summary>
         private void InitializeSession()
         {
-            var credential = _ftpClient.Credential != null && !string.IsNullOrEmpty(_ftpClient.Credential.UserName)
-                ? _ftpClient.Credential
-                : new NetworkCredential("anonymous", _ftpClient.AnonymousPassword);
+            var credential = FtpClient.Credential != null && !string.IsNullOrEmpty(FtpClient.Credential.UserName)
+                ? FtpClient.Credential
+                : new NetworkCredential("anonymous", FtpClient.AnonymousPassword);
             var userResult = Expect(SendCommand(ProtocolStream, "USER", credential.UserName), 331, 530);
             if (userResult.Code == 530)
                 throw new FtpAuthenticationException("No anonymous user allowed", userResult.Code);
@@ -302,7 +309,7 @@ namespace ArxOne.Ftp
             if (passResult.Code != 230)
                 throw new FtpAuthenticationException("Authentication failed for user " + credential.UserName, passResult.Code);
 
-            _ftpClient.OnSessionInitialized();
+            FtpClient.OnSessionInitialized();
         }
 
         /// <summary>
@@ -311,7 +318,7 @@ namespace ArxOne.Ftp
         private void InitializeTransportEncoding()
         {
             // try to switch to UTF8 if not already the case
-            if (_ftpClient.DefaultEncoding == null && _ftpClient.HasServerFeature("UTF8", this))
+            if (FtpClient.DefaultEncoding == null && FtpClient.HasServerFeature("UTF8", this))
             {
                 Expect(SendCommand(ProtocolStream, "OPTS", "UTF8", "ON"), 200);
                 Encoding = Encoding.UTF8;
@@ -337,7 +344,7 @@ namespace ArxOne.Ftp
         private bool CheckCertificateHandler(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
         {
             var e = new CheckCertificateEventArgs(certificate, chain, sslpolicyerrors);
-            _ftpClient.OnCheckCertificate(e);
+            FtpClient.OnCheckCertificate(e);
             return e.IsValid;
         }
 
@@ -359,7 +366,7 @@ namespace ArxOne.Ftp
         public static FtpReply Expect(FtpReply reply, params int[] codes)
         {
             if (!codes.Any(code => code == reply.Code))
-                FtpClientCore.ThrowException(reply);
+                Ftp.FtpClient.ThrowException(reply);
             return reply;
         }
 
@@ -408,7 +415,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private FtpReply ProcessSendCommand(Stream stream, string command, string[] parameters)
         {
-            _ftpClient.OnRequest(new ProtocolMessageEventArgs(_id, command, command == "PASS" ? CensoredParameters : parameters));
+            FtpClient.OnRequest(new ProtocolMessageEventArgs(_id, command, command == "PASS" ? CensoredParameters : parameters));
             var commandLine = GetCommandLine(command, parameters);
             WriteLine(stream, commandLine);
             var reply = ReadReply(stream);
@@ -456,7 +463,7 @@ namespace ArxOne.Ftp
                         break;
                 }
             }
-            _ftpClient.OnReply(new ProtocolMessageEventArgs(_id, null, null, reply));
+            FtpClient.OnReply(new ProtocolMessageEventArgs(_id, null, null, reply));
             return reply;
         }
 
@@ -576,7 +583,7 @@ namespace ArxOne.Ftp
         {
             string host;
             int port;
-            if (_ftpClient.HasServerFeature("EPSV", this))
+            if (FtpClient.HasServerFeature("EPSV", this))
             {
                 var reply = Expect(SendCommand("EPSV"), 229);
                 var match = EpsvEx.Match(reply.Lines[0]);
@@ -593,9 +600,9 @@ namespace ArxOne.Ftp
                 port = int.Parse(match.Groups["portHi"].Value) * 256 + int.Parse(match.Groups["portLo"].Value);
             }
 
-            if (_ftpClient.ProxyConnect != null)
+            if (FtpClient.ProxyConnect != null)
             {
-                var socket = _ftpClient.ProxyConnect(new DnsEndPoint(host, port));
+                var socket = FtpClient.ProxyConnect(new DnsEndPoint(host, port));
                 if (socket != null)
                     return new FtpPassiveStream(socket, this);
             }
@@ -634,7 +641,7 @@ namespace ArxOne.Ftp
             socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
             socket.Bind(new IPEndPoint(HostAddress, 0));
             var port = ((IPEndPoint)socket.LocalEndPoint).Port;
-            if (_ftpClient.HasServerFeature("EPRT", this))
+            if (FtpClient.HasServerFeature("EPRT", this))
                 Expect(SendCommand(string.Format("EPRT |{0}|{1}|{2}|", HostAddress.AddressFamily == AddressFamily.InterNetwork ? 1 : 2, HostAddress, port)), 200);
             else
             {
@@ -682,7 +689,7 @@ namespace ArxOne.Ftp
         public void CheckSessionParameter(string parameterName, string parameterValue)
         {
             // First of all, check that feature exists
-            if (!_ftpClient.HasServerFeature(parameterName, this))
+            if (!FtpClient.HasServerFeature(parameterName, this))
                 return;
             // Then see if it is required
             lock (_sessionState)

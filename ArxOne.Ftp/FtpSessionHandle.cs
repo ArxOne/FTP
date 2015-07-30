@@ -14,10 +14,10 @@ namespace ArxOne.Ftp
     public class FtpSessionHandle : IDisposable
     {
         /// <summary>
-        /// Gets or sets the _FTP session.
+        /// Gets or sets the FTP session.
         /// </summary>
-        /// <value>The _FTP session.</value>
-        internal FtpSession Session { get; private set; }
+        /// <value>The FTP session.</value>
+        public FtpSession Session { get; private set; }
 
         /// <summary>
         /// Gets the state.
