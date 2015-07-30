@@ -29,17 +29,17 @@ namespace ArxOne.Ftp.IO
         /// Gets or sets the holder.
         /// </summary>
         /// <value>The holder.</value>
-        internal FtpSessionHandle Session { get; private set; }
+        internal FtpSession Session { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpPassiveStream"/> class.
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="session">The session.</param>
-        public FtpPassiveStream(Socket socket, FtpSessionHandle session)
+        public FtpPassiveStream(Socket socket, FtpSession session)
         {
             Session = session;
-            Session.Session.AddReference();
+            Session.SessionConnection.AddReference();
             SetSocket(socket);
         }
 
@@ -47,10 +47,10 @@ namespace ArxOne.Ftp.IO
         /// Initializes a new instance of the <see cref="FtpPassiveStream"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
-        protected FtpPassiveStream(FtpSessionHandle session)
+        protected FtpPassiveStream(FtpSession session)
         {
             Session = session;
-            Session.Session.AddReference();
+            Session.SessionConnection.AddReference();
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace ArxOne.Ftp.IO
                 // however we need to signal it to client
                 finally
                 {
-                    session.Session.Release();
+                    session.SessionConnection.Release();
                 }
             }
         }

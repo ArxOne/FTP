@@ -218,7 +218,7 @@ namespace ArxOne.Ftp
         private class DatedFtpSession
         {
             public DateTime Date;
-            public FtpSession Session;
+            public FtpSessionConnection SessionConnection;
         }
 
         private readonly Queue<DatedFtpSession> _availableSessions = new Queue<DatedFtpSession>();
@@ -328,7 +328,7 @@ namespace ArxOne.Ftp
             lock (_sessionsLock)
             {
                 foreach (var availableSession in _availableSessions)
-                    availableSession.Session.Dispose();
+                    availableSession.SessionConnection.Dispose();
                 _availableSessions.Clear();
             }
         }
@@ -392,7 +392,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private FtpServerFeatures GetServerFeatures(FtpSessionHandle session)
+        private FtpServerFeatures GetServerFeatures(FtpSession session)
         {
             if (_serverFeatures == null)
             {
@@ -410,7 +410,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private static FtpServerFeatures LoadServerFeatures(FtpSessionHandle session)
+        private static FtpServerFeatures LoadServerFeatures(FtpSession session)
         {
             var featuresReply = session.SendCommand("FEAT");
             if (featuresReply.Code == 211)
@@ -430,7 +430,7 @@ namespace ArxOne.Ftp
         /// <returns>
         ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
         /// </returns>
-        internal bool HasServerFeature(string feature, FtpSessionHandle session)
+        internal bool HasServerFeature(string feature, FtpSession session)
         {
             return GetServerFeatures(session).HasFeature(feature);
         }
@@ -497,27 +497,27 @@ namespace ArxOne.Ftp
         /// Creates the session.
         /// </summary>
         /// <returns></returns>
-        private FtpSession CreateSession()
+        private FtpSessionConnection CreateSession()
         {
-            return new FtpSession(this, _protocol);
+            return new FtpSessionConnection(this, _protocol);
         }
 
         /// <summary>
         /// Pops the available session.
         /// </summary>
         /// <returns></returns>
-        private FtpSession PopAvailableSession()
+        private FtpSessionConnection PopAvailableSession()
         {
             if (_availableSessions.Count == 0)
                 return null;
-            return _availableSessions.Dequeue().Session;
+            return _availableSessions.Dequeue().SessionConnection;
         }
 
         /// <summary>
         /// Finds the or create session.
         /// </summary>
         /// <returns></returns>
-        private FtpSession FindOrCreateSession()
+        private FtpSessionConnection FindOrCreateSession()
         {
             lock (_sessionsLock)
             {
@@ -530,20 +530,20 @@ namespace ArxOne.Ftp
         /// Uses a session.
         /// </summary>
         /// <returns></returns>
-        public FtpSessionHandle Session()
+        public FtpSession Session()
         {
-            return new FtpSessionHandle(FindOrCreateSession());
+            return new FtpSession(FindOrCreateSession());
         }
 
         /// <summary>
         /// Releases the session.
         /// </summary>
-        /// <param name="session">The session.</param>
-        internal void ReleaseSession(FtpSession session)
+        /// <param name="sessionConnection">The session.</param>
+        internal void ReleaseSession(FtpSessionConnection sessionConnection)
         {
             lock (_sessionsLock)
             {
-                _availableSessions.Enqueue(new DatedFtpSession { Date = DateTime.UtcNow, Session = session });
+                _availableSessions.Enqueue(new DatedFtpSession { Date = DateTime.UtcNow, SessionConnection = sessionConnection });
             }
         }
 
@@ -584,7 +584,7 @@ namespace ArxOne.Ftp
                     if (now - availableSession.Date < span)
                         _availableSessions.Enqueue(availableSession);
                     else
-                        availableSession.Session.Dispose();
+                        availableSession.SessionConnection.Dispose();
                 }
             }
         }
@@ -596,7 +596,7 @@ namespace ArxOne.Ftp
         /// <param name="command">The command.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public FtpReply SendCommand(FtpSessionHandle session, string command, params string[] parameters)
+        public FtpReply SendCommand(FtpSession session, string command, params string[] parameters)
         {
             return session.SendCommand(command, parameters);
         }
@@ -618,7 +618,7 @@ namespace ArxOne.Ftp
         /// <typeparam name="TResult">The type of the ret.</typeparam>
         /// <param name="action">The action.</param>
         /// <returns></returns>
-        public TResult Process<TResult>(Func<FtpSessionHandle, TResult> action)
+        public TResult Process<TResult>(Func<FtpSession, TResult> action)
         {
             using (var handle = Session())
             {
@@ -634,7 +634,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpReply Expect(FtpReply reply, params int[] codes)
         {
-            FtpSessionHandle.Expect(reply, codes);
+            FtpSession.Expect(reply, codes);
             return reply;
         }
 

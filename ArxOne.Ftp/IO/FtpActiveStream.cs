@@ -37,7 +37,7 @@ namespace ArxOne.Ftp.IO
         /// <param name="socket">The socket.</param>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="session">The session.</param>
-        public FtpActiveStream(Socket socket, TimeSpan connectTimeout, FtpSessionHandle session)
+        public FtpActiveStream(Socket socket, TimeSpan connectTimeout, FtpSession session)
             : base(session)
         {
             _connectTimeout = connectTimeout;
