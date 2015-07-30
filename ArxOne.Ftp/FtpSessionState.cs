@@ -12,7 +12,7 @@ namespace ArxOne.Ftp
     /// </summary>
     public class FtpSessionState
     {
-        private readonly FtpSession _ftpSession;
+        private readonly FtpSessionHandle _ftpSession;
 
         /// <summary>
         ///   Gets or sets the parameter. If the value is the current one, then no command is sent
@@ -27,7 +27,7 @@ namespace ArxOne.Ftp
         ///   Initializes a new instance of the <see cref="FtpSessionState" /> class.
         /// </summary>
         /// <param name="ftpSession"> The FTP session. </param>
-        internal FtpSessionState(FtpSession ftpSession)
+        internal FtpSessionState(FtpSessionHandle ftpSession)
         {
             _ftpSession = ftpSession;
         }

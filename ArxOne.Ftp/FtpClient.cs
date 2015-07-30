@@ -392,7 +392,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private FtpServerFeatures GetServerFeatures(FtpSession session)
+        private FtpServerFeatures GetServerFeatures(FtpSessionHandle session)
         {
             if (_serverFeatures == null)
             {
@@ -400,7 +400,7 @@ namespace ArxOne.Ftp
                     _serverFeatures = LoadServerFeatures(session);
                 else
                     using (var newSession = Session())
-                        _serverFeatures = LoadServerFeatures(newSession.Session);
+                        _serverFeatures = LoadServerFeatures(newSession);
             }
             return _serverFeatures;
         }
@@ -410,7 +410,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        private static FtpServerFeatures LoadServerFeatures(FtpSession session)
+        private static FtpServerFeatures LoadServerFeatures(FtpSessionHandle session)
         {
             var featuresReply = session.SendCommand("FEAT");
             if (featuresReply.Code == 211)
@@ -430,7 +430,7 @@ namespace ArxOne.Ftp
         /// <returns>
         ///   <c>true</c> if the specified feature has feature; otherwise, <c>false</c>.
         /// </returns>
-        internal bool HasServerFeature(string feature, FtpSession session)
+        internal bool HasServerFeature(string feature, FtpSessionHandle session)
         {
             return GetServerFeatures(session).HasFeature(feature);
         }
@@ -499,7 +499,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private FtpSession CreateSession()
         {
-            return new FtpSession(this, _protocol, _host, Port);
+            return new FtpSession(this, _protocol);
         }
 
         /// <summary>
@@ -592,13 +592,13 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Sends the command.
         /// </summary>
-        /// <param name="sequence">The sequence.</param>
+        /// <param name="session">The sequence.</param>
         /// <param name="command">The command.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public FtpReply SendCommand(FtpSessionHandle sequence, string command, params string[] parameters)
+        public FtpReply SendCommand(FtpSessionHandle session, string command, params string[] parameters)
         {
-            return sequence.Session.SendCommand(command, parameters);
+            return session.SendCommand(command, parameters);
         }
 
         /// <summary>
@@ -609,7 +609,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpReply SendSingleCommand(string command, params string[] parameters)
         {
-            return Process(handle => handle.Session.SendCommand(command, parameters));
+            return Process(handle => handle.SendCommand(command, parameters));
         }
 
         /// <summary>
@@ -634,7 +634,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpReply Expect(FtpReply reply, params int[] codes)
         {
-            FtpSession.Expect(reply, codes);
+            FtpSessionHandle.Expect(reply, codes);
             return reply;
         }
 
