@@ -133,7 +133,7 @@ namespace ArxOne.Ftp
             {
                 if (_system == null)
                 {
-                    var systemReply = Expect(SendSingleCommand("SYST"), 215);
+                    var systemReply = FtpSession.Expect(SendSingleCommand("SYST"), 215);
                     _system = systemReply.Lines[0];
                 }
                 return _system;
@@ -212,7 +212,7 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Occurs when [session initialized].
         /// </summary>
-        public event EventHandler SessionInitialized;
+        public event EventHandler ConnectionInitialized;
 
         /// <summary>
         /// Occurs when [sending request].
@@ -234,7 +234,7 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <value>The _port.</value>
         public int Port { get; private set; }
-    
+
         /// <summary>
         /// Gets the protocol.
         /// </summary>
@@ -243,15 +243,15 @@ namespace ArxOne.Ftp
         /// </value>
         public FtpProtocol Protocol { get; private set; }
 
-        private class DatedFtpSession
+        private class DatedFtpConnection
         {
             public DateTime Date;
-            public FtpSessionConnection SessionConnection;
+            public FtpConnection Connection;
         }
 
-        private readonly Queue<DatedFtpSession> _availableSessions = new Queue<DatedFtpSession>();
-        private readonly object _sessionsLock = new object();
-        private readonly Thread _sessionThread;
+        private readonly Queue<DatedFtpConnection> _availableConnections = new Queue<DatedFtpConnection>();
+        private readonly object _connectionsLock = new object();
+        private readonly Thread _connectionsThread;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpClient"/> class.
@@ -269,8 +269,8 @@ namespace ArxOne.Ftp
             var uriBuilder = new UriBuilder { Scheme = GetScheme(protocol), Host = host, Port = port };
             Uri = uriBuilder.Uri;
             InitializeParameters(parameters);
-            _sessionThread = new Thread(SessionThread) { IsBackground = true, Name = "FtpClient.SessionThread" };
-            _sessionThread.Start();
+            _connectionsThread = new Thread(ConnectionThread) { IsBackground = true, Name = "FtpClient.SessionThread" };
+            _connectionsThread.Start();
         }
 
         /// <summary>
@@ -351,12 +351,12 @@ namespace ArxOne.Ftp
         /// </summary>
         public void Dispose()
         {
-            _sessionThread.Interrupt();
-            lock (_sessionsLock)
+            _connectionsThread.Interrupt();
+            lock (_connectionsLock)
             {
-                foreach (var availableSession in _availableSessions)
-                    availableSession.SessionConnection.Dispose();
-                _availableSessions.Clear();
+                foreach (var availableSession in _availableConnections)
+                    availableSession.Connection.Dispose();
+                _availableConnections.Clear();
             }
         }
 
@@ -500,13 +500,13 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
-        /// Raises the <see cref="SessionInitialized"/> event.
+        /// Raises the <see cref="ConnectionInitialized"/> event.
         /// </summary>
-        public void OnSessionInitialized()
+        public void OnConnectionInitialized()
         {
-            var sessionInitialized = SessionInitialized;
-            if (sessionInitialized != null)
-                sessionInitialized(this, EventArgs.Empty);
+            var connectionInitialized = ConnectionInitialized;
+            if (connectionInitialized != null)
+                connectionInitialized(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -524,31 +524,31 @@ namespace ArxOne.Ftp
         /// Creates the session.
         /// </summary>
         /// <returns></returns>
-        private FtpSessionConnection CreateSession()
+        private FtpConnection CreateConnection()
         {
-            return new FtpSessionConnection(this);
+            return new FtpConnection(this);
         }
 
         /// <summary>
         /// Pops the available session.
         /// </summary>
         /// <returns></returns>
-        private FtpSessionConnection PopAvailableSession()
+        private FtpConnection PopAvailableConnection()
         {
-            if (_availableSessions.Count == 0)
+            if (_availableConnections.Count == 0)
                 return null;
-            return _availableSessions.Dequeue().SessionConnection;
+            return _availableConnections.Dequeue().Connection;
         }
 
         /// <summary>
         /// Finds the or create session.
         /// </summary>
         /// <returns></returns>
-        private FtpSessionConnection FindOrCreateSession()
+        private FtpConnection FindOrCreateConnection()
         {
-            lock (_sessionsLock)
+            lock (_connectionsLock)
             {
-                var session = PopAvailableSession() ?? CreateSession();
+                var session = PopAvailableConnection() ?? CreateConnection();
                 return session;
             }
         }
@@ -559,32 +559,32 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpSession Session()
         {
-            return new FtpSession(FindOrCreateSession());
+            return new FtpSession(FindOrCreateConnection());
         }
 
         /// <summary>
         /// Releases the session.
         /// </summary>
-        /// <param name="sessionConnection">The session.</param>
-        internal void ReleaseSession(FtpSessionConnection sessionConnection)
+        /// <param name="connection">The session.</param>
+        internal void ReleaseConnection(FtpConnection connection)
         {
-            lock (_sessionsLock)
+            lock (_connectionsLock)
             {
-                _availableSessions.Enqueue(new DatedFtpSession { Date = DateTime.UtcNow, SessionConnection = sessionConnection });
+                _availableConnections.Enqueue(new DatedFtpConnection { Date = DateTime.UtcNow, Connection = connection });
             }
         }
 
         /// <summary>
         /// Sessions thread, to cleanup.
         /// </summary>
-        private void SessionThread()
+        private void ConnectionThread()
         {
             try
             {
                 for (;;)
                 {
                     Thread.Sleep(SessionTimeout);
-                    CleanupSessions();
+                    CleanupConnections();
                 }
             }
             catch (ThreadInterruptedException)
@@ -595,37 +595,25 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Cleanups the (old) unused sessions.
         /// </summary>
-        private void CleanupSessions()
+        private void CleanupConnections()
         {
-            lock (_sessionsLock)
+            lock (_connectionsLock)
             {
                 var now = DateTime.UtcNow;
                 var span = SessionTimeout;
-                var availableSessions = new List<DatedFtpSession>(_availableSessions);
+                var availableSessions = new List<DatedFtpConnection>(_availableConnections);
                 // since the _availableSessions is a queue
                 // it is cleared and rebuild
-                _availableSessions.Clear();
+                _availableConnections.Clear();
                 foreach (var availableSession in availableSessions)
                 {
                     // still young, keep it
                     if (now - availableSession.Date < span)
-                        _availableSessions.Enqueue(availableSession);
+                        _availableConnections.Enqueue(availableSession);
                     else
-                        availableSession.SessionConnection.Dispose();
+                        availableSession.Connection.Dispose();
                 }
             }
-        }
-
-        /// <summary>
-        /// Sends the command.
-        /// </summary>
-        /// <param name="session">The sequence.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public FtpReply SendCommand(FtpSession session, string command, params string[] parameters)
-        {
-            return session.SendCommand(command, parameters);
         }
 
         /// <summary>
@@ -651,48 +639,6 @@ namespace ArxOne.Ftp
             {
                 return action(handle);
             }
-        }
-
-        /// <summary>
-        /// Expects the specified reply.
-        /// </summary>
-        /// <param name="reply">The reply.</param>
-        /// <param name="codes">The codes.</param>
-        /// <returns></returns>
-        public FtpReply Expect(FtpReply reply, params int[] codes)
-        {
-            FtpSession.Expect(reply, codes);
-            return reply;
-        }
-
-        /// <summary>
-        /// Aborts the specified FTP stream.
-        /// </summary>
-        /// <param name="ftpStream">The FTP stream.</param>
-        internal static void Abort(Stream ftpStream)
-        {
-            var passiveStream = ftpStream as FtpPassiveStream;
-            if (passiveStream != null)
-            {
-                passiveStream.Abort();
-                return;
-            }
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Throws the exception given a reply.
-        /// </summary>
-        /// <param name="reply">The reply.</param>
-        /// <exception cref="FtpFileException"></exception>
-        /// <exception cref="FtpProtocolException"></exception>
-        internal static void ThrowException(FtpReply reply)
-        {
-            if (reply.Code.Class == FtpReplyCodeClass.Filesystem)
-                throw new FtpFileException(string.Format("File error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
-            if (reply.Code.Class == FtpReplyCodeClass.Connections)
-                throw new FtpTransportException(string.Format("Connection error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]));
-            throw new FtpProtocolException(string.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
         }
     }
 }

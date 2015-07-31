@@ -14,7 +14,7 @@ namespace ArxOne.Ftp
     /// <summary>
     /// Represents a single session
     /// </summary>
-    public class FtpSessionConnection : IDisposable
+    public class FtpConnection : IDisposable
     {
         private static int _currentID;
 
@@ -58,10 +58,10 @@ namespace ArxOne.Ftp
         private int _referenceCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpSessionConnection"/> class.
+        /// Initializes a new instance of the <see cref="FtpConnection"/> class.
         /// </summary>
         /// <param name="client">The FTP client.</param>
-        public FtpSessionConnection(FtpClient client)
+        public FtpConnection(FtpClient client)
         {
             Client = client;
         }
@@ -112,7 +112,7 @@ namespace ArxOne.Ftp
             lock (_referenceCountLock)
             {
                 if (--_referenceCount == 0)
-                    Client.ReleaseSession(this);
+                    Client.ReleaseConnection(this);
             }
         }
     }

@@ -92,7 +92,7 @@
     <Compile Include="FtpReplyCode.cs" />
     <Compile Include="FtpReplyCodeClass.cs" />
     <Compile Include="FtpReplyCodeSeverity.cs" />
-    <Compile Include="FtpSessionConnection.cs" />
+    <Compile Include="FtpConnection.cs" />
     <Compile Include="FtpSession.cs" />
     <Compile Include="IO\FtpPassiveStream.cs" />
     <Compile Include="FtpTransferMode.cs" />

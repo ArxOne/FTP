@@ -39,7 +39,7 @@ namespace ArxOne.Ftp.IO
         public FtpPassiveStream(Socket socket, FtpSession session)
         {
             Session = session;
-            Session.SessionConnection.AddReference();
+            Session.Connection.AddReference();
             SetSocket(socket);
         }
 
@@ -50,7 +50,7 @@ namespace ArxOne.Ftp.IO
         protected FtpPassiveStream(FtpSession session)
         {
             Session = session;
-            Session.SessionConnection.AddReference();
+            Session.Connection.AddReference();
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace ArxOne.Ftp.IO
                 // however we need to signal it to client
                 finally
                 {
-                    session.SessionConnection.Release();
+                    session.Connection.Release();
                 }
             }
         }

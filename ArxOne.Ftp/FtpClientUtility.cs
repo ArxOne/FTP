@@ -25,12 +25,12 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="session">The session handle.</param>
         /// <param name="requiredChannelProtection">The required channel protection.</param>
-        private static void CheckProtection(FtpSession session, FtpProtection requiredChannelProtection)
+        private static void CheckProtection(this FtpSession session, FtpProtection requiredChannelProtection)
         {
             // for FTP, don't even bother
-            if (session.SessionConnection.Client.Protocol == FtpProtocol.Ftp)
+            if (session.Connection.Client.Protocol == FtpProtocol.Ftp)
                 return;
-            var prot = session.SessionConnection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
+            var prot = session.Connection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
             session.State["PROT"] = prot;
         }
 
@@ -40,10 +40,10 @@ namespace ArxOne.Ftp
         /// <param name="session">The session handle.</param>
         /// <param name="mode">The mode.</param>
         /// <returns></returns>
-        internal static FtpStream OpenDataStream(FtpSession session, FtpTransferMode mode)
+        public static FtpStream OpenDataStream(this FtpSession session, FtpTransferMode mode)
         {
             CheckProtection(session, FtpProtection.DataChannel);
-            return session.OpenDataStream(session.SessionConnection.Client.Passive, session.SessionConnection.Client.ConnectTimeout, session.SessionConnection.Client.ReadWriteTimeout, mode);
+            return session.OpenDataStream(session.Connection.Client.Passive, session.Connection.Client.ConnectTimeout, session.Connection.Client.ReadWriteTimeout, mode);
         }
 
         /// <summary>
@@ -69,13 +69,13 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = session.SessionConnection.Client.Expect(session.SendCommand("LIST", session.SessionConnection.Client.FtpPlatform.EscapePath(path.ToString())), 125, 150, 425);
+                var reply = FtpSession.Expect(session.SendCommand("LIST", session.Connection.Client.FtpPlatform.EscapePath(path.ToString())), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     dataStream.Abort();
-                    FtpClient.ThrowException(reply);
+                    FtpSession.ThrowException(reply);
                 }
-                using (var streamReader = new StreamReader(dataStream.Validated(), session.SessionConnection.Encoding))
+                using (var streamReader = new StreamReader(dataStream.Validated(), session.Connection.Encoding))
                 {
                     var list = new List<string>();
                     for (;;)
@@ -123,7 +123,7 @@ namespace ArxOne.Ftp
             var reply = ftpClient.Process(session =>
                   {
                       CheckProtection(session, FtpProtection.ControlChannel);
-                      return ftpClient.Expect(ftpClient.SendCommand(session, "STAT", ftpClient.FtpPlatform.EscapePath(path.ToString())), 213);
+                      return FtpSession.Expect(session.SendCommand("STAT", ftpClient.FtpPlatform.EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
         }
@@ -177,11 +177,11 @@ namespace ArxOne.Ftp
         private static Stream ProcessRetr(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
             var stream = OpenDataStream(session, mode);
-            var reply = session.SessionConnection.Client.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
+            var reply = FtpSession.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 stream.Abort();
-                FtpClient.ThrowException(reply);
+                FtpSession.ThrowException(reply);
                 return null;
             }
             return stream.Validated();
@@ -210,11 +210,11 @@ namespace ArxOne.Ftp
         private static Stream ProcessStor(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
             var stream = OpenDataStream(session, mode);
-            var reply = session.SessionConnection.Client.Expect(session.SendCommand("STOR", path.ToString()), 125, 150, 425, 550);
+            var reply = FtpSession.Expect(session.SendCommand("STOR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 stream.Abort();
-                FtpClient.ThrowException(reply);
+                FtpSession.ThrowException(reply);
                 return null;
             }
             return stream.Validated();
@@ -228,7 +228,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public static bool Rmd(this FtpClient ftpClient, FtpPath path)
         {
-            var reply = ftpClient.Process(handle => handle.SessionConnection.Client.Expect(handle.SendCommand("RMD", path.ToString()), 250, 550));
+            var reply = ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("RMD", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -240,7 +240,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public static bool Dele(this FtpClient ftpClient, FtpPath path)
         {
-            var reply = ftpClient.Process(handle => handle.SessionConnection.Client.Expect(handle.SessionConnection.Client.SendSingleCommand("DELE", path.ToString()), 250, 550));
+            var reply = ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("DELE", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -295,7 +295,7 @@ namespace ArxOne.Ftp
         /// <param name="path">The path.</param>
         public static void Mkd(this FtpClient ftpClient, FtpPath path)
         {
-            ftpClient.Process(handle => handle.SessionConnection.Client.Expect(handle.SendCommand("MKD", path.ToString()), 257));
+            ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("MKD", path.ToString()), 257));
         }
 
         /// <summary>
@@ -308,8 +308,8 @@ namespace ArxOne.Ftp
         {
             ftpClient.Process(delegate (FtpSession handle)
                       {
-                          ftpClient.Expect(ftpClient.SendCommand(handle, "RNFR", from), 350);
-                          ftpClient.Expect(ftpClient.SendCommand(handle, "RNTO", to), 250);
+                          FtpSession.Expect(handle.SendCommand("RNFR", from), 350);
+                          FtpSession.Expect(handle.SendCommand("RNTO", to), 250);
                           return 0;
                       });
         }
@@ -330,11 +330,11 @@ namespace ArxOne.Ftp
         private static FtpEntry ProcessGetEntry(FtpSession session, FtpPath path)
         {
             CheckProtection(session, FtpProtection.ControlChannel);
-            var reply = session.SendCommand("STAT", session.SessionConnection.Client.FtpPlatform.EscapePath(path.ToString()));
+            var reply = session.SendCommand("STAT", session.Connection.Client.FtpPlatform.EscapePath(path.ToString()));
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;
             // now get the type: the first entry is "." for folders or file itself for files/links
-            var entry = EnumerateEntries(session.SessionConnection.Client, path, reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
+            var entry = EnumerateEntries(session.Connection.Client, path, reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
             // actually, it's always good here
             return new FtpEntry(path, entry.Size, entry.Type, entry.Date, entry.Target);
         }
@@ -350,7 +350,7 @@ namespace ArxOne.Ftp
             var reply = ftpClient.Process(session =>
             {
                 CheckProtection(session, FtpProtection.ControlChannel);
-                return ftpClient.Expect(ftpClient.SendCommand(session, "MLST", ftpClient.FtpPlatform.EscapePath(path.ToString())), 250);
+                return FtpSession.Expect(session.SendCommand("MLST", ftpClient.FtpPlatform.EscapePath(path.ToString())), 250);
             });
             return reply.Lines[1];
         }
@@ -401,13 +401,13 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = session.SessionConnection.Client.Expect(session.SendCommand("MLSD", session.SessionConnection.Client.FtpPlatform.EscapePath(path.ToString())), 125, 150, 425);
+                var reply = FtpSession.Expect(session.SendCommand("MLSD", session.Connection.Client.FtpPlatform.EscapePath(path.ToString())), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     dataStream.Abort();
-                    FtpClient.ThrowException(reply);
+                    FtpSession.ThrowException(reply);
                 }
-                using (var streamReader = new StreamReader(dataStream.Validated(), session.SessionConnection.Encoding))
+                using (var streamReader = new StreamReader(dataStream.Validated(), session.Connection.Encoding))
                 {
                     var list = new List<string>();
                     for (;;)
