@@ -108,8 +108,6 @@ namespace ArxOne.Ftp
         /// </summary>
         internal void AddReference()
         {
-            //if (_protocol == FtpProtocol.FtpES && BytesProcessed > 64 << 10)
-            //    Disconnect();
             lock (_referenceCountLock)
                 ++_referenceCount;
         }
