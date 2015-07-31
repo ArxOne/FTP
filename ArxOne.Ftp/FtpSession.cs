@@ -252,7 +252,7 @@ namespace ArxOne.Ftp
                 message = "Not connected";
                 return null;
             }
-            SessionConnection.ActiveTransferHost = ((IPEndPoint)transportSocket.LocalEndPoint).Address;
+            SessionConnection.Client.ActualActiveTransferHost = ((IPEndPoint)transportSocket.LocalEndPoint).Address;
             return new NetworkStream(transportSocket, FileAccess.ReadWrite, true);
         }
 
@@ -657,13 +657,13 @@ namespace ArxOne.Ftp
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SendTimeout = socket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
-            socket.Bind(new IPEndPoint(SessionConnection.HostAddress, 0));
+            socket.Bind(new IPEndPoint(SessionConnection.Client.HostAddress, 0));
             var port = ((IPEndPoint)socket.LocalEndPoint).Port;
             if (SessionConnection.Client.HasServerFeature("EPRT", this))
-                Expect(SendCommand(String.Format("EPRT |{0}|{1}|{2}|", SessionConnection.HostAddress.AddressFamily == AddressFamily.InterNetwork ? 1 : 2, SessionConnection.HostAddress, port)), 200);
+                Expect(SendCommand(String.Format("EPRT |{0}|{1}|{2}|", SessionConnection.Client.HostAddress.AddressFamily == AddressFamily.InterNetwork ? 1 : 2, SessionConnection.Client.HostAddress, port)), 200);
             else
             {
-                var addressBytes = SessionConnection.HostAddress.GetAddressBytes();
+                var addressBytes = SessionConnection.Client.HostAddress.GetAddressBytes();
                 Expect(SendCommand(String.Format("PORT {0},{1},{2},{3},{4},{5}", addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3], port / 256, port % 256)), 200);
             }
 

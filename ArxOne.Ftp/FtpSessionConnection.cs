@@ -58,26 +58,10 @@ namespace ArxOne.Ftp
         /// </summary>
         public FtpSessionState State { get; set; }
 
-        /// <summary>
-        /// Gets the host address.
-        /// </summary>
-        /// <value>
-        /// The host address.
-        /// </value>
-        internal IPAddress HostAddress
-        {
-            get
-            {
-                return Client.ActiveTransferHost ?? ActiveTransferHost;
-            }
-        }
-
         // the session can be held by two different elements: FtpSessionHandle and specific Stream
         // the session handle can be implicit (using the Sequence() method) and needs to be released
         private readonly object _referenceCountLock = new object();
         private int _referenceCount;
-
-        internal IPAddress ActiveTransferHost { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpSessionConnection"/> class.

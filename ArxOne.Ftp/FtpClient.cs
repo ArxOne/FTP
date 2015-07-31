@@ -38,7 +38,7 @@ namespace ArxOne.Ftp
         public bool Passive { get; private set; }
 
         /// <summary>
-        /// Gets the active transfer host.
+        /// Gets the active transfer host (set by configuration).
         /// </summary>
         /// <value>
         /// The active transfer host.
@@ -181,6 +181,28 @@ namespace ArxOne.Ftp
                 return _ftpPlatform;
             }
         }
+        
+        /// <summary>
+        /// Gets the host address.
+        /// </summary>
+        /// <value>
+        /// The host address.
+        /// </value>
+        internal IPAddress HostAddress
+        {
+            get
+            {
+                return ActiveTransferHost ?? ActualActiveTransferHost;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the actual active transfer host.
+        /// </summary>
+        /// <value>
+        /// The actual active transfer host.
+        /// </value>
+        internal IPAddress ActualActiveTransferHost { get; set; }
 
         /// <summary>
         /// Occurs when [check certificate].
