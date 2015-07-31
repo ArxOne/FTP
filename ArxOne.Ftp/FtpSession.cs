@@ -154,7 +154,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private bool ProcessConnect(TimeSpan connectTimeout, TimeSpan readWriteTimeout)
         {
-            InitializeTransport(connectTimeout, readWriteTimeout, SessionConnection.Protocol == FtpProtocol.FtpS);
+            InitializeTransport(connectTimeout, readWriteTimeout, SessionConnection.Client.Protocol == FtpProtocol.FtpS);
             InitializeProtocol();
             InitializeSession();
             return true;
@@ -291,7 +291,7 @@ namespace ArxOne.Ftp
         private void InitializeProtocol()
         {
             // setting up the protocol socket depends on the used protocol
-            switch (SessionConnection.Protocol)
+            switch (SessionConnection.Client.Protocol)
             {
                 // FTP is straightforward, it is clear data
                 case FtpProtocol.Ftp:

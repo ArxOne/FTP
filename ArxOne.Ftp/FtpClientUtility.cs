@@ -28,7 +28,7 @@ namespace ArxOne.Ftp
         private static void CheckProtection(FtpSession session, FtpProtection requiredChannelProtection)
         {
             // for FTP, don't even bother
-            if (session.SessionConnection.Protocol == FtpProtocol.Ftp)
+            if (session.SessionConnection.Client.Protocol == FtpProtocol.Ftp)
                 return;
             var prot = session.SessionConnection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
             session.State["PROT"] = prot;

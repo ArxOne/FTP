@@ -181,7 +181,7 @@ namespace ArxOne.Ftp
                 return _ftpPlatform;
             }
         }
-        
+
         /// <summary>
         /// Gets the host address.
         /// </summary>
@@ -229,13 +229,19 @@ namespace ArxOne.Ftp
         /// </summary>
         public event EventHandler<ProtocolMessageEventArgs> IOError;
 
-        private readonly string _host;
         /// <summary>
         /// Gets or sets the port.
         /// </summary>
         /// <value>The _port.</value>
         public int Port { get; private set; }
-        private readonly FtpProtocol _protocol;
+    
+        /// <summary>
+        /// Gets the protocol.
+        /// </summary>
+        /// <value>
+        /// The _protocol.
+        /// </value>
+        public FtpProtocol Protocol { get; private set; }
 
         private class DatedFtpSession
         {
@@ -258,8 +264,7 @@ namespace ArxOne.Ftp
         public FtpClient(FtpProtocol protocol, string host, int port, NetworkCredential credential, FtpClientParameters parameters = null)
         {
             Credential = credential;
-            _protocol = protocol;
-            _host = host;
+            Protocol = protocol;
             Port = port;
             var uriBuilder = new UriBuilder { Scheme = GetScheme(protocol), Host = host, Port = port };
             Uri = uriBuilder.Uri;
@@ -521,7 +526,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         private FtpSessionConnection CreateSession()
         {
-            return new FtpSessionConnection(this, _protocol);
+            return new FtpSessionConnection(this);
         }
 
         /// <summary>

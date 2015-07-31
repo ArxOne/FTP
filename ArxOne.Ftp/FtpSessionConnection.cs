@@ -8,7 +8,6 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.IO;
-    using System.Net;
     using System.Net.Sockets;
     using System.Text;
 
@@ -28,11 +27,6 @@ namespace ArxOne.Ftp
         /// The _FTP client.
         /// </value>
         public FtpClient Client { get; private set; }
-
-        /// <summary>
-        /// Gets the protocol.
-        /// </summary>
-        public FtpProtocol Protocol { get; private set; }
 
         /// <summary>
         /// Text encoding mode
@@ -67,11 +61,9 @@ namespace ArxOne.Ftp
         /// Initializes a new instance of the <see cref="FtpSessionConnection"/> class.
         /// </summary>
         /// <param name="client">The FTP client.</param>
-        /// <param name="protocol">The protocol.</param>
-        public FtpSessionConnection(FtpClient client, FtpProtocol protocol)
+        public FtpSessionConnection(FtpClient client)
         {
             Client = client;
-            Protocol = protocol;
         }
 
         /// <summary>
