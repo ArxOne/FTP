@@ -43,7 +43,8 @@ namespace ArxOne.Ftp
         public static FtpStream OpenDataStream(this FtpSession session, FtpTransferMode mode)
         {
             CheckProtection(session, FtpProtection.DataChannel);
-            return session.OpenDataStream(session.Connection.Client.Passive, session.Connection.Client.ConnectTimeout, session.Connection.Client.ReadWriteTimeout, mode);
+            var client = session.Connection.Client;
+            return session.OpenDataStream(client.Passive, client.ConnectTimeout, client.ReadWriteTimeout, mode);
         }
 
         /// <summary>
@@ -310,7 +311,6 @@ namespace ArxOne.Ftp
                       {
                           FtpSession.Expect(handle.SendCommand("RNFR", from), 350);
                           FtpSession.Expect(handle.SendCommand("RNTO", to), 250);
-                          return 0;
                       });
         }
 

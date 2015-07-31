@@ -628,7 +628,7 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
-        /// Retries the specified action.
+        /// Processes the specified action with a session.
         /// </summary>
         /// <typeparam name="TResult">The type of the ret.</typeparam>
         /// <param name="action">The action.</param>
@@ -636,9 +636,17 @@ namespace ArxOne.Ftp
         public TResult Process<TResult>(Func<FtpSession, TResult> action)
         {
             using (var handle = Session())
-            {
                 return action(handle);
-            }
+        }
+
+        /// <summary>
+        /// Processes the specified action with a session.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        public void Process(Action<FtpSession> action)
+        {
+            using (var handle = Session())
+                action(handle);
         }
     }
 }
