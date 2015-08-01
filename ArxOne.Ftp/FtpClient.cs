@@ -164,7 +164,7 @@ namespace ArxOne.Ftp
             }
         }
 
-        private FtpPlatform _ftpPlatform;
+        private FtpPlatform _platform;
 
         /// <summary>
         /// Gets the FTP platform.
@@ -172,13 +172,13 @@ namespace ArxOne.Ftp
         /// <value>
         /// The FTP platform.
         /// </value>
-        public FtpPlatform FtpPlatform
+        public FtpPlatform Platform
         {
             get
             {
-                if (_ftpPlatform == null)
-                    _ftpPlatform = GetFtpPlatform(ServerType);
-                return _ftpPlatform;
+                if (_platform == null)
+                    _platform = GetFtpPlatform(ServerType);
+                return _platform;
             }
         }
 
