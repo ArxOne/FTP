@@ -4,7 +4,7 @@
 <#@ include file="PlatformTest.Init.tt" #>
 
 <#
-    Platform = "VsFTPd";
+    Platform = "PureFTPd";
 	Protocol = "ftp";
 #>
 
@@ -12,6 +12,7 @@
 
 <#
 	Protocol = "ftpes";
+	Protection = ProtectionControl;
 #>
 
 <#@ include file="PlatformTest.tt" #>

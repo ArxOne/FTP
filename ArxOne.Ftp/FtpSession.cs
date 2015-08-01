@@ -585,6 +585,19 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
+        /// Checks the protection.
+        /// </summary>
+        /// <param name="requiredChannelProtection">The required channel protection.</param>
+        public void CheckProtection(FtpProtection requiredChannelProtection)
+        {
+            // for FTP, don't even bother
+            if (Connection.Client.Protocol == FtpProtocol.Ftp)
+                return;
+            var prot = Connection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
+            State["PROT"] = prot;
+        }
+        
+        /// <summary>
         /// Opens the data stream.
         /// </summary>
         /// <param name="passive">if set to <c>true</c> [passive].</param>
@@ -594,6 +607,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpStream OpenDataStream(bool passive, TimeSpan connectTimeout, TimeSpan readWriteTimeout, FtpTransferMode mode)
         {
+            CheckProtection(FtpProtection.DataChannel);
             SetTransferMode(mode);
             FtpStream stream;
             if (passive)

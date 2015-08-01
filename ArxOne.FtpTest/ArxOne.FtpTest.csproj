@@ -81,8 +81,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>FileZillaPlatformTest.tt</DependentUpon>
     </Compile>
-    <Compile Include="VsftpdPlatformTest.auto.cs">
-      <DependentUpon>VsftpdPlatformTest.tt</DependentUpon>
+    <Compile Include="PureftpdPlatformTest.auto.cs">
+      <DependentUpon>PureftpdPlatformTest.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -136,9 +136,9 @@
     </None>
     <Content Include="PlatformTest.Init.tt" />
     <Content Include="PlatformTest.tt" />
-    <None Include="VsftpdPlatformTest.tt">
+    <None Include="PureftpdPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>VsftpdPlatformTest.auto.cs</LastGenOutput>
+      <LastGenOutput>PureftpdPlatformTest.auto.cs</LastGenOutput>
     </None>
     <None Include="IisPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

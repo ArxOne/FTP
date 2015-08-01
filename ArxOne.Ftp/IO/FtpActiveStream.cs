@@ -63,15 +63,16 @@ namespace ArxOne.Ftp.IO
         private void OnSocketAccept(IAsyncResult ar)
         {
             var socket = (Socket)ar.AsyncState;
-            _socket = socket.EndAccept(ar);
+            var acceptedSocket = socket.EndAccept(ar);
             try
             {
-                SetSocket(_socket);
+                SetSocket(acceptedSocket);
             }
             catch (IOException e)
             {
                 _exception = e;
             }
+            _socket = acceptedSocket;
             _socketSet.Set();
         }
     }

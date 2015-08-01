@@ -1,5 +1,5 @@
 ﻿<# 
-// input required here: Platform, Protocol
+// input required here: Platform, Protocol, Protection (defaulted to null)
 // actual tests are located in PlatformTest.cs (because this is much easier to write)
 
 	PlatformPrefix = Platform.Substring(0,1).ToUpper() + Platform.Substring(1).ToLower();
@@ -22,7 +22,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>SpaceNameTest()
 		 {
-			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -31,7 +31,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>BracketNameTest()
 		 {
-			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -40,7 +40,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ParenthesisNameTest()
 		 {
-			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -49,7 +49,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ListPassiveTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -58,7 +58,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ListActiveTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -68,7 +68,8 @@ namespace ArxOne.FtpTest
 		 [ExpectedException(typeof(FtpFileException))]
 		 public void <#=Prefix#>ListNonExistingTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, directory: "/nonExistingDirectory");
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, 
+			directory: "/nonExistingDirectory", directoryExists: false, protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -77,7 +78,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>StatTest()
 		 {
-			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -86,7 +87,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>StatNoDotTest()
 		 {
-			PlatformTest.StatNoDotTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.StatNoDotTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -95,7 +96,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>CreateFilePassiveTest()
 		 {
-			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -104,7 +105,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>CreateFileActiveTest()
 		 {
-			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -113,7 +114,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlstTest()
 		 {
-			PlatformTest.MlstTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.MlstTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -122,7 +123,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlstEntryTest()
 		 {
-			PlatformTest.MlstEntryTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.MlstEntryTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -131,7 +132,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlsdTest()
 		 {
-			PlatformTest.MlsdTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.MlsdTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -140,7 +141,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlsdEntriesTest()
 		 {
-			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>");
+			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
 		 }
 	}
 }

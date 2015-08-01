@@ -4,6 +4,11 @@
 	string Prefix;
 	string ProtocolCategory;
 
-	var Platform = "<Please fill Platform>";
+	string Platform;
 	var Protocol = "ftp";
+	var Protection = "null";
+	// for specific protection:
+	var ProtectionControl = "ArxOne.Ftp.FtpProtection.ControlChannel";
+	var ProtectionData = "ArxOne.Ftp.FtpProtection.DataChannel";
+	var ProtectionAll = "ArxOne.Ftp.FtpProtection.ControlChannel|ArxOne.Ftp.FtpProtection.DataChannel";
 #>

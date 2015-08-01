@@ -21,20 +21,6 @@ namespace ArxOne.Ftp
     public static class FtpClientUtility
     {
         /// <summary>
-        /// Checks the protection.
-        /// </summary>
-        /// <param name="session">The session handle.</param>
-        /// <param name="requiredChannelProtection">The required channel protection.</param>
-        private static void CheckProtection(this FtpSession session, FtpProtection requiredChannelProtection)
-        {
-            // for FTP, don't even bother
-            if (session.Connection.Client.Protocol == FtpProtocol.Ftp)
-                return;
-            var prot = session.Connection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
-            session.State["PROT"] = prot;
-        }
-
-        /// <summary>
         /// Opens a data stream.
         /// </summary>
         /// <param name="session">The session handle.</param>
@@ -42,7 +28,6 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public static FtpStream OpenDataStream(this FtpSession session, FtpTransferMode mode)
         {
-            CheckProtection(session, FtpProtection.DataChannel);
             var client = session.Connection.Client;
             return session.OpenDataStream(client.Passive, client.ConnectTimeout, client.ReadWriteTimeout, mode);
         }
@@ -123,7 +108,7 @@ namespace ArxOne.Ftp
         {
             var reply = ftpClient.Process(session =>
                   {
-                      CheckProtection(session, FtpProtection.ControlChannel);
+                      session.CheckProtection(FtpProtection.ControlChannel);
                       return FtpSession.Expect(session.SendCommand("STAT", ftpClient.FtpPlatform.EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
@@ -329,7 +314,7 @@ namespace ArxOne.Ftp
 
         private static FtpEntry ProcessGetEntry(FtpSession session, FtpPath path)
         {
-            CheckProtection(session, FtpProtection.ControlChannel);
+            session.CheckProtection(FtpProtection.ControlChannel);
             var reply = session.SendCommand("STAT", session.Connection.Client.FtpPlatform.EscapePath(path.ToString()));
             if (reply.Code != 213 || reply.Lines.Length <= 2)
                 return null;
@@ -349,7 +334,7 @@ namespace ArxOne.Ftp
         {
             var reply = ftpClient.Process(session =>
             {
-                CheckProtection(session, FtpProtection.ControlChannel);
+                session.CheckProtection(FtpProtection.ControlChannel);
                 return FtpSession.Expect(session.SendCommand("MLST", ftpClient.FtpPlatform.EscapePath(path.ToString())), 250);
             });
             return reply.Lines[1];
