@@ -596,7 +596,7 @@ namespace ArxOne.Ftp
             var prot = Connection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
             State["PROT"] = prot;
         }
-        
+
         /// <summary>
         /// Opens the data stream.
         /// </summary>
@@ -635,16 +635,14 @@ namespace ArxOne.Ftp
                 var reply = Expect(SendCommand("EPSV"), 229);
                 var match = EpsvEx.Match(reply.Lines[0]);
                 host = Connection.Client.Uri.Host;
-                port = Int32.Parse(match.Groups["port"].Value);
+                port = int.Parse(match.Groups["port"].Value);
             }
             else
             {
                 var reply = Expect(SendCommand("PASV"), 227);
                 var match = PasvEx.Match(reply.Lines[0]);
-                host = String.Format("{0}.{1}.{2}.{3}",
-                    match.Groups["ip1"], match.Groups["ip2"],
-                                     match.Groups["ip3"], match.Groups["ip4"]);
-                port = Int32.Parse(match.Groups["portHi"].Value) * 256 + Int32.Parse(match.Groups["portLo"].Value);
+                host = string.Format("{0}.{1}.{2}.{3}", match.Groups["ip1"], match.Groups["ip2"], match.Groups["ip3"], match.Groups["ip4"]);
+                port = int.Parse(match.Groups["portHi"].Value) * 256 + Int32.Parse(match.Groups["portLo"].Value);
             }
 
             if (Connection.Client.ProxyConnect != null)
