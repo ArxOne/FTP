@@ -4,6 +4,7 @@
 // https://github.com/ArxOne/FTP
 // Released under MIT license http://opensource.org/licenses/MIT
 #endregion
+
 namespace ArxOne.Ftp
 {
     using System;
@@ -135,7 +136,7 @@ namespace ArxOne.Ftp
         {
             if (_system == null)
             {
-                var systemReply = session.Expect(SendCommand(session, "SYST"), 215);
+                var systemReply = Process(s => s.Expect(s.SendCommand("SYST"), 215), session);
                 _system = systemReply.Lines[0];
             }
             return _system;
@@ -636,41 +637,36 @@ namespace ArxOne.Ftp
         {
             return Process(session => session.SendCommand(command, parameters));
         }
-
-        /// <summary>
-        /// Sends the commandn whenever there is a given <see cref="FtpSession"/> or not.
-        /// </summary>
-        /// <param name="ftpSession">The FTP session.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public FtpReply SendCommand(FtpSession ftpSession, string command, params string[] parameters)
-        {
-            return ftpSession == null
-                ? SendSingleCommand(command, parameters)
-                : ftpSession.SendCommand(command, parameters);
-        }
-
+        
         /// <summary>
         /// Processes the specified action with a session.
         /// </summary>
         /// <typeparam name="TResult">The type of the ret.</typeparam>
         /// <param name="action">The action.</param>
+        /// <param name="session">An existing session or null to create a new one.</param>
         /// <returns></returns>
-        public TResult Process<TResult>(Func<FtpSession, TResult> action)
+        public TResult Process<TResult>(Func<FtpSession, TResult> action, FtpSession session = null)
         {
-            using (var handle = Session())
-                return action(handle);
+            if (session != null)
+                return action(session);
+            using (var newSession = Session())
+                return action(newSession);
         }
 
         /// <summary>
         /// Processes the specified action with a session.
         /// </summary>
         /// <param name="action">The action.</param>
-        public void Process(Action<FtpSession> action)
+        /// <param name="session">An existing session or null to create a new one.</param>
+        public void Process(Action<FtpSession> action, FtpSession session = null)
         {
-            using (var handle = Session())
-                action(handle);
+            if (session != null)
+                action(session);
+            else
+            {
+                using (var newSession = Session())
+                    action(newSession);
+            }
         }
     }
 }

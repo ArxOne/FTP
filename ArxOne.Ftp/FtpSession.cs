@@ -101,6 +101,13 @@ namespace ArxOne.Ftp
             Connection.Release();
         }
 
+        /// <summary>
+        /// Invalidates this session (it won't be reused).
+        /// </summary>
+        public void Invalidate()
+        {
+            Connection.Disconnect();
+        }
 
         /// <summary>
         /// Executes the given function in a context where exceptions will be translated.
@@ -381,7 +388,7 @@ namespace ArxOne.Ftp
         /// <param name="reply">The reply.</param>
         /// <param name="codes">The codes.</param>
         /// <returns></returns>
-        public static FtpReply Expect(FtpReply reply, params int[] codes)
+        public FtpReply Expect(FtpReply reply, params int[] codes)
         {
             if (!codes.Any(code => code == reply.Code))
                 ThrowException(reply);
@@ -404,13 +411,13 @@ namespace ArxOne.Ftp
         /// <param name="reply">The reply.</param>
         /// <exception cref="FtpFileException"></exception>
         /// <exception cref="FtpProtocolException"></exception>
-        internal static void ThrowException(FtpReply reply)
+        internal void ThrowException(FtpReply reply)
         {
             if (reply.Code.Class == FtpReplyCodeClass.Filesystem)
-                throw new FtpFileException(String.Format("File error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
+                throw new FtpFileException(string.Format("File error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
             if (reply.Code.Class == FtpReplyCodeClass.Connections)
-                throw new FtpTransportException(String.Format("Connection error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]));
-            throw new FtpProtocolException(String.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
+                throw new FtpTransportException(string.Format("Connection error. Code={0} ('{1}')", reply.Code.Code, reply.Lines[0]));
+            throw new FtpProtocolException(string.Format("Expected other reply than {0} ('{1}')", reply.Code.Code, reply.Lines[0]), reply.Code);
         }
 
         /// <summary>

@@ -55,11 +55,11 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = FtpSession.Expect(session.SendCommand("LIST", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
+                var reply = session.Expect(session.SendCommand("LIST", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     dataStream.Abort();
-                    FtpSession.ThrowException(reply);
+                    session.ThrowException(reply);
                 }
                 using (var streamReader = new StreamReader(dataStream.Validated(), session.Connection.Encoding))
                 {
@@ -109,7 +109,7 @@ namespace ArxOne.Ftp
             var reply = ftpClient.Process(session =>
                   {
                       session.CheckProtection(FtpProtection.ControlChannel);
-                      return FtpSession.Expect(session.SendCommand("STAT", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 213);
+                      return session.Expect(session.SendCommand("STAT", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 213);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
         }
@@ -164,11 +164,11 @@ namespace ArxOne.Ftp
         private static Stream ProcessRetr(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
             var stream = OpenDataStream(session, mode);
-            var reply = FtpSession.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
+            var reply = session.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 stream.Abort();
-                FtpSession.ThrowException(reply);
+                session.ThrowException(reply);
                 return null;
             }
             return stream.Validated();
@@ -197,11 +197,11 @@ namespace ArxOne.Ftp
         private static Stream ProcessStor(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
             var stream = OpenDataStream(session, mode);
-            var reply = FtpSession.Expect(session.SendCommand("STOR", path.ToString()), 125, 150, 425, 550);
+            var reply = session.Expect(session.SendCommand("STOR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
                 stream.Abort();
-                FtpSession.ThrowException(reply);
+                session.ThrowException(reply);
                 return null;
             }
             return stream.Validated();
@@ -215,7 +215,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public static bool Rmd(this FtpClient ftpClient, FtpPath path)
         {
-            var reply = ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("RMD", path.ToString()), 250, 550));
+            var reply = ftpClient.Process(session => session.Expect(session.SendCommand("RMD", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -227,7 +227,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public static bool Dele(this FtpClient ftpClient, FtpPath path)
         {
-            var reply = ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("DELE", path.ToString()), 250, 550));
+            var reply = ftpClient.Process(session => session.Expect(session.SendCommand("DELE", path.ToString()), 250, 550));
             return reply.Code.IsSuccess;
         }
 
@@ -282,7 +282,7 @@ namespace ArxOne.Ftp
         /// <param name="path">The path.</param>
         public static void Mkd(this FtpClient ftpClient, FtpPath path)
         {
-            ftpClient.Process(handle => FtpSession.Expect(handle.SendCommand("MKD", path.ToString()), 257));
+            ftpClient.Process(session => session.Expect(session.SendCommand("MKD", path.ToString()), 257));
         }
 
         /// <summary>
@@ -293,10 +293,10 @@ namespace ArxOne.Ftp
         /// <param name="to">To.</param>
         public static void RnfrTo(this FtpClient ftpClient, string from, string to)
         {
-            ftpClient.Process(delegate (FtpSession handle)
+            ftpClient.Process(delegate (FtpSession session)
                       {
-                          FtpSession.Expect(handle.SendCommand("RNFR", from), 350);
-                          FtpSession.Expect(handle.SendCommand("RNTO", to), 250);
+                          session.Expect(session.SendCommand("RNFR", from), 350);
+                          session.Expect(session.SendCommand("RNTO", to), 250);
                       });
         }
 
@@ -336,7 +336,7 @@ namespace ArxOne.Ftp
             var reply = ftpClient.Process(session =>
             {
                 session.CheckProtection(FtpProtection.ControlChannel);
-                return FtpSession.Expect(session.SendCommand("MLST", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 250);
+                return session.Expect(session.SendCommand("MLST", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 250);
             });
             return reply.Lines[1];
         }
@@ -387,11 +387,11 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = FtpSession.Expect(session.SendCommand("MLSD", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
+                var reply = session.Expect(session.SendCommand("MLSD", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
                 if (!reply.Code.IsSuccess)
                 {
                     dataStream.Abort();
-                    FtpSession.ThrowException(reply);
+                    session.ThrowException(reply);
                 }
                 using (var streamReader = new StreamReader(dataStream.Validated(), session.Connection.Encoding))
                 {
