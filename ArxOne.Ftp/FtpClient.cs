@@ -8,14 +8,11 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
     using System.Threading;
-    using Exceptions;
-    using IO;
     using Platform;
 
     /// <summary>
@@ -127,17 +124,21 @@ namespace ArxOne.Ftp
         /// Gets the system.
         /// </summary>
         /// <value>The system.</value>
-        public string System
+        public string System { get { return GetSystem(null); } }
+
+        /// <summary>
+        /// Gets the system.
+        /// </summary>
+        /// <param name="ftpSession">The FTP session.</param>
+        /// <returns></returns>
+        public string GetSystem(FtpSession ftpSession)
         {
-            get
+            if (_system == null)
             {
-                if (_system == null)
-                {
-                    var systemReply = FtpSession.Expect(SendSingleCommand("SYST"), 215);
-                    _system = systemReply.Lines[0];
-                }
-                return _system;
+                var systemReply = FtpSession.Expect(SendCommand(ftpSession, "SYST"), 215);
+                _system = systemReply.Lines[0];
             }
+            return _system;
         }
 
         private FtpServerType? _serverType;
@@ -147,21 +148,26 @@ namespace ArxOne.Ftp
         /// <value>
         /// The type of the server.
         /// </value>
-        public FtpServerType ServerType
+        public FtpServerType ServerType { get { return GetServerType(null); } }
+
+        /// <summary>
+        /// Gets the type of the server.
+        /// </summary>
+        /// <param name="ftpSession">The FTP session.</param>
+        /// <returns></returns>
+        private FtpServerType GetServerType(FtpSession ftpSession)
         {
-            get
+            if (!_serverType.HasValue)
             {
-                if (!_serverType.HasValue)
-                {
-                    if (System.StartsWith("unix", StringComparison.InvariantCultureIgnoreCase))
-                        _serverType = FtpServerType.Unix;
-                    else if (System.StartsWith("windows", StringComparison.InvariantCultureIgnoreCase))
-                        _serverType = FtpServerType.Windows;
-                    else
-                        _serverType = FtpServerType.Unknown;
-                }
-                return _serverType.Value;
+                var system = GetSystem(ftpSession);
+                if (system.StartsWith("unix", StringComparison.InvariantCultureIgnoreCase))
+                    _serverType = FtpServerType.Unix;
+                else if (system.StartsWith("windows", StringComparison.InvariantCultureIgnoreCase))
+                    _serverType = FtpServerType.Windows;
+                else
+                    _serverType = FtpServerType.Unknown;
             }
+            return _serverType.Value;
         }
 
         private FtpPlatform _platform;
@@ -172,14 +178,18 @@ namespace ArxOne.Ftp
         /// <value>
         /// The FTP platform.
         /// </value>
-        public FtpPlatform Platform
+        public FtpPlatform Platform { get { return GetPlatform(null); } }
+
+        /// <summary>
+        /// Gets the platform.
+        /// </summary>
+        /// <param name="ftpSession">The FTP session.</param>
+        /// <returns></returns>
+        public FtpPlatform GetPlatform(FtpSession ftpSession)
         {
-            get
-            {
-                if (_platform == null)
-                    _platform = GetFtpPlatform(ServerType);
-                return _platform;
-            }
+            if (_platform == null)
+                _platform = GetFtpPlatform(GetServerType(ftpSession));
+            return _platform;
         }
 
         /// <summary>
@@ -624,7 +634,21 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         public FtpReply SendSingleCommand(string command, params string[] parameters)
         {
-            return Process(handle => handle.SendCommand(command, parameters));
+            return Process(session => session.SendCommand(command, parameters));
+        }
+
+        /// <summary>
+        /// Sends the commandn whenever there is a given <see cref="FtpSession"/> or not.
+        /// </summary>
+        /// <param name="ftpSession">The FTP session.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        public FtpReply SendCommand(FtpSession ftpSession, string command, params string[] parameters)
+        {
+            return ftpSession == null
+                ? SendSingleCommand(command, parameters)
+                : ftpSession.SendCommand(command, parameters);
         }
 
         /// <summary>
