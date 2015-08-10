@@ -129,13 +129,13 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Gets the system.
         /// </summary>
-        /// <param name="ftpSession">The FTP session.</param>
+        /// <param name="session">The FTP session.</param>
         /// <returns></returns>
-        public string GetSystem(FtpSession ftpSession)
+        public string GetSystem(FtpSession session)
         {
             if (_system == null)
             {
-                var systemReply = FtpSession.Expect(SendCommand(ftpSession, "SYST"), 215);
+                var systemReply = session.Expect(SendCommand(session, "SYST"), 215);
                 _system = systemReply.Lines[0];
             }
             return _system;
@@ -153,13 +153,13 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Gets the type of the server.
         /// </summary>
-        /// <param name="ftpSession">The FTP session.</param>
+        /// <param name="session">The FTP session.</param>
         /// <returns></returns>
-        private FtpServerType GetServerType(FtpSession ftpSession)
+        private FtpServerType GetServerType(FtpSession session)
         {
             if (!_serverType.HasValue)
             {
-                var system = GetSystem(ftpSession);
+                var system = GetSystem(session);
                 if (system.StartsWith("unix", StringComparison.InvariantCultureIgnoreCase))
                     _serverType = FtpServerType.Unix;
                 else if (system.StartsWith("windows", StringComparison.InvariantCultureIgnoreCase))
@@ -183,12 +183,12 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Gets the platform.
         /// </summary>
-        /// <param name="ftpSession">The FTP session.</param>
+        /// <param name="session">The FTP session.</param>
         /// <returns></returns>
-        public FtpPlatform GetPlatform(FtpSession ftpSession)
+        public FtpPlatform GetPlatform(FtpSession session)
         {
             if (_platform == null)
-                _platform = GetFtpPlatform(GetServerType(ftpSession));
+                _platform = GetFtpPlatform(GetServerType(session));
             return _platform;
         }
 
