@@ -24,7 +24,7 @@ namespace ArxOne.FtpTest
             var testHost = TestHost.Get(platform: "xlightftpd", protocol: "ftp");
             using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential))
             {
-                for (int i = 0; i < 1000; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     try
                     {

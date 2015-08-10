@@ -391,7 +391,13 @@ namespace ArxOne.Ftp
         public FtpReply Expect(FtpReply reply, params int[] codes)
         {
             if (!codes.Any(code => code == reply.Code))
+            {
+                // When 214 is unexpected, it may create a command/reply inconsistency (a 1-reply shift)
+                // so the best option here is to disconnect, it will reset the command/reply pairs
+                if (reply.Code == 214)
+                    Connection.Disconnect();
                 ThrowException(reply);
+            }
             return reply;
         }
 
