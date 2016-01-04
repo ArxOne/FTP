@@ -86,7 +86,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The server features.
         /// </value>
-        public FtpServerFeatures ServerFeatures { get { return GetServerFeatures(null); } }
+        public FtpServerFeatures ServerFeatures => GetServerFeatures(null);
 
         /// <summary>
         /// Gets or sets the default encoding.
@@ -125,7 +125,7 @@ namespace ArxOne.Ftp
         /// Gets the system.
         /// </summary>
         /// <value>The system.</value>
-        public string System { get { return GetSystem(null); } }
+        public string System => GetSystem(null);
 
         /// <summary>
         /// Gets the system.
@@ -149,7 +149,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The type of the server.
         /// </value>
-        public FtpServerType ServerType { get { return GetServerType(null); } }
+        public FtpServerType ServerType => GetServerType(null);
 
         /// <summary>
         /// Gets the type of the server.
@@ -179,7 +179,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The FTP platform.
         /// </value>
-        public FtpPlatform Platform { get { return GetPlatform(null); } }
+        public FtpPlatform Platform => GetPlatform(null);
 
         /// <summary>
         /// Gets the platform.
@@ -199,13 +199,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The host address.
         /// </value>
-        internal IPAddress HostAddress
-        {
-            get
-            {
-                return ActiveTransferHost ?? ActualActiveTransferHost;
-            }
-        }
+        internal IPAddress HostAddress => ActiveTransferHost ?? ActualActiveTransferHost;
 
         /// <summary>
         /// Gets or sets the actual active transfer host.
@@ -333,7 +327,7 @@ namespace ArxOne.Ftp
                 case FtpServerType.Windows:
                     return new WindowsFtpPlatform();
                 default:
-                    throw new ArgumentOutOfRangeException("serverType", serverType, null);
+                    throw new ArgumentOutOfRangeException(nameof(serverType), serverType, null);
             }
         }
 
@@ -421,7 +415,7 @@ namespace ArxOne.Ftp
                 case FtpProtocol.FtpES:
                     return "ftpes";
                 default:
-                    throw new ArgumentOutOfRangeException("protocol");
+                    throw new ArgumentOutOfRangeException(nameof(protocol));
             }
         }
 

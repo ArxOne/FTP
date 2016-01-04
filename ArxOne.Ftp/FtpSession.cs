@@ -29,7 +29,7 @@ namespace ArxOne.Ftp
         /// Gets or sets the FTP session.
         /// </summary>
         /// <value>The FTP session.</value>
-        public FtpConnection Connection { get; private set; }
+        public FtpConnection Connection { get; }
 
         /// <summary>
         /// Gets the transport stream.
@@ -118,8 +118,8 @@ namespace ArxOne.Ftp
         /// <param name="requestCommand">The request command.</param>
         /// <param name="requestParameters">The request parameters.</param>
         /// <returns></returns>
-        internal TResult Process<TResult>(Func<TResult> func, string commandDescription, string requestCommand = null,
-            string[] requestParameters = null)
+        /// <exception cref="FtpTransportException">Connection error.</exception>
+        internal TResult Process<TResult>(Func<TResult> func, string commandDescription, string requestCommand = null, string[] requestParameters = null)
         {
             try
             {
@@ -251,7 +251,6 @@ namespace ArxOne.Ftp
             {
                 transportSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
             }
-            transportSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             transportSocket.SendTimeout = transportSocket.ReceiveTimeout = (int)readWriteTimeout.TotalMilliseconds;
             transportSocket.Connect(Connection.Client.Uri.Host, Connection.Client.Port, connectTimeout);
             if (!transportSocket.Connected)
@@ -417,6 +416,7 @@ namespace ArxOne.Ftp
         /// <param name="reply">The reply.</param>
         /// <exception cref="FtpFileException"></exception>
         /// <exception cref="FtpProtocolException"></exception>
+        /// <exception cref="FtpTransportException"></exception>
         internal void ThrowException(FtpReply reply)
         {
             if (reply.Code.Class == FtpReplyCodeClass.Filesystem)
@@ -502,7 +502,7 @@ namespace ArxOne.Ftp
                     if (line == null)
                     {
                         Connection.Disconnect();
-                        throw new FtpTransportException(String.Format("Error while reading reply ({0})",
+                        throw new FtpTransportException(string.Format("Error while reading reply ({0})",
                             reply.Lines != null ? String.Join("//", reply.Lines) : "null"));
                     }
                     if (!reply.ParseLine(line))
