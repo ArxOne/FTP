@@ -109,7 +109,7 @@ namespace ArxOne.Ftp
             var reply = ftpClient.Process(session =>
                   {
                       session.CheckProtection(FtpProtection.ControlChannel);
-                      return session.Expect(session.SendCommand("STAT", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 213);
+                      return session.Expect(session.SendCommand("STAT", ftpClient.GetPlatform(session).EscapePath(path.ToString())), 213, 211);
                   });
             return reply.Lines.Skip(1).Take(reply.Lines.Length - 2);
         }
@@ -317,7 +317,7 @@ namespace ArxOne.Ftp
         {
             session.CheckProtection(FtpProtection.ControlChannel);
             var reply = session.SendCommand("STAT", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString()));
-            if (reply.Code != 213 || reply.Lines.Length <= 2)
+            if ((reply.Code != 213 && reply.Code != 211) || reply.Lines.Length <= 2)
                 return null;
             // now get the type: the first entry is "." for folders or file itself for files/links
             var entry = EnumerateEntries(session.Connection.Client, path, reply.Lines.Skip(1), ignoreSpecialEntries: false).First();
