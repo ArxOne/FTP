@@ -12,6 +12,7 @@ namespace ArxOne.Ftp
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
+    using System.Security.Authentication;
     using System.Text;
     using System.Threading;
     using Platform;
@@ -118,6 +119,14 @@ namespace ArxOne.Ftp
         /// <c>true</c> if [_data channel protection]; otherwise, <c>false</c>.
         /// </value>
         public FtpProtection ChannelProtection { get; private set; }
+
+        /// <summary>
+        /// Gets the SSL protocols.
+        /// </summary>
+        /// <value>
+        /// The SSL protocols.
+        /// </value>
+        public SslProtocols SslProtocols { get; private set; }
 
         private string _system;
 
@@ -308,6 +317,7 @@ namespace ArxOne.Ftp
             DefaultEncoding = parameters.DefaultEncoding;
             ProxyConnect = parameters.ProxyConnect;
             ChannelProtection = parameters.ChannelProtection ?? GetDefaultDataChannelProtection(Uri);
+            SslProtocols = parameters.SslProtocols ?? SslProtocols.Ssl3 | SslProtocols.Tls;
         }
 
         /// <summary>
@@ -631,7 +641,7 @@ namespace ArxOne.Ftp
         {
             return Process(session => session.SendCommand(command, parameters));
         }
-        
+
         /// <summary>
         /// Processes the specified action with a session.
         /// </summary>

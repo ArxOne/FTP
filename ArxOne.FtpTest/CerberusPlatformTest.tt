@@ -1,0 +1,18 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".auto.cs" #>
+
+<#@ include file="PlatformTest.Init.tt" #>
+
+<#
+    Platform = "Cerberus";
+	Protocol = "ftp";
+#>
+
+<#@ include file="PlatformTest.tt" #>
+
+<#
+	Protocol = "ftps";
+    SslProtocols = "System.Security.Authentication.SslProtocols.Tls";
+#>
+
+<#@ include file="PlatformTest.tt" #>

@@ -9,32 +9,39 @@ namespace ArxOne.FtpTest
 {
     using System;
     using System.Linq;
+    using System.Security.Authentication;
     using Ftp;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     internal static class PlatformTest
     {
-        public static void SpaceNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null)
+        public static void SpaceNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
-            NameTest(platform, "A and B", "C and D", protocol, protection);
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus does not return correct LIST");
+            NameTest(platform, "A and B", "C and D", protocol, protection, sslProtocols);
         }
 
-        public static void BracketNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null)
+        public static void BracketNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
-            NameTest(platform, "X[]Y", "Z{}[]T", protocol, protection);
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus does not return correct LIST");
+            NameTest(platform, "X[]Y", "Z{}[]T", protocol, protection, sslProtocols);
         }
 
-        public static void ParenthesisNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null)
+        public static void ParenthesisNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
-            NameTest(platform, "i()j", "k()l", protocol, protection);
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus does not return correct LIST");
+            NameTest(platform, "i()j", "k()l", protocol, protection, sslProtocols);
         }
 
-        private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp", FtpProtection? protection = null)
+        private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, this is a shame)");
             var testHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential, new FtpClientParameters { ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 var folder = (ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/") + folderName;
                 var file = folder + "/" + childName;
@@ -65,13 +72,15 @@ namespace ArxOne.FtpTest
             }
         }
 
-        public static void ListTest(string platform, bool passive, string protocol = "ftp", string directory = "/", bool directoryExists = true, FtpProtection? protection = null)
+        public static void ListTest(string platform, bool passive, string protocol = "ftp", string directory = "/", bool directoryExists = true, FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (!directoryExists && string.Equals(platform, "PureFTPd", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("PureFTPd always gives a valid response, even if the directory does not exist");
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus does not return correct LIST");
 
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase)
                     && ftpClient.Protocol != FtpProtocol.Ftp)
@@ -83,12 +92,14 @@ namespace ArxOne.FtpTest
             }
         }
 
-        public static void StatTest(string platform, string protocol = "ftp", FtpProtection? protection = null)
+        public static void StatTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus thinks STAT is for itself");
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 var list = ftpClient.StatEntries("/");
                 // a small requirement: have a /tmp folderS
@@ -96,22 +107,24 @@ namespace ArxOne.FtpTest
             }
         }
 
-        public static void StatNoDotTest(string platform, string protocol = "ftp", FtpProtection? protection = null)
+        public static void StatNoDotTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+            if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("Cerberus thinks STAT is for itself");
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 var list = ftpClient.StatEntries("/");
                 Assert.IsFalse(list.Any(e => e.Name == "." || e.Name == ".."));
             }
         }
 
-        public static void CreateFileTest(string platform, bool passive, string protocol = "ftp", FtpProtection? protection = null)
+        public static void CreateFileTest(string platform, bool passive, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             var ftpesTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpesTestHost.Uri, ftpesTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 var directory = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
                 var path = directory + "file." + Guid.NewGuid();
@@ -129,40 +142,40 @@ namespace ArxOne.FtpTest
             }
         }
 
-        public static void MlstTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null)
+        public static void MlstTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 ExpectFeature(ftpClient, "MLST");
                 var m = ftpClient.Mlst("/");
             }
         }
 
-        public static void MlstEntryTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null)
+        public static void MlstEntryTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 ExpectFeature(ftpClient, "MLST");
                 var e = ftpClient.MlstEntry("/");
             }
         }
 
-        public static void MlsdTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null)
+        public static void MlsdTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 ExpectFeature(ftpClient, "MLSD");
                 var list = ftpClient.Mlsd("/").ToList();
             }
         }
 
-        public static void MlsdEntriesTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null)
+        public static void MlsdEntriesTest(string platform, bool passive = true, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             var ftpTestHost = TestHost.Get(protocol, platform);
-            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection }))
+            using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
                 ExpectFeature(ftpClient, "MLSD");
                 var list = ftpClient.MlsdEntries("/").ToList();

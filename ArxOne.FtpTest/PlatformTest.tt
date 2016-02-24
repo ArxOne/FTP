@@ -1,4 +1,5 @@
-﻿<# 
+﻿<#@ import namespace="System.Security.Authentication" #>
+<# 
 // input required here: Platform, Protocol, Protection (defaulted to null)
 // actual tests are located in PlatformTest.cs (because this is much easier to write)
 
@@ -22,7 +23,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>SpaceNameTest()
 		 {
-			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -31,7 +32,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>BracketNameTest()
 		 {
-			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -40,7 +41,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ParenthesisNameTest()
 		 {
-			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -49,7 +50,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ListPassiveTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -58,7 +59,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>ListActiveTest()
 		 {
-			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>);
+			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -69,7 +70,7 @@ namespace ArxOne.FtpTest
 		 public void <#=Prefix#>ListNonExistingTest()
 		 {
 			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, 
-			directory: "/nonExistingDirectory", directoryExists: false, protection: <#=Protection#>);
+			directory: "/nonExistingDirectory", directoryExists: false, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -78,7 +79,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>StatTest()
 		 {
-			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.StatTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -87,7 +88,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>StatNoDotTest()
 		 {
-			PlatformTest.StatNoDotTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.StatNoDotTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -96,7 +97,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>CreateFilePassiveTest()
 		 {
-			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -105,7 +106,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>CreateFileActiveTest()
 		 {
-			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>);
+			PlatformTest.CreateFileTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: false, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -114,7 +115,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlstTest()
 		 {
-			PlatformTest.MlstTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.MlstTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -123,7 +124,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlstEntryTest()
 		 {
-			PlatformTest.MlstEntryTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.MlstEntryTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -132,7 +133,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlsdTest()
 		 {
-			PlatformTest.MlsdTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.MlsdTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 
 		 [TestCategory("Platform")]
@@ -141,7 +142,7 @@ namespace ArxOne.FtpTest
 		 [TestMethod]
 		 public void <#=Prefix#>MlsdEntriesTest()
 		 {
-			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>);
+			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
 	}
 }

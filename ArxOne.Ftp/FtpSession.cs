@@ -272,7 +272,7 @@ namespace ArxOne.Ftp
             if (stream is SslStream)
                 return stream;
             var sslStream = new SslStream(stream, false, CheckCertificateHandler);
-            sslStream.AuthenticateAsClient(Connection.Client.Uri.Host, null, SslProtocols.Ssl3 | SslProtocols.Tls, false);
+            sslStream.AuthenticateAsClient(Connection.Client.Uri.Host, null, Connection.Client.SslProtocols, false);
             return sslStream;
         }
 

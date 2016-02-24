@@ -3,7 +3,6 @@
 	string ProtocolPrefix;
 	string Prefix;
 	string ProtocolCategory;
-
 	string Platform;
 	var Protocol = "ftp";
 	var Protection = "null";
@@ -11,4 +10,5 @@
 	var ProtectionControl = "ArxOne.Ftp.FtpProtection.ControlChannel";
 	var ProtectionData = "ArxOne.Ftp.FtpProtection.DataChannel";
 	var ProtectionAll = "ArxOne.Ftp.FtpProtection.ControlChannel|ArxOne.Ftp.FtpProtection.DataChannel";
+    var SslProtocols = "null";
 #>

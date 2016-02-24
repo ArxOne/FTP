@@ -9,6 +9,7 @@ namespace ArxOne.Ftp
     using System;
     using System.Net;
     using System.Net.Sockets;
+    using System.Security.Authentication;
     using System.Text;
 
     /// <summary>
@@ -20,13 +21,13 @@ namespace ArxOne.Ftp
         /// Gets or sets the connect timeout.
         /// </summary>
         /// <value>The connect timeout.</value>
-        public TimeSpan ConnectTimeout { get; set; }
+        public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// Gets or sets the read write timeout.
         /// </summary>
         /// <value>The read write timeout.</value>
-        public TimeSpan ReadWriteTimeout { get; set; }
+        public TimeSpan ReadWriteTimeout { get; set; } = TimeSpan.FromMinutes(10);
 
         /// <summary>
         /// Gets or sets the session timeout.
@@ -34,13 +35,13 @@ namespace ArxOne.Ftp
         /// <value>
         /// The session timeout.
         /// </value>
-        public TimeSpan SessionTimeout { get; set; }
+        public TimeSpan SessionTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="FtpClientParameters"/> is passive.
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
-        public bool Passive { get; set; }
+        public bool Passive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the active transfer host.
@@ -55,13 +56,13 @@ namespace ArxOne.Ftp
         /// Gets or sets the anonymous password.
         /// </summary>
         /// <value>The anonymous password.</value>
-        public string AnonymousPassword { get; set; }
+        public string AnonymousPassword { get; set; } = "user@" + Environment.MachineName;
 
         /// <summary>
         /// Gets or sets the default encoding.
         /// </summary>
         /// <value>The default encoding.</value>
-        public Encoding DefaultEncoding { get; set; }
+        public Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
 
         /// <summary>
         /// Gets or sets the proxy connector.
@@ -83,16 +84,11 @@ namespace ArxOne.Ftp
         public FtpProtection? ChannelProtection { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpClientParameters"/> class.
+        /// Gets or sets the SSL protocols.
         /// </summary>
-        public FtpClientParameters()
-        {
-            ConnectTimeout = TimeSpan.FromSeconds(10);
-            ReadWriteTimeout = TimeSpan.FromMinutes(10);
-            SessionTimeout = TimeSpan.FromMinutes(2);
-            Passive = true;
-            AnonymousPassword = "user@" + Environment.MachineName;
-            DefaultEncoding = Encoding.UTF8;
-        }
+        /// <value>
+        /// The SSL protocols.
+        /// </value>
+        public SslProtocols? SslProtocols { get; set; }
     }
 }
