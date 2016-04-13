@@ -198,7 +198,7 @@ namespace ArxOne.Ftp
         public FtpPlatform GetPlatform(FtpSession session)
         {
             if (_platform == null)
-                _platform = GetFtpPlatform(GetServerType(session));
+                _platform = GetFtpPlatform(GetServerType(session), GetSystem(session));
             return _platform;
         }
 
@@ -324,15 +324,18 @@ namespace ArxOne.Ftp
         /// Gets the FTP platform.
         /// </summary>
         /// <param name="serverType">Type of the server.</param>
+        /// <param name="system">The full platform.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">serverType;null</exception>
-        private static FtpPlatform GetFtpPlatform(FtpServerType serverType)
+        private static FtpPlatform GetFtpPlatform(FtpServerType serverType, string system)
         {
             switch (serverType)
             {
                 case FtpServerType.Unknown:
                     return new FtpPlatform();
                 case FtpServerType.Unix:
+                    if (system.IndexOf("FileZilla", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        return new WindowsFileZillaFtpPlatform();
                     return new UnixFtpPlatform();
                 case FtpServerType.Windows:
                     return new WindowsFtpPlatform();

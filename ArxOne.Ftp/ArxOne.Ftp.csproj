@@ -99,6 +99,7 @@
     <Compile Include="IO\FtpStream.cs" />
     <Compile Include="Platform\FtpPlatform.cs" />
     <Compile Include="Platform\UnixFtpPlatform.cs" />
+    <Compile Include="Platform\WindowsFileZillaFtpPlatform.cs" />
     <Compile Include="Platform\WindowsFtpPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtocolMessageEventArgs.cs" />

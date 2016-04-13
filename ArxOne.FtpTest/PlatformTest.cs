@@ -38,8 +38,8 @@ namespace ArxOne.FtpTest
 
         private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
-            if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
-                Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, this is a shame)");
+            //if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
+            //    Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, this is a shame)");
             var testHost = TestHost.Get(protocol, platform);
             using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
