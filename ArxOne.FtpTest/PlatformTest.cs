@@ -15,31 +15,31 @@ namespace ArxOne.FtpTest
 
     internal static class PlatformTest
     {
-        public static void SpaceNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
+        public static void SpaceNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null, bool useStatInsteadOfList = false)
         {
             if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("Cerberus does not return correct LIST");
-            NameTest(platform, "A and B", "C and D", protocol, protection, sslProtocols);
+            NameTest(platform, "A and B", "C and D", protocol, protection, sslProtocols, useStatInsteadOfList);
         }
 
-        public static void BracketNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
+        public static void BracketNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null, bool useStatInsteadOfList = false)
         {
             if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("Cerberus does not return correct LIST");
-            NameTest(platform, "X[]Y", "Z{}[]T", protocol, protection, sslProtocols);
+            NameTest(platform, "X[]Y", "Z{}[]T", protocol, protection, sslProtocols, useStatInsteadOfList);
         }
 
-        public static void ParenthesisNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
+        public static void ParenthesisNameTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null, bool useStatInsteadOfList = false)
         {
             if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("Cerberus does not return correct LIST");
-            NameTest(platform, "i()j", "k()l", protocol, protection, sslProtocols);
+            NameTest(platform, "i()j", "k()l", protocol, protection, sslProtocols, useStatInsteadOfList);
         }
 
-        private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
+        private static void NameTest(string platform, string folderName, string childName, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null, bool useStatInsteadOfList = false)
         {
-            //if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
-            //    Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, this is a shame)");
+            if (useStatInsteadOfList && string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
+                Assert.Inconclusive("FileZilla does not support STAT command (and yes, it totally blows)");
             var testHost = TestHost.Get(protocol, platform);
             using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
@@ -51,12 +51,18 @@ namespace ArxOne.FtpTest
                     using (var s = ftpClient.Stor(file))
                         s.WriteByte(123);
 
-                    var c = ftpClient.ListEntries(folder).SingleOrDefault();
-                    Assert.IsNotNull(c);
-                    Assert.AreEqual(childName, c.Name);
-                    //var c2 = ftpClient.StatEntries(folder).SingleOrDefault();
-                    //Assert.IsNotNull(c2);
-                    //Assert.AreEqual(childName, c2.Name);
+                    if (useStatInsteadOfList)
+                    {
+                        var c2 = ftpClient.StatEntries(folder).SingleOrDefault();
+                        Assert.IsNotNull(c2);
+                        Assert.AreEqual(childName, c2.Name);
+                    }
+                    else
+                    {
+                        var c = ftpClient.ListEntries(folder).SingleOrDefault();
+                        Assert.IsNotNull(c);
+                        Assert.AreEqual(childName, c.Name);
+                    }
 
                     using (var r = ftpClient.Retr(file))
                     {
@@ -82,9 +88,9 @@ namespace ArxOne.FtpTest
             var ftpTestHost = TestHost.Get(protocol, platform);
             using (var ftpClient = new FtpClient(ftpTestHost.Uri, ftpTestHost.Credential, new FtpClientParameters { Passive = passive, ChannelProtection = protection, SslProtocols = sslProtocols }))
             {
-                if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase)
-                    && ftpClient.Protocol != FtpProtocol.Ftp)
-                    Assert.Inconclusive("FileZilla causes me problems that I don't understand here (help welcome)");
+                //if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase)
+                //    && ftpClient.Protocol != FtpProtocol.Ftp)
+                //    Assert.Inconclusive("FileZilla causes me problems that I don't understand here (help welcome)");
 
                 var list = ftpClient.ListEntries(directory);
                 // a small requirement: have a /tmp folderS
@@ -95,7 +101,7 @@ namespace ArxOne.FtpTest
         public static void StatTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
-                Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+                Assert.Inconclusive("FileZilla does not support STAT command (and yes, it just sucks)");
             if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("Cerberus thinks STAT is for itself");
             var ftpTestHost = TestHost.Get(protocol, platform);
@@ -110,7 +116,7 @@ namespace ArxOne.FtpTest
         public static void StatNoDotTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (string.Equals(platform, "FileZilla", StringComparison.InvariantCultureIgnoreCase))
-                Assert.Inconclusive("FileZilla does not support escaping for special names (and yes, it just sucks)");
+                Assert.Inconclusive("FileZilla does not support STAT command (and yes, it just sucks)");
             if (string.Equals(platform, "Cerberus", StringComparison.InvariantCultureIgnoreCase))
                 Assert.Inconclusive("Cerberus thinks STAT is for itself");
             var ftpTestHost = TestHost.Get(protocol, platform);

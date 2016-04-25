@@ -48,6 +48,33 @@ namespace ArxOne.FtpTest
 		 [TestProperty("Platform", "<#=Platform#>")]
 		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
 		 [TestMethod]
+		 public void <#=Prefix#>SpaceNameWithStatTest()
+		 {
+			PlatformTest.SpaceNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>, useStatInsteadOfList: true);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
+		 [TestMethod]
+		 public void <#=Prefix#>BracketNameWithStatTest()
+		 {
+			PlatformTest.BracketNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>, useStatInsteadOfList: true);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
+		 [TestMethod]
+		 public void <#=Prefix#>ParenthesisNameWithStatTest()
+		 {
+			PlatformTest.ParenthesisNameTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>, useStatInsteadOfList: true);
+		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
+		 [TestMethod]
 		 public void <#=Prefix#>ListPassiveTest()
 		 {
 			PlatformTest.ListTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", passive: true, protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
