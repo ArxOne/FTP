@@ -18,7 +18,7 @@ namespace ArxOne.Ftp.Platform
         /// <returns></returns>
         public override string EscapePath(string path)
         {
-            return EscapePath(path, "[]()");
+            return EscapePath(path, " []()");
         }
     }
 }
