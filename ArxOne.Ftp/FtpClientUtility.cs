@@ -432,7 +432,7 @@ namespace ArxOne.Ftp
         private static DateTime GetDateFact(string factValue)
         {
             DateTime date;
-            if (DateTime.TryParseExact(factValue, new[] { "yyyyMMddhhmmss", "yyyyMMddhhmmss.fff" }, CultureInfo.InvariantCulture,
+            if (DateTime.TryParseExact(factValue, new[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" }, CultureInfo.InvariantCulture,
                 DateTimeStyles.AdjustToUniversal, out date))
                 return date;
             return DateTime.MinValue;
