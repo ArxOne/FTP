@@ -37,10 +37,21 @@ namespace ArxOne.Ftp
         /// </summary>
         /// <param name="ftpClient">The FTP client.</param>
         /// <param name="path">The path.</param>
+        /// <param name="ftpSession">The FTP Session.</param>
         /// <returns></returns>
-        public static IList<string> List(this FtpClient ftpClient, FtpPath path)
+        public static IList<string> List(this FtpClient ftpClient, FtpPath path, FtpSession ftpSession = null)
         {
-            return ftpClient.Process(handle => ProcessList(handle, path));
+
+            if ((ftpSession == null) == true)
+            {
+                return ftpClient.Process(handle => ProcessList(handle, path));
+            }
+            else
+            {
+                return ftpClient.Process(handle => ProcessList(ftpSession, path));
+            }
+
+            
         }
 
         /// <summary>
@@ -147,10 +158,21 @@ namespace ArxOne.Ftp
         /// <param name="ftpClient">The FTP client.</param>
         /// <param name="path">The path.</param>
         /// <param name="mode">The mode.</param>
+        /// <param name="restart">Position to Resume Download</param>
+        /// <param name="ftpSession">The Ftp Session</param>
         /// <returns></returns>
-        public static Stream Retr(this FtpClient ftpClient, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
+        public static Stream Retr(this FtpClient ftpClient, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary,long restart=0, FtpSession ftpSession=null)
         {
-            return ftpClient.Process(handle => ProcessRetr(handle, path, mode));
+
+            if ((ftpSession == null) == true)
+            {
+                return ftpClient.Process(handle => ProcessRetr(handle, path, mode, restart));
+            }
+            else
+            {
+                return ftpClient.Process(handle => ProcessRetr(ftpSession, path, mode, restart));
+            }
+
         }
 
         /// <summary>
@@ -159,11 +181,18 @@ namespace ArxOne.Ftp
         /// <param name="session">The handle.</param>
         /// <param name="path">The path.</param>
         /// <param name="mode">The mode.</param>
+        /// <param name="restart">Position to Resume Download</param>
         /// <returns></returns>
         /// <exception cref="IOException"></exception>
-        private static Stream ProcessRetr(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
+        private static Stream ProcessRetr(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary,long restart=0)
         {
             var stream = OpenDataStream(session, mode);
+
+            if(restart!=0)
+            {
+                session.SendCommand("REST", restart.ToString());
+            }
+
             var reply = session.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
@@ -171,6 +200,7 @@ namespace ArxOne.Ftp
                 session.ThrowException(reply);
                 return null;
             }
+
             return stream.Validated();
         }
 
