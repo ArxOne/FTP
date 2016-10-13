@@ -66,7 +66,8 @@ namespace ArxOne.Ftp
             using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
             {
                 // then command is sent
-                var reply = session.Expect(session.SendCommand("LIST", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
+                var reply = session.Expect(session.SendCommand("LIST", path.ToString()), 125, 150, 425);
+                //var reply = session.Expect(session.SendCommand("LIST", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425); 'Very Bad for tagged ftp servers
                 if (!reply.Code.IsSuccess)
                 {
                     dataStream.Abort();
