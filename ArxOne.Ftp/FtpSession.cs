@@ -13,7 +13,6 @@ namespace ArxOne.Ftp
     using System.Net;
     using System.Net.Security;
     using System.Net.Sockets;
-    using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Text.RegularExpressions;
@@ -272,7 +271,7 @@ namespace ArxOne.Ftp
             if (stream is SslStream)
                 return stream;
             var sslStream = new SslStream(stream, false, CheckCertificateHandler);
-            sslStream.AuthenticateAsClient(Connection.Client.Uri.Host, null, Connection.Client.SslProtocols, false);
+            sslStream.AuthenticateAsClient(Connection.Client.Uri.Host, Connection.Client.ClientCertificates, Connection.Client.SslProtocols, false);
             return sslStream;
         }
 

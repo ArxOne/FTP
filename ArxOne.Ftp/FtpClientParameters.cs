@@ -10,6 +10,7 @@ namespace ArxOne.Ftp
     using System.Net;
     using System.Net.Sockets;
     using System.Security.Authentication;
+    using System.Security.Cryptography.X509Certificates;
     using System.Text;
 
     /// <summary>
@@ -90,5 +91,13 @@ namespace ArxOne.Ftp
         /// The SSL protocols.
         /// </value>
         public SslProtocols? SslProtocols { get; set; }
+
+        /// <summary>
+        /// Gets or sets the client certificates.
+        /// </summary>
+        /// <value>
+        /// The client certificate.
+        /// </value>
+        public X509CertificateCollection ClientCertificates { get; set; }
     }
 }

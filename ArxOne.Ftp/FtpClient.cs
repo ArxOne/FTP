@@ -13,6 +13,7 @@ namespace ArxOne.Ftp
     using System.Net;
     using System.Net.Sockets;
     using System.Security.Authentication;
+    using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Threading;
     using Platform;
@@ -257,6 +258,15 @@ namespace ArxOne.Ftp
         /// </value>
         public FtpProtocol Protocol { get; private set; }
 
+        /// <summary>
+        /// Gets the client certificate.
+        /// This is used for SSL/TLS client authentication
+        /// </summary>
+        /// <value>
+        /// The client certificate.
+        /// </value>
+        public X509CertificateCollection ClientCertificates { get; private set; }
+
         private class DatedFtpConnection
         {
             public DateTime Date;
@@ -318,6 +328,7 @@ namespace ArxOne.Ftp
             ProxyConnect = parameters.ProxyConnect;
             ChannelProtection = parameters.ChannelProtection ?? GetDefaultDataChannelProtection(Uri);
             SslProtocols = parameters.SslProtocols ?? SslProtocols.Ssl3 | SslProtocols.Tls;
+            ClientCertificates = parameters.ClientCertificates;
         }
 
         /// <summary>
