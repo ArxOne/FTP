@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyVersion("1.10")]
+
 
 [assembly: CLSCompliant(true)]
 
@@ -31,3 +31,7 @@ using System.Runtime.CompilerServices;
 + "d4f69c1b9a25c4cee5e1f0ec53e985b2c421c5f7e3e6b28bcdce010fd58e777f09161cded4e5af"
 + "64859d80b241d3cd234de6e9ea396561e7e0f95c76805f0db0fc582a9fac0f890f80a91f7a189b"
 + "38826cb9")]
+
+
+[assembly: AssemblyVersion("2016.12.6.1431")]
+[assembly: AssemblyFileVersion("2016.12.6.1431")]

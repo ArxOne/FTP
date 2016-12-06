@@ -24,11 +24,22 @@ namespace ArxOne.Ftp
     /// </summary>
     public class FtpSession : IDisposable
     {
+
+        private FtpConnection m_connection;
+
         /// <summary>
         /// Gets or sets the FTP session.
         /// </summary>
         /// <value>The FTP session.</value>
-        public FtpConnection Connection { get; }
+        public FtpConnection Connection
+        {
+            get
+            {
+                return this.m_connection;
+            }
+        }
+
+
 
         /// <summary>
         /// Gets the transport stream.
@@ -88,7 +99,8 @@ namespace ArxOne.Ftp
         /// <param name="connection">The FTP session.</param>
         internal FtpSession(FtpConnection connection)
         {
-            Connection = connection;
+            this.m_connection = connection;
+            
             Connection.AddReference();
         }
 
@@ -495,7 +507,7 @@ namespace ArxOne.Ftp
         {
             var reply = new FtpReply();
             {
-                for (;;)
+                for (; ; )
                 {
                     var line = ReadLine(() => ReadByte(stream));
                     if (line == null)
@@ -550,7 +562,7 @@ namespace ArxOne.Ftp
             var eolB = EolB;
             var index = 0;
             var buffer = _readLineBuffer;
-            for (;;)
+            for (; ; )
             {
                 var b = byteReader();
                 if (b == -1)
