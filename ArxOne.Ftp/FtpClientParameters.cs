@@ -13,22 +13,54 @@ namespace ArxOne.Ftp
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
 
+
     /// <summary>
     /// Parameters to initialize FtpClient instance
     /// </summary>
     public class FtpClientParameters
     {
+
+
+        private TimeSpan m_connectTimeout = TimeSpan.FromSeconds(10);
+
         /// <summary>
         /// Gets or sets the connect timeout.
         /// </summary>
         /// <value>The connect timeout.</value>
-        public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
+        public TimeSpan ConnectTimeout
+        {
+            get
+            {
+                return this.m_connectTimeout;
+            }
+            set
+            {
+                this.m_connectTimeout = value;
+            }
+        }
+
+
+        private TimeSpan m_readWriteTimeout = TimeSpan.FromMinutes(10);
 
         /// <summary>
         /// Gets or sets the read write timeout.
         /// </summary>
         /// <value>The read write timeout.</value>
-        public TimeSpan ReadWriteTimeout { get; set; } = TimeSpan.FromMinutes(10);
+        public TimeSpan ReadWriteTimeout
+        {
+            get
+            {
+                return this.m_readWriteTimeout;
+            }
+            set
+            {
+                this.m_readWriteTimeout = value;
+            }
+        }
+
+
+
+        private TimeSpan m_sessionTimeout = TimeSpan.FromMinutes(2);
 
         /// <summary>
         /// Gets or sets the session timeout.
@@ -36,13 +68,41 @@ namespace ArxOne.Ftp
         /// <value>
         /// The session timeout.
         /// </value>
-        public TimeSpan SessionTimeout { get; set; } = TimeSpan.FromMinutes(2);
+
+        public TimeSpan SessionTimeout
+        {
+            get
+            {
+                return this.m_sessionTimeout;
+            }
+            set
+            {
+                this.m_sessionTimeout = value;
+            }
+        }
+
+
+
+        private bool m_passive = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="FtpClientParameters"/> is passive.
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
-        public bool Passive { get; set; } = true;
+        public bool Passive
+        {
+            get
+            {
+                return this.m_passive;
+            }
+            set
+            {
+                this.m_passive = value;
+            }
+        }
+
+
+
 
         /// <summary>
         /// Gets or sets the active transfer host.
@@ -53,17 +113,47 @@ namespace ArxOne.Ftp
         /// </value>
         public IPAddress ActiveTransferHost { get; set; }
 
+
+
+        private string m_anonymousPassword = "user@" + Environment.MachineName;
+
         /// <summary>
         /// Gets or sets the anonymous password.
         /// </summary>
         /// <value>The anonymous password.</value>
-        public string AnonymousPassword { get; set; } = "user@" + Environment.MachineName;
+        public string AnonymousPassword
+        {
+            get
+            {
+                return this.m_anonymousPassword;
+            }
+            set
+            {
+                this.m_anonymousPassword = value;
+            }
+        }
+
+
+
+        private System.Text.Encoding m_defaultEncoding = System.Text.Encoding.UTF8;
 
         /// <summary>
         /// Gets or sets the default encoding.
         /// </summary>
         /// <value>The default encoding.</value>
-        public Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
+        public System.Text.Encoding DefaultEncoding
+        {
+            get
+            {
+                return this.m_defaultEncoding;
+            }
+            set
+            {
+                this.m_defaultEncoding = value;
+            }
+        }
+
+
 
         /// <summary>
         /// Gets or sets the proxy connector.
@@ -100,4 +190,6 @@ namespace ArxOne.Ftp
         /// </value>
         public X509CertificateCollection ClientCertificates { get; set; }
     }
+
+
 }

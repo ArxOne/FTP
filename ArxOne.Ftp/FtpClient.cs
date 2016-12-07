@@ -88,7 +88,15 @@ namespace ArxOne.Ftp
         /// <value>
         /// The server features.
         /// </value>
-        public FtpServerFeatures ServerFeatures => GetServerFeatures(null);
+        public FtpServerFeatures ServerFeatures
+        {
+            get
+            {
+                return this.GetServerFeatures(null);
+            }
+        }
+
+
 
         /// <summary>
         /// Gets or sets the default encoding.
@@ -135,7 +143,13 @@ namespace ArxOne.Ftp
         /// Gets the system.
         /// </summary>
         /// <value>The system.</value>
-        public string System => GetSystem(null);
+        public string System
+        {
+            get
+            {
+                return this.GetSystem(null);
+            }
+        }
 
         /// <summary>
         /// Gets the system.
@@ -152,6 +166,7 @@ namespace ArxOne.Ftp
             return _system;
         }
 
+
         private FtpServerType? _serverType;
         /// <summary>
         /// Gets the type of the server.
@@ -159,7 +174,15 @@ namespace ArxOne.Ftp
         /// <value>
         /// The type of the server.
         /// </value>
-        public FtpServerType ServerType => GetServerType(null);
+        public FtpServerType ServerType
+        {
+            get
+            {
+                return this.GetServerType(null);
+            }
+        }
+
+
 
         /// <summary>
         /// Gets the type of the server.
@@ -189,7 +212,13 @@ namespace ArxOne.Ftp
         /// <value>
         /// The FTP platform.
         /// </value>
-        public FtpPlatform Platform => GetPlatform(null);
+        public FtpPlatform Platform
+        {
+            get
+            {
+                return this.GetPlatform(null);
+            }
+        }
 
         /// <summary>
         /// Gets the platform.
@@ -209,7 +238,16 @@ namespace ArxOne.Ftp
         /// <value>
         /// The host address.
         /// </value>
-        internal IPAddress HostAddress => ActiveTransferHost ?? ActualActiveTransferHost;
+        internal IPAddress HostAddress
+        {
+            get
+            {
+                return this.ActiveTransferHost ?? this.ActualActiveTransferHost;
+            }
+        }
+
+
+
 
         /// <summary>
         /// Gets or sets the actual active transfer host.
@@ -351,7 +389,7 @@ namespace ArxOne.Ftp
                 case FtpServerType.Windows:
                     return new WindowsFtpPlatform();
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(serverType), serverType, null);
+                    throw new ArgumentOutOfRangeException("serverType", serverType, null);
             }
         }
 
@@ -439,7 +477,7 @@ namespace ArxOne.Ftp
                 case FtpProtocol.FtpES:
                     return "ftpes";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(protocol));
+                    throw new ArgumentOutOfRangeException("protocol");
             }
         }
 
@@ -610,7 +648,7 @@ namespace ArxOne.Ftp
         {
             try
             {
-                for (;;)
+                for (; ; )
                 {
                     Thread.Sleep(SessionTimeout);
                     CleanupConnections();
