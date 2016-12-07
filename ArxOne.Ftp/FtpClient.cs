@@ -19,7 +19,7 @@ namespace ArxOne.Ftp
     using Platform;
 
     /// <summary>
-    /// FTP client core. 
+    /// FTP client core.
     /// Exposes only basic mechanisms
     /// Extended mechanisms and command support are in FtpClient class
     /// </summary>
@@ -88,15 +88,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The server features.
         /// </value>
-        public FtpServerFeatures ServerFeatures
-        {
-            get
-            {
-                return this.GetServerFeatures(null);
-            }
-        }
-
-
+        public FtpServerFeatures ServerFeatures { get { return GetServerFeatures(null); } }
 
         /// <summary>
         /// Gets or sets the default encoding.
@@ -143,13 +135,7 @@ namespace ArxOne.Ftp
         /// Gets the system.
         /// </summary>
         /// <value>The system.</value>
-        public string System
-        {
-            get
-            {
-                return this.GetSystem(null);
-            }
-        }
+        public string System { get { return GetSystem(null); } }
 
         /// <summary>
         /// Gets the system.
@@ -166,23 +152,15 @@ namespace ArxOne.Ftp
             return _system;
         }
 
-
         private FtpServerType? _serverType;
+
         /// <summary>
         /// Gets the type of the server.
         /// </summary>
         /// <value>
         /// The type of the server.
         /// </value>
-        public FtpServerType ServerType
-        {
-            get
-            {
-                return this.GetServerType(null);
-            }
-        }
-
-
+        public FtpServerType ServerType { get { return GetServerType(null); } }
 
         /// <summary>
         /// Gets the type of the server.
@@ -212,13 +190,7 @@ namespace ArxOne.Ftp
         /// <value>
         /// The FTP platform.
         /// </value>
-        public FtpPlatform Platform
-        {
-            get
-            {
-                return this.GetPlatform(null);
-            }
-        }
+        public FtpPlatform Platform { get { return GetPlatform(null); } }
 
         /// <summary>
         /// Gets the platform.
@@ -242,12 +214,9 @@ namespace ArxOne.Ftp
         {
             get
             {
-                return this.ActiveTransferHost ?? this.ActualActiveTransferHost;
+                return ActiveTransferHost ?? ActualActiveTransferHost;
             }
         }
-
-
-
 
         /// <summary>
         /// Gets or sets the actual active transfer host.
@@ -648,7 +617,7 @@ namespace ArxOne.Ftp
         {
             try
             {
-                for (; ; )
+                for (;;)
                 {
                     Thread.Sleep(SessionTimeout);
                     CleanupConnections();

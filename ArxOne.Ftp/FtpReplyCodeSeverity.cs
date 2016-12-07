@@ -59,7 +59,7 @@ namespace ArxOne.Ftp
         /// (e.g., the command is spelled the same with the same
         /// arguments used; the user does not change his file access
         /// or user name; the server does not put up a new
-        /// implementation.)        
+        /// implementation.)
         /// /// </summary>
         TransientNegativeCompletion = 400,
 

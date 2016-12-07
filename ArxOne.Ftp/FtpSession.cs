@@ -24,21 +24,11 @@ namespace ArxOne.Ftp
     /// </summary>
     public class FtpSession : IDisposable
     {
-
-        private FtpConnection m_connection;
-
         /// <summary>
         /// Gets or sets the FTP session.
         /// </summary>
         /// <value>The FTP session.</value>
-        public FtpConnection Connection
-        {
-            get
-            {
-                return this.m_connection;
-            }
-        }
-
+        public FtpConnection Connection { get; private set; }
 
 
         /// <summary>
@@ -99,8 +89,7 @@ namespace ArxOne.Ftp
         /// <param name="connection">The FTP session.</param>
         internal FtpSession(FtpConnection connection)
         {
-            this.m_connection = connection;
-            
+            Connection = connection;
             Connection.AddReference();
         }
 
@@ -303,7 +292,7 @@ namespace ArxOne.Ftp
 
         /// <summary>
         /// Initializes the protocol.
-        /// To be strict, SSL/TLS is not on the protocol level, 
+        /// To be strict, SSL/TLS is not on the protocol level,
         /// </summary>
         private void InitializeProtocol()
         {
@@ -318,7 +307,7 @@ namespace ArxOne.Ftp
                 case FtpProtocol.FtpS:
                     EnterSslProtocol();
                     break;
-                // FTPES informs first over a clear channel that it switches to 
+                // FTPES informs first over a clear channel that it switches to
                 case FtpProtocol.FtpES:
                     LeaveSslProtocol();
                     Expect(SendCommand(Connection.ProtocolStream, "AUTH", "TLS"), 234);
@@ -507,7 +496,7 @@ namespace ArxOne.Ftp
         {
             var reply = new FtpReply();
             {
-                for (; ; )
+                for (;;)
                 {
                     var line = ReadLine(() => ReadByte(stream));
                     if (line == null)
@@ -562,7 +551,7 @@ namespace ArxOne.Ftp
             var eolB = EolB;
             var index = 0;
             var buffer = _readLineBuffer;
-            for (; ; )
+            for (;;)
             {
                 var b = byteReader();
                 if (b == -1)

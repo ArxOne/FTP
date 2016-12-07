@@ -11,7 +11,6 @@ namespace ArxOne.Ftp
     using System.Net.Sockets;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
-    using System.Text;
 
 
     /// <summary>
@@ -19,48 +18,17 @@ namespace ArxOne.Ftp
     /// </summary>
     public class FtpClientParameters
     {
-
-
-        private TimeSpan m_connectTimeout = TimeSpan.FromSeconds(10);
-
         /// <summary>
         /// Gets or sets the connect timeout.
         /// </summary>
         /// <value>The connect timeout.</value>
-        public TimeSpan ConnectTimeout
-        {
-            get
-            {
-                return this.m_connectTimeout;
-            }
-            set
-            {
-                this.m_connectTimeout = value;
-            }
-        }
-
-
-        private TimeSpan m_readWriteTimeout = TimeSpan.FromMinutes(10);
+        public TimeSpan ConnectTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the read write timeout.
         /// </summary>
         /// <value>The read write timeout.</value>
-        public TimeSpan ReadWriteTimeout
-        {
-            get
-            {
-                return this.m_readWriteTimeout;
-            }
-            set
-            {
-                this.m_readWriteTimeout = value;
-            }
-        }
-
-
-
-        private TimeSpan m_sessionTimeout = TimeSpan.FromMinutes(2);
+        public TimeSpan ReadWriteTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the session timeout.
@@ -68,41 +36,13 @@ namespace ArxOne.Ftp
         /// <value>
         /// The session timeout.
         /// </value>
-
-        public TimeSpan SessionTimeout
-        {
-            get
-            {
-                return this.m_sessionTimeout;
-            }
-            set
-            {
-                this.m_sessionTimeout = value;
-            }
-        }
-
-
-
-        private bool m_passive = true;
+        public TimeSpan SessionTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="FtpClientParameters"/> is passive.
         /// </summary>
         /// <value><c>true</c> if passive; otherwise, <c>false</c>.</value>
-        public bool Passive
-        {
-            get
-            {
-                return this.m_passive;
-            }
-            set
-            {
-                this.m_passive = value;
-            }
-        }
-
-
-
+        public bool Passive { get; set; }
 
         /// <summary>
         /// Gets or sets the active transfer host.
@@ -113,47 +53,17 @@ namespace ArxOne.Ftp
         /// </value>
         public IPAddress ActiveTransferHost { get; set; }
 
-
-
-        private string m_anonymousPassword = "user@" + Environment.MachineName;
-
         /// <summary>
         /// Gets or sets the anonymous password.
         /// </summary>
         /// <value>The anonymous password.</value>
-        public string AnonymousPassword
-        {
-            get
-            {
-                return this.m_anonymousPassword;
-            }
-            set
-            {
-                this.m_anonymousPassword = value;
-            }
-        }
-
-
-
-        private System.Text.Encoding m_defaultEncoding = System.Text.Encoding.UTF8;
+        public string AnonymousPassword { get; set; }
 
         /// <summary>
         /// Gets or sets the default encoding.
         /// </summary>
         /// <value>The default encoding.</value>
-        public System.Text.Encoding DefaultEncoding
-        {
-            get
-            {
-                return this.m_defaultEncoding;
-            }
-            set
-            {
-                this.m_defaultEncoding = value;
-            }
-        }
-
-
+        public System.Text.Encoding DefaultEncoding { get; set; }
 
         /// <summary>
         /// Gets or sets the proxy connector.
@@ -189,7 +99,19 @@ namespace ArxOne.Ftp
         /// The client certificate.
         /// </value>
         public X509CertificateCollection ClientCertificates { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpClientParameters"/> class.
+        /// </summary>
+        public FtpClientParameters()
+        {
+            ConnectTimeout = TimeSpan.FromSeconds(10);
+            ReadWriteTimeout = TimeSpan.FromMinutes(10);
+            SessionTimeout = TimeSpan.FromMinutes(2);
+            SessionTimeout = TimeSpan.FromMinutes(2);
+            Passive = true;
+            DefaultEncoding = System.Text.Encoding.UTF8;
+            AnonymousPassword = "user@" + Environment.MachineName;
+        }
     }
-
-
 }
