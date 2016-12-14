@@ -68,7 +68,7 @@ namespace ArxOne.Ftp.IO
             _mode = mode;
             Session = session;
             Session.Connection.AddReference();
-            SetSocket(socket);
+            SetSocket(socket, lazy);
         }
 
         /// <summary>
@@ -85,13 +85,28 @@ namespace ArxOne.Ftp.IO
         /// Sets the socket.
         /// </summary>
         /// <param name="socket">The socket.</param>
+        /// <param name="lazy"></param>
         /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state. </exception>
         /// <exception cref="SocketException">An error occurred when attempting to access the socket.</exception>
-        protected void SetSocket(Socket socket)
+        protected void SetSocket(Socket socket, bool lazy)
         {
-            _innerStream = Session.CreateDataStream(socket);
+            if (!lazy)
+                _innerStream = Session.CreateDataStream(socket);
             _innerSocket = socket;
             _innerSocket.SendBufferSize = 1492;
+        }
+
+        /// <exception cref="IOException">The socket is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the socket is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The socket is in a nonblocking state. </exception>
+        public override FtpStream Validated()
+        {
+            CheckLazySocket();
+            return base.Validated();
+        }
+
+        protected virtual void CheckLazySocket()
+        {
+            if (_innerStream == null)
+                _innerStream = Session.CreateDataStream(_innerSocket);
         }
 
         protected virtual Stream GetInnerStream()

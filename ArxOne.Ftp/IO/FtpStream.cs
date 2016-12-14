@@ -33,7 +33,7 @@ namespace ArxOne.Ftp.IO
         /// Sets the stream as validated (it will require a reply from server when disposing).
         /// </summary>
         /// <returns></returns>
-        public FtpStream Validated()
+        public virtual FtpStream Validated()
         {
             ExpectEndReply = true;
             return this;
