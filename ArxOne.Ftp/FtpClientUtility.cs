@@ -23,13 +23,26 @@ namespace ArxOne.Ftp
         /// <summary>
         /// Opens a data stream.
         /// </summary>
-        /// <param name="session">The session handle.</param>
+        /// <param name="session">The session.</param>
         /// <param name="mode">The mode.</param>
         /// <returns></returns>
         public static FtpStream OpenDataStream(this FtpSession session, FtpTransferMode mode)
         {
             var client = session.Connection.Client;
-            return session.OpenDataStream(client.Passive, client.ConnectTimeout, client.ReadWriteTimeout, mode);
+            return session.OpenDataStream(client.Passive, client.ConnectTimeout, client.ReadWriteTimeout, mode, null);
+        }
+
+        /// <summary>
+        /// Opens a data stream.
+        /// </summary>
+        /// <param name="session">The session handle.</param>
+        /// <param name="transferMode">The mode.</param>
+        /// <param name="streamMode">The stream mode.</param>
+        /// <returns></returns>
+        public static FtpStream OpenDataStream(this FtpSession session, FtpTransferMode transferMode, FtpStreamMode streamMode)
+        {
+            var client = session.Connection.Client;
+            return session.OpenDataStream(client.Passive, client.ConnectTimeout, client.ReadWriteTimeout, transferMode, streamMode);
         }
 
         /// <summary>
@@ -52,7 +65,7 @@ namespace ArxOne.Ftp
         private static IList<string> ProcessList(FtpSession session, FtpPath path)
         {
             // Open data channel
-            using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
+            using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary, FtpStreamMode.Read))
             {
                 // then command is sent
                 var reply = session.Expect(session.SendCommand("LIST", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);
@@ -163,7 +176,7 @@ namespace ArxOne.Ftp
         /// <exception cref="IOException"></exception>
         private static Stream ProcessRetr(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            var stream = OpenDataStream(session, mode);
+            var stream = OpenDataStream(session, mode, FtpStreamMode.Read);
             var reply = session.Expect(session.SendCommand("RETR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
@@ -196,7 +209,7 @@ namespace ArxOne.Ftp
         /// <exception cref="IOException"></exception>
         private static Stream ProcessStor(FtpSession session, FtpPath path, FtpTransferMode mode = FtpTransferMode.Binary)
         {
-            var stream = OpenDataStream(session, mode);
+            var stream = OpenDataStream(session, mode, FtpStreamMode.Write);
             var reply = session.Expect(session.SendCommand("STOR", path.ToString()), 125, 150, 425, 550);
             if (!reply.Code.IsSuccess)
             {
@@ -384,7 +397,7 @@ namespace ArxOne.Ftp
         private static IList<string> ProcessMlsd(FtpSession session, FtpPath path)
         {
             // Open data channel
-            using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary))
+            using (var dataStream = OpenDataStream(session, FtpTransferMode.Binary, FtpStreamMode.Read))
             {
                 // then command is sent
                 var reply = session.Expect(session.SendCommand("MLSD", session.Connection.Client.GetPlatform(session).EscapePath(path.ToString())), 125, 150, 425);

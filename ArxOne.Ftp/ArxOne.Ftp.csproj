@@ -97,6 +97,7 @@
     <Compile Include="IO\FtpPassiveStream.cs" />
     <Compile Include="FtpTransferMode.cs" />
     <Compile Include="IO\FtpStream.cs" />
+    <Compile Include="IO\FtpStreamMode.cs" />
     <Compile Include="Platform\FtpPlatform.cs" />
     <Compile Include="Platform\UnixFtpPlatform.cs" />
     <Compile Include="Platform\WindowsFileZillaFtpPlatform.cs" />

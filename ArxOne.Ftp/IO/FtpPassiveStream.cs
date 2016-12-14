@@ -19,10 +19,8 @@ namespace ArxOne.Ftp.IO
     {
         private bool _disposed;
 
+        private readonly FtpStreamMode? _mode;
         private Stream _innerStream;
-
-        protected virtual Stream InnerStream { get { return _innerStream; } }
-
         private Socket _innerSocket;
 
         /// <summary>
@@ -36,8 +34,38 @@ namespace ArxOne.Ftp.IO
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="session">The session.</param>
+        /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state.</exception>
+        /// <exception cref="SocketException">An error occurred when attempting to access the socket.</exception>
+        [Obsolete("Use full constructor instead")]
         public FtpPassiveStream(Socket socket, FtpSession session)
+            : this(socket, session, null, false)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpPassiveStream"/> class.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="lazy">if set to <c>true</c> [lazy].</param>
+        /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state.</exception>
+        /// <exception cref="SocketException">An error occurred when attempting to access the socket.</exception>
+        public FtpPassiveStream(Socket socket, FtpSession session, FtpStreamMode mode, bool lazy)
+            : this(socket, session, (FtpStreamMode?)mode, lazy)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FtpPassiveStream" /> class.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="lazy">if set to <c>true</c> [lazy].</param>
+        /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state.</exception>
+        /// <exception cref="SocketException">An error occurred when attempting to access the socket.</exception>
+        internal FtpPassiveStream(Socket socket, FtpSession session, FtpStreamMode? mode, bool lazy)
         {
+            _mode = mode;
             Session = session;
             Session.Connection.AddReference();
             SetSocket(socket);
@@ -57,6 +85,8 @@ namespace ArxOne.Ftp.IO
         /// Sets the socket.
         /// </summary>
         /// <param name="socket">The socket.</param>
+        /// <exception cref="IOException">The <paramref name="socket" /> parameter is not connected.-or- The <see cref="P:System.Net.Sockets.Socket.SocketType" /> property of the <paramref name="socket" /> parameter is not <see cref="F:System.Net.Sockets.SocketType.Stream" />.-or- The <paramref name="socket" /> parameter is in a nonblocking state. </exception>
+        /// <exception cref="SocketException">An error occurred when attempting to access the socket.</exception>
         protected void SetSocket(Socket socket)
         {
             _innerStream = Session.CreateDataStream(socket);
@@ -64,10 +94,16 @@ namespace ArxOne.Ftp.IO
             _innerSocket.SendBufferSize = 1492;
         }
 
+        protected virtual Stream GetInnerStream()
+        {
+            return _innerStream;
+        }
+
         /// <summary>
         /// Releases the unmanaged resources used by the <see cref="T:System.Net.Sockets.NetworkStream"/> and optionally releases the managed resources.
         /// </summary>
         /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        /// <exception cref="FtpTransportException">PASV stream already closed by server</exception>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -89,7 +125,7 @@ namespace ArxOne.Ftp.IO
                             });
                         }
                     }
-                    Process(delegate { if (InnerStream != null) InnerStream.Dispose(); });
+                    Process(delegate { if (_innerStream != null) _innerStream.Dispose(); });
                 }
                 finally
                 {
@@ -144,6 +180,7 @@ namespace ArxOne.Ftp.IO
         /// Processes the specified action.
         /// </summary>
         /// <param name="action">The action.</param>
+        /// <exception cref="FtpTransportException">Socket exception in FTP stream</exception>
         protected static void Process(Action action)
         {
             Process(delegate
@@ -159,6 +196,7 @@ namespace ArxOne.Ftp.IO
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="func">The func.</param>
         /// <returns></returns>
+        /// <exception cref="FtpTransportException">Socket exception in FTP stream</exception>
         protected static TResult Process<TResult>(Func<TResult> func)
         {
             try
@@ -185,9 +223,14 @@ namespace ArxOne.Ftp.IO
         /// <exception cref="T:System.IO.IOException">
         /// An I/O error occurs.
         /// </exception>
+        /// <exception cref="FtpTransportException">Socket exception in FTP stream</exception>
         public override void Flush()
         {
-            Process(() => InnerStream.Flush());
+            Process(() =>
+            {
+                if (_innerStream != null)
+                    _innerStream.Flush();
+            });
         }
 
         /// <summary>
@@ -227,9 +270,10 @@ namespace ArxOne.Ftp.IO
         /// 	<IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode, ControlEvidence"/>
         /// 	<IPermission class="System.Diagnostics.PerformanceCounterPermission, System, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true"/>
         /// </PermissionSet>
+        /// <exception cref="FtpTransportException">Socket exception in FTP stream</exception>
         public override int Read(byte[] buffer, int offset, int size)
         {
-            return Process(() => BaseRead(buffer, offset, size));
+            return Process(() => InnerRead(buffer, offset, size));
         }
 
         /// <summary>
@@ -239,9 +283,33 @@ namespace ArxOne.Ftp.IO
         /// <param name="offset">The offset.</param>
         /// <param name="size">The size.</param>
         /// <returns></returns>
-        private int BaseRead(byte[] buffer, int offset, int size)
+        /// <exception cref="T:System.ArgumentNullException">
+        /// The <paramref name="buffer"/> parameter is null.
+        /// </exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        /// The <paramref name="offset"/> parameter is less than 0.
+        /// -or-
+        /// The <paramref name="offset"/> parameter is greater than the length of <paramref name="buffer"/>.
+        /// -or-
+        /// The <paramref name="size"/> parameter is less than 0.
+        /// -or-
+        /// The <paramref name="size"/> parameter is greater than the length of <paramref name="buffer"/> minus the value of the <paramref name="offset"/> parameter.
+        /// -or-
+        /// An error occurred when accessing the socket. See the Remarks section for more information.
+        /// </exception>
+        /// <exception cref="T:System.IO.IOException">
+        /// The underlying <see cref="T:System.Net.Sockets.Socket"/> is closed.
+        /// </exception>
+        /// <exception cref="T:System.ObjectDisposedException">
+        /// The <see cref="T:System.Net.Sockets.NetworkStream"/> is closed.
+        /// -or-
+        /// There is a failure reading from the network.
+        /// </exception>
+        private int InnerRead(byte[] buffer, int offset, int size)
         {
-            return InnerStream.Read(buffer, offset, size);
+            if (_mode.HasValue && _mode != FtpStreamMode.Read)
+                throw new NotSupportedException();
+            return GetInnerStream().Read(buffer, offset, size);
         }
 
         /// <summary>
@@ -278,20 +346,45 @@ namespace ArxOne.Ftp.IO
         /// 	<IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode, ControlEvidence"/>
         /// 	<IPermission class="System.Diagnostics.PerformanceCounterPermission, System, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true"/>
         /// </PermissionSet>
+        /// <exception cref="FtpTransportException">Socket exception in FTP stream</exception>
         public override void Write(byte[] buffer, int offset, int size)
         {
-            Process(() => BaseWrite(buffer, offset, size));
+            Process(() => InnerWrite(buffer, offset, size));
         }
 
         /// <summary>
         /// Calls base.Write.
         /// </summary>
+        /// <exception cref="T:System.ArgumentNullException">
+        /// The <paramref name="buffer"/> parameter is null.
+        /// </exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        /// The <paramref name="offset"/> parameter is less than 0.
+        /// -or-
+        /// The <paramref name="offset"/> parameter is greater than the length of <paramref name="buffer"/>.
+        /// -or-
+        /// The <paramref name="size"/> parameter is less than 0.
+        /// -or-
+        /// The <paramref name="size"/> parameter is greater than the length of <paramref name="buffer"/> minus the value of the <paramref name="offset"/> parameter.
+        /// </exception>
+        /// <exception cref="T:System.IO.IOException">
+        /// There was a failure while writing to the network.
+        /// -or-
+        /// An error occurred when accessing the socket. See the Remarks section for more information.
+        /// </exception>
+        /// <exception cref="T:System.ObjectDisposedException">
+        /// The <see cref="T:System.Net.Sockets.NetworkStream"/> is closed.
+        /// -or-
+        /// There was a failure reading from the network.
+        /// </exception>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="size">The size.</param>
-        private void BaseWrite(byte[] buffer, int offset, int size)
+        private void InnerWrite(byte[] buffer, int offset, int size)
         {
-            InnerStream.Write(buffer, offset, size);
+            if (_mode.HasValue && _mode != FtpStreamMode.Write)
+                throw new NotSupportedException();
+            GetInnerStream().Write(buffer, offset, size);
         }
 
         /// <summary>
@@ -302,36 +395,24 @@ namespace ArxOne.Ftp.IO
         /// <returns>
         /// The new position within the current stream.
         /// </returns>
-        /// <exception cref="T:System.IO.IOException">
-        /// An I/O error occurs.
-        /// </exception>
         /// <exception cref="T:System.NotSupportedException">
         /// The stream does not support seeking, such as if the stream is constructed from a pipe or console output.
         /// </exception>
-        /// <exception cref="T:System.ObjectDisposedException">
-        /// Methods were called after the stream was closed.
-        /// </exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return InnerStream.Seek(offset, origin);
+            throw new NotSupportedException();
         }
 
         /// <summary>
         /// Sets the length of the current stream.
         /// </summary>
         /// <param name="value">The desired length of the current stream in bytes.</param>
-        /// <exception cref="T:System.IO.IOException">
-        /// An I/O error occurs.
-        /// </exception>
         /// <exception cref="T:System.NotSupportedException">
         /// The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output.
         /// </exception>
-        /// <exception cref="T:System.ObjectDisposedException">
-        /// Methods were called after the stream was closed.
-        /// </exception>
         public override void SetLength(long value)
         {
-            InnerStream.SetLength(value);
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -342,7 +423,12 @@ namespace ArxOne.Ftp.IO
         /// </returns>
         public override bool CanRead
         {
-            get { return InnerStream.CanRead; }
+            get
+            {
+                if (_mode.HasValue)
+                    return _mode.Value == FtpStreamMode.Read;
+                return GetInnerStream().CanRead;
+            }
         }
 
         /// <summary>
@@ -353,7 +439,7 @@ namespace ArxOne.Ftp.IO
         /// </returns>
         public override bool CanSeek
         {
-            get { return InnerStream.CanSeek; }
+            get { return false; }
         }
 
         /// <summary>
@@ -364,7 +450,12 @@ namespace ArxOne.Ftp.IO
         /// </returns>
         public override bool CanWrite
         {
-            get { return InnerStream.CanWrite; }
+            get
+            {
+                if (_mode.HasValue)
+                    return _mode.Value == FtpStreamMode.Write;
+                return GetInnerStream().CanWrite;
+            }
         }
 
         /// <summary>
@@ -377,12 +468,9 @@ namespace ArxOne.Ftp.IO
         /// <exception cref="T:System.NotSupportedException">
         /// A class derived from Stream does not support seeking.
         /// </exception>
-        /// <exception cref="T:System.ObjectDisposedException">
-        /// Methods were called after the stream was closed.
-        /// </exception>
         public override long Length
         {
-            get { return InnerStream.Length; }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
@@ -392,19 +480,13 @@ namespace ArxOne.Ftp.IO
         /// <returns>
         /// The current position within the stream.
         /// </returns>
-        /// <exception cref="T:System.IO.IOException">
-        /// An I/O error occurs.
-        /// </exception>
         /// <exception cref="T:System.NotSupportedException">
         /// The stream does not support seeking.
         /// </exception>
-        /// <exception cref="T:System.ObjectDisposedException">
-        /// Methods were called after the stream was closed.
-        /// </exception>
         public override long Position
         {
-            get { return InnerStream.Position; }
-            set { InnerStream.Position = value; }
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         #endregion

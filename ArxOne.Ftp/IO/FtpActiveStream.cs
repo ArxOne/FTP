@@ -22,13 +22,11 @@ namespace ArxOne.Ftp.IO
         private readonly EventWaitHandle _socketSet = new ManualResetEvent(false);
         private IOException _exception;
 
-        protected override Stream InnerStream
+        /// <exception cref="FtpTransportException">Active stream did not get connection</exception>
+        protected override Stream GetInnerStream()
         {
-            get
-            {
-                EnsureConnection();
-                return base.InnerStream;
-            }
+            EnsureConnection();
+            return base.GetInnerStream();
         }
 
         /// <summary>
