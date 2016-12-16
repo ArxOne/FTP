@@ -171,5 +171,14 @@ namespace ArxOne.FtpTest
 		 {
 			PlatformTest.MlsdEntriesTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
 		 }
+
+		 [TestCategory("Platform")]
+		 [TestProperty("Platform", "<#=Platform#>")]
+		 [TestProperty("Protocol", "<#=ProtocolCategory#>")]
+		 [TestMethod]
+		 public void <#=Prefix#>CreateReadTwiceTest()
+		 {
+			PlatformTest.CreateReadTwiceTest(platform: "<#=Platform#>", protocol: "<#=Protocol#>", protection: <#=Protection#>, sslProtocols: <#=SslProtocols#>);
+		 }
 	}
 }

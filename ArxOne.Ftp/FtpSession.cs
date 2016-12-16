@@ -8,6 +8,7 @@ namespace ArxOne.Ftp
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -601,12 +602,15 @@ namespace ArxOne.Ftp
         /// Checks the protection.
         /// </summary>
         /// <param name="requiredChannelProtection">The required channel protection.</param>
-        public void CheckProtection(FtpProtection requiredChannelProtection)
+        /// <param name="bufferSize">Size of the buffer.</param>
+        public void CheckProtection(FtpProtection requiredChannelProtection, int? bufferSize = null)
         {
             // for FTP, don't even bother
             if (Connection.Client.Protocol == FtpProtocol.Ftp)
                 return;
             var prot = Connection.Client.ChannelProtection.HasFlag(requiredChannelProtection) ? "P" : "C";
+            if (bufferSize.HasValue)
+                State["PBSZ"] = bufferSize.Value.ToString(CultureInfo.InvariantCulture);
             State["PROT"] = prot;
         }
 
@@ -649,7 +653,7 @@ namespace ArxOne.Ftp
         /// <returns></returns>
         internal FtpStream OpenDataStream(bool passive, TimeSpan connectTimeout, TimeSpan readWriteTimeout, FtpTransferMode transferMode, FtpStreamMode? streamMode)
         {
-            CheckProtection(FtpProtection.DataChannel);
+            CheckProtection(FtpProtection.DataChannel, bufferSize: 0);
             SetTransferMode(transferMode);
             FtpStream stream;
             if (passive)

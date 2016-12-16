@@ -78,6 +78,36 @@ namespace ArxOne.FtpTest
             }
         }
 
+        public static void CreateReadTwiceTest(string platform, string protocol = "ftp", FtpProtection? protection = null, SslProtocols? sslProtocols = null)
+        {
+            var testHost = TestHost.Get(protocol, platform);
+            using (var ftpClient = new FtpClient(testHost.Uri, testHost.Credential, new FtpClientParameters { ChannelProtection = protection, SslProtocols = sslProtocols }))
+            {
+                var folder = ftpClient.ServerType == FtpServerType.Windows ? "/" : "/tmp/";
+                var file = folder + "/" + Guid.NewGuid().ToString("N");
+                try
+                {
+                    using (var s = ftpClient.Stor(file))
+                        s.WriteByte(56);
+
+                    using (var r = ftpClient.Retr(file))
+                    {
+                        Assert.AreEqual(56, r.ReadByte());
+                        Assert.AreEqual(-1, r.ReadByte());
+                    }
+                    using (var r2 = ftpClient.Retr(file))
+                    {
+                        Assert.AreEqual(56, r2.ReadByte());
+                        Assert.AreEqual(-1, r2.ReadByte());
+                    }
+                }
+                finally
+                {
+                    ftpClient.Dele(file);
+                }
+            }
+        }
+
         public static void ListTest(string platform, bool passive, string protocol = "ftp", string directory = "/", bool directoryExists = true, FtpProtection? protection = null, SslProtocols? sslProtocols = null)
         {
             if (!directoryExists && string.Equals(platform, "PureFTPd", StringComparison.InvariantCultureIgnoreCase))
