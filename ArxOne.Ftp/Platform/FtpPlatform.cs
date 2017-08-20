@@ -78,7 +78,8 @@ namespace ArxOne.Ftp.Platform
         protected static DateTime ParseDateTime(Match match, DateTime now)
         {
             return ParseDateTime(match.Groups["year"].Value, match.Groups["month"].Value, match.Groups["day"].Value,
-                                 match.Groups["hour"].Value, match.Groups["minute"].Value, match.Groups["pm"].Value, now);
+                                 match.Groups["hour"].Value, match.Groups["minute"].Value, match.Groups["am"].Value, match.Groups["pm"].Value,
+                                 now);
         }
 
 
@@ -90,11 +91,12 @@ namespace ArxOne.Ftp.Platform
         /// <param name="literalDay">The literal day.</param>
         /// <param name="literalHour">The literal hour.</param>
         /// <param name="literalMinute">The literal minute.</param>
+        /// <param name="am">The am.</param>
         /// <param name="pm">PM.</param>
         /// <param name="now">The now.</param>
         /// <returns></returns>
         private static DateTime ParseDateTime(string literalYear, string literalMonth, string literalDay,
-                                              string literalHour, string literalMinute, string pm, DateTime now)
+                                              string literalHour, string literalMinute, string am, string pm, DateTime now)
         {
             var month = ParseMonth(literalMonth);
             var day = int.Parse(literalDay);
@@ -118,6 +120,12 @@ namespace ArxOne.Ftp.Platform
             {
                 if (hour < 12) // because 12PM is 12 so 12 stays 12
                     hour += 12;
+            }
+            else if (!string.IsNullOrEmpty(am))
+            {
+                // 12AM is 0
+                if (hour == 12)
+                    hour = 0;
             }
             var minute = string.IsNullOrEmpty(literalMinute) ? 0 : int.Parse(literalMinute);
             return new DateTime(year, month, day, hour, minute, 0, DateTimeKind.Local);
@@ -148,7 +156,7 @@ namespace ArxOne.Ftp.Platform
         {
             return path;
         }
-        
+
         /// <summary>
         /// Escapes the path.
         /// Provided at this level for convenience

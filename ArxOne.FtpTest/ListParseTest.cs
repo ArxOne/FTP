@@ -64,6 +64,7 @@ namespace ArxOne.FtpTest
         {
             var entry = WindowsFtpPlatform.ParseLine("    03-07-15  03:52PM                22286 03265480-photo-logo.png", null);
             Assert.IsNotNull(entry);
+            Assert.AreEqual(15, entry.Date.Hour);
             Assert.AreEqual(FtpEntryType.File, entry.Type);
             Assert.AreEqual("03265480-photo-logo.png", entry.Name);
         }
@@ -75,6 +76,19 @@ namespace ArxOne.FtpTest
         {
             var entry = WindowsFtpPlatform.ParseLine("    04-04-15  12:12PM       <DIR>          New folder", null);
             Assert.IsNotNull(entry);
+            Assert.AreEqual(12, entry.Date.Hour);
+            Assert.AreEqual(FtpEntryType.Directory, entry.Type);
+            Assert.AreEqual("New folder", entry.Name);
+        }
+
+        [TestMethod]
+        [TestCategory("Parsing")]
+        [TestProperty("OS", "Windows")]
+        public void ParseWindowsAmTest()
+        {
+            var entry = WindowsFtpPlatform.ParseLine("    04-04-15  12:12AM       <DIR>          New folder", null);
+            Assert.IsNotNull(entry);
+            Assert.AreEqual(0, entry.Date.Hour);
             Assert.AreEqual(FtpEntryType.Directory, entry.Type);
             Assert.AreEqual("New folder", entry.Name);
         }
