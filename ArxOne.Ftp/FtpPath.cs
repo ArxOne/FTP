@@ -29,13 +29,14 @@ namespace ArxOne.Ftp
         private readonly string _path;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpPath"/> class.
+        /// Initializes a new instance of the <see cref="FtpPath" /> class.
         /// </summary>
         /// <param name="path">The path.</param>
-        public FtpPath(string path)
+        /// <param name="dontRoot">if set to <c>true</c> use no root.</param>
+        public FtpPath(string path, bool dontRoot = false)
         {
-            // only constraint: a rooted path
-            if (path.StartsWith(Separator.ToString()))
+            // only constraint: a rooted path, except stated otherwise
+            if (path.StartsWith(Separator.ToString()) || dontRoot)
                 _path = path;
             else
                 _path = Separator + path;
