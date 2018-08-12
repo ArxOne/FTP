@@ -176,8 +176,10 @@ namespace ArxOne.Ftp
                     _serverType = FtpServerType.Unix;
                 else if (system.StartsWith("windows", StringComparison.InvariantCultureIgnoreCase))
                     _serverType = FtpServerType.Windows;
-                else
-                    _serverType = FtpServerType.Unknown;
+				else if (system.StartsWith("mvs", StringComparison.InvariantCultureIgnoreCase))
+					_serverType = FtpServerType.MVS;
+				else
+					_serverType = FtpServerType.Unknown;
             }
             return _serverType.Value;
         }
@@ -357,7 +359,9 @@ namespace ArxOne.Ftp
                     return new UnixFtpPlatform();
                 case FtpServerType.Windows:
                     return new WindowsFtpPlatform();
-                default:
+				case FtpServerType.MVS:
+					return new MVSFtpPlatform();
+				default:
                     throw new ArgumentOutOfRangeException("serverType", serverType, null);
             }
         }

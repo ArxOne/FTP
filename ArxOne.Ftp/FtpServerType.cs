@@ -24,5 +24,9 @@ namespace ArxOne.Ftp
         /// Windows
         /// </summary>
         Windows,
+		/// <summary>
+		/// z/OS and MVS
+		/// </summary>
+		MVS,
     }
 }
