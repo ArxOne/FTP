@@ -136,7 +136,6 @@
     <None Include="..\ArxOne.Ftp\Properties\ArxOne.Ftp.snk">
       <Link>Properties\ArxOne.Ftp.snk</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CerberusPlatformTest.tt">
@@ -149,6 +148,7 @@
     </None>
     <Content Include="PlatformTest.Init.tt" />
     <Content Include="PlatformTest.tt" />
+    <None Include="packages.config" />
     <None Include="PureftpdPlatformTest.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>PureftpdPlatformTest.auto.cs</LastGenOutput>
@@ -166,12 +166,12 @@
     <PostBuildEvent>if exist "$(SolutionDir)credentials.txt" copy "$(SolutionDir)credentials.txt" "$(TargetDir)"
 </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets" Condition="Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" />
+  <Import Project="..\packages\Clarius.TransformOnBuild.1.21.0\build\Clarius.TransformOnBuild.targets" Condition="Exists('..\packages\Clarius.TransformOnBuild.1.21.0\build\Clarius.TransformOnBuild.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Clarius.TransformOnBuild.1.1.12\build\Clarius.TransformOnBuild.targets'))" />
+    <Error Condition="!Exists('..\packages\Clarius.TransformOnBuild.1.21.0\build\Clarius.TransformOnBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Clarius.TransformOnBuild.1.21.0\build\Clarius.TransformOnBuild.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
