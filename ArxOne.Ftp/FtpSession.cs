@@ -327,7 +327,7 @@ namespace ArxOne.Ftp
             var credential = Connection.Client.Credential != null && !String.IsNullOrEmpty(Connection.Client.Credential.UserName)
                 ? Connection.Client.Credential
                 : new NetworkCredential("anonymous", Connection.Client.AnonymousPassword);
-            var userResult = Expect(SendCommand(ProtocolStream, "USER", credential.UserName), 331, 530);
+            var userResult = Expect(SendCommand(ProtocolStream, "USER", credential.UserName), 230, 331, 530);
             if (userResult.Code == 530)
                 throw new FtpAuthenticationException("No anonymous user allowed", userResult.Code);
             var passResult = SendCommand(ProtocolStream, "PASS", credential.Password);
