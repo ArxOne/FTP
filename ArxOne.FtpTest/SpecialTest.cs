@@ -7,6 +7,7 @@
 
 namespace ArxOne.FtpTest
 {
+    using System;
     using Ftp;
     using Ftp.Exceptions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +15,6 @@ namespace ArxOne.FtpTest
     [TestClass]
     public class SpecialTest
     {
-
         [TestCategory("Platform")]
         [TestProperty("Platform", "Xlight FTP")]
         [TestProperty("Protocol", "FTP")]
@@ -37,5 +37,18 @@ namespace ArxOne.FtpTest
             }
         }
 
+        [TestProperty("Protocol", "FTP")]
+        [TestMethod]
+        public void SpecificBrownEduTest()
+        {
+            //using (var ftpClient = new FtpClient(new Uri("ftp://speedtest.tele2.net"), null, new FtpClientParameters()
+            using (var ftpClient = new FtpClient(new Uri("ftp://ftp.cs.brown.edu"), null, new FtpClientParameters()
+            {
+                Passive = false,
+            }))
+            {
+                var entries = ftpClient.MlsdEntries(""); //.Mlsd(new FtpPath("/"));
+            }
+        }
     }
 }
