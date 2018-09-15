@@ -37,6 +37,7 @@ namespace ArxOne.FtpTest
             }
         }
 
+#if DEBUG
         [TestProperty("Protocol", "FTP")]
         [TestMethod]
         public void SpecificBrownEduTest()
@@ -50,5 +51,6 @@ namespace ArxOne.FtpTest
                 var entries = ftpClient.MlsdEntries(""); //.Mlsd(new FtpPath("/"));
             }
         }
+#endif
     }
 }
