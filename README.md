@@ -65,7 +65,7 @@ using (var ftpClient = new FtpClient(new Uri("ftp://server"), new NetworkCredent
         // sending a custom command
         var ftpReply = ftpSession.SendCommand("STUFF", "here", "now");
         // checkin the result. The Expect method returns the FtpReply, so SendCommand() and Expect() can be nested.
-        FtpSession.Expect(ftpReply, 200, 250);
+        ftpSession.Expect(ftpReply, 200, 250);
     }
 }
 ```
