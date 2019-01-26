@@ -1,30 +1,5 @@
-#region Arx One FTP
-// Arx One FTP
-// A simple FTP client
-// https://github.com/ArxOne/FTP
-// Released under MIT license http://opensource.org/licenses/MIT
-#endregion
 
-using System;
-using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
-
-[assembly: AssemblyTitle("ArxOne Ftp")]
-
-[assembly: AssemblyDescription("A simple FTP/FTPS/FTPES client. Multi-connection and thread-safe."
-    + " Uses high-level methods but also supports direct command sending.")]
-[assembly: AssemblyCompany("Arx One")]
-[assembly: AssemblyProduct("ArxOne.Ftp")]
-[assembly: AssemblyCopyright("MIT license http://opensource.org/licenses/mit-license.php")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
-
-[assembly: AssemblyVersion("1.14.1")]
-[assembly: AssemblyFileVersion("1.14.1")]
-
-[assembly: CLSCompliant(true)]
 
 [assembly: InternalsVisibleTo("ArxOne.FtpTest, PublicKey="
 + "00240000048000009400000006020000002400005253413100040000010001002d2619dd0ee1ed"

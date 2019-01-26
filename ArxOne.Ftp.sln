@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxOne.Ftp", "ArxOne.Ftp\ArxOne.Ftp.csproj", "{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxOne.FtpTest", "ArxOne.FtpTest\ArxOne.FtpTest.csproj", "{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArxOne.Ftp", "ArxOne.Ftp\ArxOne.Ftp.csproj", "{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{28518DEC-7105-4F4B-B94F-A29675ED5BCE}"
 	ProjectSection(SolutionItems) = preProject
@@ -28,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Default.testsettings = Default.testsettings
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArxOne.FtpTest", "ArxOne.FtpTest\ArxOne.FtpTest.csproj", "{5475DE95-8E4D-4E40-89D3-19913546F228}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,12 +41,12 @@ Global
 		{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}.Release - plain|Any CPU.Build.0 = Release|Any CPU
 		{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FFE845D-2E4F-440E-8B9F-17AFCB9D166B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Release - plain|Any CPU.ActiveCfg = Release|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Release - plain|Any CPU.Build.0 = Release|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDC0C209-811B-4D40-AB8B-EB04A38EE99C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Release - plain|Any CPU.ActiveCfg = Release|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Release - plain|Any CPU.Build.0 = Release|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5475DE95-8E4D-4E40-89D3-19913546F228}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

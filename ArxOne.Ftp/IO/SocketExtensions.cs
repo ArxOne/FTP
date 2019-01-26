@@ -43,7 +43,7 @@ namespace ArxOne.Ftp.IO
         }
 
         /// <summary>
-        /// Async connexion.
+        /// Async connection.
         /// </summary>
         /// <param name="connect">The connect.</param>
         /// <param name="timeout">The timeout.</param>
@@ -61,7 +61,7 @@ namespace ArxOne.Ftp.IO
         }
 
         /// <summary>
-        /// Asyncs the connect.
+        /// Async connection.
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="connect">The connect.</param>
@@ -93,7 +93,7 @@ namespace ArxOne.Ftp.IO
         }
 
         /// <summary>
-        /// Asyncs the connect.
+        /// Async connection.
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="accept">The accept.</param>

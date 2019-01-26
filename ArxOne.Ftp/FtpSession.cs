@@ -183,8 +183,7 @@ namespace ArxOne.Ftp
             // ... transfer mode ('type')
             Connection.TransferMode = null;
 
-            string message;
-            var protocolStream = ConnectTransport(connectTimeout, readWriteTimeout, out message);
+            var protocolStream = ConnectTransport(connectTimeout, readWriteTimeout, out var message);
             if (protocolStream == null)
                 throw new FtpTransportException("Socket not connected to " + Connection.Client.Uri.Host + ", message=" + message);
             Connection.ProtocolStream = protocolStream;
@@ -226,7 +225,7 @@ namespace ArxOne.Ftp
                 message = se.ToString();
                 return null;
             }
-            // may be thrown by proxy connexion
+            // may be thrown by proxy connection
             catch (IOException se)
             {
                 message = se.ToString();
@@ -278,7 +277,7 @@ namespace ArxOne.Ftp
         }
 
         /// <summary>
-        /// Creates a data stream, optionnally secured.
+        /// Creates a data stream, optionally secured.
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <returns></returns>
