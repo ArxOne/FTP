@@ -6,7 +6,7 @@
     <PackageId>ArxOne.Ftp</PackageId>
     <Version>1.41.2</Version>
     <Company>Arx One</Company>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/ArxOne/FTP/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>MIT</PackageLicense>
     <PackageProjectUrl>https://github.com/ArxOne/FTP</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/ArxOne/FTP/master/Icon/ArxOne.Ftp.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/ArxOne/FTP.git</RepositoryUrl>
@@ -18,6 +18,7 @@
     <AssemblyName>ArxOne.Ftp</AssemblyName>
     <AssemblyOriginatorKeyFile>ArxOne.Ftp.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
