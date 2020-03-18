@@ -175,7 +175,8 @@ namespace ArxOne.Ftp.IO
                     {
                         Process(() => session.Expect(
                             226, // default ack
-                            150 // if the stream was opened but nothing was sent, then we still shall exit gracefully
+                            150, // if the stream was opened but nothing was sent, then we still shall exit gracefully
+                            250 // Mainframe will return 250
                             ));
                     }
                 }
