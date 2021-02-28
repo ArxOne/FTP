@@ -329,9 +329,12 @@ namespace ArxOne.Ftp
             var userResult = Expect(SendCommand(ProtocolStream, "USER", credential.UserName), 230, 331, 530);
             if (userResult.Code == 530)
                 throw new FtpAuthenticationException("No anonymous user allowed", userResult.Code);
-            var passResult = SendCommand(ProtocolStream, "PASS", credential.Password);
-            if (passResult.Code != 230)
+            if (userResult.Code != 230)
+            {
+              var passResult = SendCommand(ProtocolStream, "PASS", credential.Password);
+              if (passResult.Code != 230)
                 throw new FtpAuthenticationException("Authentication failed for user " + credential.UserName, passResult.Code);
+            }
 
             Connection.Client.OnConnectionInitialized();
         }
