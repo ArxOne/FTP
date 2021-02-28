@@ -4,7 +4,7 @@
     <TargetFrameworks>net40;netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <PackageId>ArxOne.Ftp</PackageId>
-    <Version>1.41.3</Version>
+    <Version>1.41.4</Version>
     <Company>Arx One</Company>
     <PackageLicense>MIT</PackageLicense>
     <PackageProjectUrl>https://github.com/ArxOne/FTP</PackageProjectUrl>
