@@ -356,6 +356,8 @@ namespace ArxOne.Ftp
                 case FtpServerType.Unix:
                     if (system.IndexOf("FileZilla", StringComparison.InvariantCultureIgnoreCase) >= 0)
                         return new WindowsFileZillaFtpPlatform();
+                    if (system.IndexOf("UNIX Type: L8", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        return new ProFTPdPlatform();
                     return new UnixFtpPlatform();
                 case FtpServerType.Windows:
                     return new WindowsFtpPlatform();
